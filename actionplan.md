@@ -127,7 +127,7 @@ flowchart TD
 * `core/auditors/rule_gatekeeper.py`
 * `tests/test_friction_gate.py`
 
-- [ ] **Task 3.1: Zerodha Fee Engine (`core/friction/zerodha.py`)**
+- [x] **Task 3.1: Zerodha Fee Engine (`core/friction/zerodha.py`)**
   - Calculate exact post-Oct 2024 costs for $N$-leg trades:
     - Brokerage: $N \times 2 \times ₹20$
     - STT: $0.1\%$ on sell-side option turnover
@@ -137,13 +137,13 @@ flowchart TD
     - GST: $18\%$ on (Brokerage + Exchange + SEBI)
     - Slippage: $1.5 \text{ pts} \times 75 \text{ qty} \times N$
   - Return dataclass `FrictionBreakdown(total_rupees, points_equivalent)`.
-- [ ] **Task 3.2: Deterministic Rule Gatekeeper (`core/auditors/rule_gatekeeper.py`)**
+- [x] **Task 3.2: Deterministic Rule Gatekeeper (`core/auditors/rule_gatekeeper.py`)**
   - Sub-microsecond validation:
     - Veto 1: Max loss $> ₹2,500$ (Capital cap).
     - Veto 2: Strike OI $< 100,000$ or Bid-Ask Spread $> 1.5$ pts (Liquidity).
     - Veto 3: Expected Gross Profit $< 2.0\times$ Friction Cost (Economic hurdle).
     - Veto 4: Out-of-sample $P_{\text{win}} < 55\%$ (Edge hurdle).
-- [ ] **Verification:** Run `python -m tests.test_friction_gate` asserting that an uneconomic trade ($EV < 2\times$ fees) is rejected.
+- [x] **Verification:** Run `python -m tests.test_friction_gate` asserting that an uneconomic trade ($EV < 2\times$ fees) is rejected.
 
 ---
 
@@ -156,28 +156,28 @@ flowchart TD
 * `core/strategies/audit_engine.py`
 * `tests/test_strategies.py`
 
-- [ ] **Task 4.1: Base Strategy Interface (`core/strategies/base.py`)**
+- [x] **Task 4.1: Base Strategy Interface (`core/strategies/base.py`)**
   - Methods: `evaluate_gates(signals)`, `select_strikes(chain)`, `calculate_ev(params)`.
-- [ ] **Task 4.2: Directional Debit Spread (`core/strategies/debit_spread.py`)**
+- [x] **Task 4.2: Directional Debit Spread (`core/strategies/debit_spread.py`)**
   - Bull Call: Price > VWAP, slope $>0$, KER $>0.55$, VIX $\le 16$. Long ATM ($\Delta \approx 0.50$), Short OTM ($\Delta \approx 0.25$).
   - Bear Put: Price < VWAP, slope $<0$, KER $>0.55$, VIX $\le 16$. Long ATM ($\Delta \approx 0.50$), Short OTM ($\Delta \approx 0.25$).
   - Stop-loss: 35% of net debit.
-- [ ] **Task 4.3: Directional Credit Spread (`core/strategies/credit_spread.py`)**
+- [x] **Task 4.3: Directional Credit Spread (`core/strategies/credit_spread.py`)**
   - Bull Put: Supported by Put Wall, moderate slope, VIX $\ge 13$, rich IV spread. Buy deep OTM hedge first ($\Delta \approx 0.10$), Sell short put ($\Delta \approx 0.22$).
   - Bear Call: Capped by Call Wall, moderate slope, VIX $\ge 13$, rich IV spread. Buy deep OTM hedge first ($\Delta \approx 0.10$), Sell short call ($\Delta \approx 0.22$).
   - Stop-loss: 1.4x of credit received.
-- [ ] **Task 4.4: Range-Bound Iron Condor (`core/strategies/iron_condor.py`)**
+- [x] **Task 4.4: Range-Bound Iron Condor (`core/strategies/iron_condor.py`)**
   - 4 legs: Buy OTM Put & Call hedges first ($\Delta \approx 0.08$), Sell short wings at Put/Call walls ($\Delta \approx 0.20$).
   - Gates: Price inside ORB-30, KER $<0.35$, flat VWAP.
   - Stop-loss: 1.4x net credit collected.
-- [ ] **Task 4.5: Comparative 3-Strategy Audit Engine (`core/strategies/audit_engine.py`)**
+- [x] **Task 4.5: Comparative 3-Strategy Audit Engine (`core/strategies/audit_engine.py`)**
   - Evaluates all 3 strategies simultaneously.
   - Outputs `AuditReport` containing:
     - Selected Strategy (highest friction-adjusted EV).
     - Status for all 3 strategies (`SELECTED` vs `REJECTED`).
     - Explicit invalidation reason for the other two.
     - If no strategy passes, sets verdict to `TIER 0: NO TRADE`.
-- [ ] **Verification:** Run `python -m tests.test_strategies` asserting that a trend breakout rejects Iron Condor with reason `"KER breaches max chop threshold"`.
+- [x] **Verification:** Run `python -m tests.test_strategies` asserting that a trend breakout rejects Iron Condor with reason `"KER breaches max chop threshold"`.
 
 ---
 
@@ -188,17 +188,17 @@ flowchart TD
 * `core/ui/telegram_push.py`
 * `tests/test_execution_ui.py`
 
-- [ ] **Task 5.1: Zerodha Basket Builder (`core/execution/basket_builder.py`)**
+- [x] **Task 5.1: Zerodha Basket Builder (`core/execution/basket_builder.py`)**
   - Generates Kite Basket JSON with strict execution sequencing: **Long/Hedge legs 1st**, Short legs 2nd.
   - Generates Kite Publisher one-click deep link for mobile execution.
-- [ ] **Task 5.2: Multi-Panel Rich Terminal UI (`core/ui/terminal_rich.py`)**
+- [x] **Task 5.2: Multi-Panel Rich Terminal UI (`core/ui/terminal_rich.py`)**
   - Panel 1: Telemetry & Microstructure Diagnostics (Spot, VWAP slope, ORB status, VIX, Walls).
   - Panel 2: Mandatory 3-Strategy Comparative Audit Table (showing pass/fail reasons for each).
   - Panel 3: Recommended Zerodha Basket Order Sheet with Breakeven and Stop-Loss points.
-- [ ] **Task 5.3: Telegram Bot Dispatcher (`core/ui/telegram_push.py`)**
+- [x] **Task 5.3: Telegram Bot Dispatcher (`core/ui/telegram_push.py`)**
   - Direct HTTPS call to `api.telegram.org` using standard library `urllib.request` (zero pip bot frameworks).
   - Formats clean markdown trade card with one-click basket link.
-- [ ] **Verification:** Run `python -m tests.test_execution_ui` verifying JSON basket format and terminal table rendering.
+- [x] **Verification:** Run `python -m tests.test_execution_ui` verifying JSON basket format and terminal table rendering.
 
 ---
 
@@ -206,14 +206,14 @@ flowchart TD
 **Target Files:**
 * [run_engine.py](file:///d:/Code/dhanopt/run_engine.py)
 
-- [ ] **Task 6.1: Master Pipeline Orchestration**
+- [x] **Task 6.1: Master Pipeline Orchestration**
   - Parse CLI arguments: `--mock`, `--timestamp`, `--silent`.
   - Identify current weekday and evaluate against the weekday seasonality window.
   - Fetch candles from 09:15 up to $T_{\text{now}}$.
   - Compute signals $\to$ Execute `AuditEngine` $\to$ Validate through `RuleGatekeeper`.
   - If approved: generate basket order, print Rich terminal report, and push Telegram card.
   - If unconfirmed / off-window: print `STAND BY` report detailing trigger levels and next window.
-- [ ] **Verification:** Run `python run_engine.py --mock --timestamp "10:15"` and assert output generates clean terminal panels without exceptions.
+- [x] **Verification:** Run `python run_engine.py --mock --timestamp "10:15"` and assert output generates clean terminal panels without exceptions.
 
 ---
 
@@ -223,13 +223,13 @@ flowchart TD
 * `core/journal/recorder.py`
 * `data/trade_journal.sqlite`
 
-- [ ] **Task 7.1: SQLite Trade Telemetry Journal (`core/journal/recorder.py`)**
+- [x] **Task 7.1: SQLite Trade Telemetry Journal (`core/journal/recorder.py`)**
   - Table `trade_journal`: Trade ID, date, strategy, fill price, slippage, MAE, MFE, net PnL, charges, exit reason.
   - Closed-loop attribution: `REGIME_MISCLASSIFIED`, `VOL_CRUSH`, `SLIPPAGE_DRAG`, `CLEAN_WIN`.
-- [ ] **Task 7.2: Walk-Forward Engine (`backtest/engine.py`)**
+- [x] **Task 7.2: Walk-Forward Engine (`backtest/engine.py`)**
   - 16-fold rolling walk-forward test (12-month In-Sample, 3-month Out-of-Sample) using historical Bhavcopy Parquet files.
   - Export calibrated parameters to `data/calibrated_params.json`.
-- [ ] **Verification:** Run `python -m tests.test_journal` verifying SQLite insertion and MAE/MFE computation.
+- [x] **Verification:** Run `python -m tests.test_journal` verifying SQLite insertion and MAE/MFE computation.
 
 ---
 

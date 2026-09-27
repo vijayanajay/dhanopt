@@ -53,7 +53,7 @@ NIFTY_LOT_SIZE: int = 75
 STRIKE_INTERVAL: int = 50
 STRIKE_WINDOW: int = 300                 # +/- 300 points from ATM
 NIFTY_SECURITY_ID: int = 13              # DhanHQ underlying security ID for Nifty 50
-INDIA_VIX_SECURITY_ID: int = 26000       # DhanHQ security ID for India VIX
+INDIA_VIX_SECURITY_ID: int = 21          # DhanHQ security ID for India VIX (from Dhan scrip master)
 
 # --- Zerodha & Regulatory Cost Model (Post-Oct 2024 SEBI Norms) ---
 BROKERAGE_PER_LEG_PER_SIDE: float = 20.0 # ₹20 per executed leg per order

@@ -232,16 +232,21 @@ def generate_mock_option_chain(
 
 
 class DhanFeed(BaseMarketFeed):
-    """DhanHQ live market data feed with resilience and mock fallback."""
+    """DhanHQ live market data feed with resilience, rate limiting, and mock fallback."""
 
     def __init__(
         self,
         client_id: Optional[str] = None,
         access_token: Optional[str] = None,
         mock: Optional[bool] = None,
+        timeout: float = 10.0,
+        min_interval: float = 0.20,
     ) -> None:
         self.client_id = client_id or config.DHAN_CLIENT_ID
         self.access_token = access_token or config.DHAN_ACCESS_TOKEN
+        self.timeout_seconds = timeout
+        self.min_interval = min_interval
+        self._last_call_time: float = 0.0
         
         # If explicitly set, use mock parameter; else check config or missing credentials
         if mock is not None:
@@ -254,9 +259,21 @@ class DhanFeed(BaseMarketFeed):
             try:
                 ctx = DhanContext(self.client_id, self.access_token)
                 self.client = dhanhq(ctx)
+                # Configure custom socket timeout on underlying session (default is 60s)
+                if hasattr(self.client, "dhan_http") and hasattr(self.client.dhan_http, "timeout"):
+                    self.client.dhan_http.timeout = self.timeout_seconds
             except Exception as e:
                 logger.warning(f"Failed to initialize DhanHQ client: {e}. Falling back to mock mode.")
                 self.mock_mode = True
+
+    def _throttle(self) -> None:
+        """Enforces minimum interval between API calls to prevent HTTP 429 rate limit errors."""
+        now = time.monotonic() if hasattr(time, "monotonic") else datetime.now().timestamp()
+        elapsed = now - self._last_call_time
+        if elapsed < self.min_interval:
+            import time as _t
+            _t.sleep(self.min_interval - elapsed)
+        self._last_call_time = time.monotonic() if hasattr(time, "monotonic") else datetime.now().timestamp()
 
     @retry(
         stop=stop_after_attempt(5),
@@ -270,18 +287,22 @@ class DhanFeed(BaseMarketFeed):
         from_time: str = "09:15",
         to_time: Optional[str] = None,
         interval: int = 5,
+        trade_date: Optional[date] = None,
     ) -> pd.DataFrame:
         """Fetch intraday OHLCV candles from DhanHQ or mock generator."""
         if self.mock_mode or not self.client:
             return generate_mock_candles(
                 symbol=symbol,
+                trade_date=trade_date,
                 from_time=from_time,
                 to_time=to_time or datetime.now().strftime("%H:%M"),
                 interval=interval,
             )
             
-        # Live DhanHQ API call
-        today_str = date.today().strftime("%Y-%m-%d")
+        # Live DhanHQ API call with rate-limiting guardrail
+        self._throttle()
+        target_date = trade_date or date.today()
+        today_str = target_date.strftime("%Y-%m-%d")
         resp = self.client.intraday_minute_data(
             security_id=str(config.NIFTY_SECURITY_ID),
             exchange_segment="IDX_I",
@@ -296,12 +317,46 @@ class DhanFeed(BaseMarketFeed):
             raise RuntimeError(f"DhanHQ intraday_minute_data failed: {resp}")
             
         data = resp["data"]
+        if isinstance(data, dict) and "data" in data and isinstance(data["data"], dict):
+            data = data["data"]
+
         timestamps = data.get("start_Time") or data.get("timestamp", [])
         opens = data.get("open", [])
         highs = data.get("high", [])
         lows = data.get("low", [])
         closes = data.get("close", [])
         volumes = data.get("volume", [0] * len(opens))
+
+        # ponytail: If today is a weekend or closed market and returns 0 candles,
+        # automatically retrieve the most recent active trading session (e.g. Friday).
+        if len(opens) == 0 and trade_date is None:
+            for days_back in range(1, 5):
+                fb_date = target_date - timedelta(days=days_back)
+                if fb_date.weekday() < 5:  # Mon-Fri
+                    fb_str = fb_date.strftime("%Y-%m-%d")
+                    self._throttle()
+                    fb_resp = self.client.intraday_minute_data(
+                        security_id=str(config.NIFTY_SECURITY_ID),
+                        exchange_segment="IDX_I",
+                        instrument_type="INDEX",
+                        from_date=fb_str,
+                        to_date=fb_str,
+                        interval=interval,
+                        oi=False,
+                    )
+                    if fb_resp and fb_resp.get("status") == "success" and "data" in fb_resp:
+                        fb_data = fb_resp["data"]
+                        if isinstance(fb_data, dict) and "data" in fb_data and isinstance(fb_data["data"], dict):
+                            fb_data = fb_data["data"]
+                        if len(fb_data.get("open", [])) > 0:
+                            data = fb_data
+                            timestamps = data.get("start_Time") or data.get("timestamp", [])
+                            opens = data.get("open", [])
+                            highs = data.get("high", [])
+                            lows = data.get("low", [])
+                            closes = data.get("close", [])
+                            volumes = data.get("volume", [0] * len(opens))
+                            break
         
         records = []
         for i in range(len(opens)):
@@ -352,18 +407,26 @@ class DhanFeed(BaseMarketFeed):
         # Discover expiry if not provided
         exp_str = expiry
         if not exp_str:
+            self._throttle()
             exp_resp = self.client.expiry_list(
                 under_security_id=config.NIFTY_SECURITY_ID,
                 under_exchange_segment="IDX_I",
             )
             if exp_resp and exp_resp.get("status") == "success":
-                exp_list = exp_resp.get("data", [])
+                exp_data = exp_resp.get("data", [])
+                if isinstance(exp_data, dict) and "data" in exp_data:
+                    exp_list = exp_data["data"]
+                elif isinstance(exp_data, list):
+                    exp_list = exp_data
+                else:
+                    exp_list = []
                 if exp_list:
                     exp_str = str(exp_list[0])
                     
         if not exp_str:
             raise ValueError("Unable to determine option chain expiry date from DhanHQ")
             
+        self._throttle()
         resp = self.client.option_chain(
             under_security_id=config.NIFTY_SECURITY_ID,
             under_exchange_segment="IDX_I",
@@ -374,8 +437,13 @@ class DhanFeed(BaseMarketFeed):
             raise RuntimeError(f"DhanHQ option_chain API returned failure: {resp}")
             
         data = resp["data"]
-        spot_price = float(data.get("last_price", 25200.0))
-        oc_dict = data.get("oc", {})
+        if isinstance(data, dict) and "data" in data and isinstance(data["data"], dict):
+            payload = data["data"]
+        else:
+            payload = data
+
+        spot_price = float(payload.get("last_price", 25200.0))
+        oc_dict = payload.get("oc", {})
         
         atm_strike = round(spot_price / config.STRIKE_INTERVAL) * config.STRIKE_INTERVAL
         min_strike = atm_strike - config.STRIKE_WINDOW
@@ -405,8 +473,8 @@ class DhanFeed(BaseMarketFeed):
                     option_type=opt_upper,
                     expiry=exp_str,
                     ltp=float(side_data.get("last_price", 0.0)),
-                    bid=float(side_data.get("top_bid", 0.0)),
-                    ask=float(side_data.get("top_ask", 0.0)),
+                    bid=float(side_data.get("top_bid_price") or side_data.get("top_bid") or 0.0),
+                    ask=float(side_data.get("top_ask_price") or side_data.get("top_ask") or 0.0),
                     oi=int(side_data.get("oi", 0)),
                     prev_oi=int(side_data.get("previous_oi", 0)),
                     volume=int(side_data.get("volume", 0)),
@@ -430,10 +498,14 @@ class DhanFeed(BaseMarketFeed):
         if self.mock_mode or not self.client:
             return 25240.50
             
+        self._throttle()
         resp = self.client.ohlc_data({"IDX_I": [config.NIFTY_SECURITY_ID]})
         if resp and resp.get("status") == "success":
-            data = resp.get("data", {}).get("IDX_I", {})
-            for _, item in data.items():
+            data = resp.get("data", {})
+            if isinstance(data, dict) and "data" in data and isinstance(data["data"], dict):
+                data = data["data"]
+            idx_dict = data.get("IDX_I", {})
+            for _, item in idx_dict.items():
                 if "last_price" in item:
                     return float(item["last_price"])
         return 25240.50
@@ -443,10 +515,15 @@ class DhanFeed(BaseMarketFeed):
         if self.mock_mode or not self.client:
             return 13.20
             
+        self._throttle()
         resp = self.client.ohlc_data({"IDX_I": [config.INDIA_VIX_SECURITY_ID]})
         if resp and resp.get("status") == "success":
-            data = resp.get("data", {}).get("IDX_I", {})
-            for _, item in data.items():
+            data = resp.get("data", {})
+            if isinstance(data, dict) and "data" in data and isinstance(data["data"], dict):
+                data = data["data"]
+            idx_dict = data.get("IDX_I", {})
+            for _, item in idx_dict.items():
                 if "last_price" in item:
                     return float(item["last_price"])
         return 13.20
+
