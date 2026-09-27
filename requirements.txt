@@ -1,0 +1,7 @@
+dhanhq>=2.0.0
+jugaad-data>=0.33.1
+pandas>=2.0.0
+rich>=13.0.0
+tenacity>=8.2.0
+python-dotenv>=1.0.0
+pyarrow>=14.0.0
