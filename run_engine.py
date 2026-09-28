@@ -22,6 +22,13 @@ from datetime import date, datetime, time
 from pathlib import Path
 from typing import Optional
 
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+        sys.stderr.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
+
 import config
 from core.execution.basket_builder import build_kite_basket
 from core.feeds.dhan import DhanFeed, generate_mock_candles, generate_mock_option_chain
@@ -102,7 +109,7 @@ def resolve_run_datetime(timestamp_arg: Optional[str]) -> datetime:
 
 
 def run_pipeline(
-    mock_mode: bool = True,
+    mock_mode: bool = False,
     run_dt: Optional[datetime] = None,
     trend: str = "bullish",
     lots: int = 1,

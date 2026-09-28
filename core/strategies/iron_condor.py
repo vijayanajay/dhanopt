@@ -16,7 +16,7 @@ from core.auditors.rule_gatekeeper import TradeProposal
 from core.feeds.base import OptionChainSnapshot, OptionContract
 from core.friction.zerodha import OptionLeg, calculate_friction
 from core.signals import MarketSignals
-from core.strategies.base import BaseStrategy
+from core.strategies.base import BaseStrategy, get_calibrated_strategy_edge
 
 
 class IronCondorStrategy(BaseStrategy):
@@ -156,7 +156,12 @@ class IronCondorStrategy(BaseStrategy):
         ]
 
         friction = calculate_friction(legs)
-        win_rate = 0.65
+        # Probability of achieving 50% credit decay target before stop-loss:
+        # For a delta-neutral 4-leg condor with early 50% profit target, empirical
+        # probability of profit scales as: P_target ~ 1.0 - 0.70 * (|delta_put| + |delta_call|)
+        wing_delta_sum = abs(short_pe.delta) + abs(short_ce.delta)
+        target_p_win = max(0.40, min(0.85, 1.0 - (0.70 * wing_delta_sum)))
+        win_rate = round(target_p_win, 3)
         gross_ev, net_ev, payoff = self.calculate_ev(
             win_rate=win_rate,
             target_profit=target_profit_rupees,

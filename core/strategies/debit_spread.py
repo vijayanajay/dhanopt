@@ -13,7 +13,7 @@ from core.auditors.rule_gatekeeper import TradeProposal
 from core.feeds.base import OptionChainSnapshot, OptionContract
 from core.friction.zerodha import OptionLeg, calculate_friction
 from core.signals import MarketSignals
-from core.strategies.base import BaseStrategy
+from core.strategies.base import BaseStrategy, get_calibrated_strategy_edge
 
 
 class DebitSpreadStrategy(BaseStrategy):
@@ -121,7 +121,11 @@ class DebitSpreadStrategy(BaseStrategy):
         ]
 
         friction = calculate_friction(legs)
-        win_rate = 0.58 if signals.orb.is_breakout else 0.56
+        strat_key = "Bull Call Spread" if is_bullish else "Bear Put Spread"
+        edge = get_calibrated_strategy_edge(strat_key)
+        base_wr = float(edge.get("win_rate", 0.70))
+        # Full empirical win rate when confirmed by ORB breakout; minor discount if anticipating
+        win_rate = base_wr if signals.orb.is_breakout else round(base_wr * 0.95, 3)
         gross_ev, net_ev, payoff = self.calculate_ev(
             win_rate=win_rate,
             target_profit=target_profit_rupees,

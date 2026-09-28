@@ -67,8 +67,10 @@ def normalize_bhavcopy_df(df: pd.DataFrame) -> pd.DataFrame:
         sym_key = next((k for k in ("TCKRSYMB", "FININSTRMACTLNM", "SYMBOL") if k in upper_cols), None)
         norm["symbol"] = df[upper_cols[sym_key]].astype(str).str.strip() if sym_key else ""
         inst_key = next((k for k in ("FININSTRMTP", "SGMT") if k in upper_cols), None)
-        norm["instrument"] = df[upper_cols[inst_key]].astype(str).str.strip() if inst_key else ""
-        exp_key = next((k for k in ("XPIRTNDT", "EXPIRY_DT") if k in upper_cols), None)
+        raw_inst = df[upper_cols[inst_key]].astype(str).str.strip() if inst_key else ""
+        inst_map = {"IDF": "FUTIDX", "IDO": "OPTIDX", "STF": "FUTSTK", "STO": "OPTSTK"}
+        norm["instrument"] = raw_inst.map(lambda x: inst_map.get(x, x))
+        exp_key = next((k for k in ("XPRYDT", "XPIRTNDT", "FININSTRMACTLXPRYDT", "EXPIRY_DT") if k in upper_cols), None)
         norm["expiry"] = df[upper_cols[exp_key]].astype(str).str.strip() if exp_key else ""
         strk_key = next((k for k in ("STRKPRIC", "STRIKE_PR") if k in upper_cols), None)
         norm["strike"] = pd.to_numeric(df[upper_cols[strk_key]], errors="coerce").fillna(0.0) if strk_key else 0.0
