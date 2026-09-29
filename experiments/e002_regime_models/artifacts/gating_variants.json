@@ -64,6 +64,21 @@
       "net_Bear Put Spread": 0.0,
       "n_Iron Condor": 306,
       "net_Iron Condor": 404703.0
+    },
+    "condor_ml_ev": {
+      "n": 306,
+      "net_total": 404703.0,
+      "avg_net": 1322.6,
+      "win_rate": 0.647,
+      "pf": 9.45,
+      "max_dd": 6439.0,
+      "max_dd_pct": 3.2,
+      "n_Bull Call Spread": 0,
+      "net_Bull Call Spread": 0.0,
+      "n_Bear Put Spread": 0,
+      "net_Bear Put Spread": 0.0,
+      "n_Iron Condor": 306,
+      "net_Iron Condor": 404703.0
     }
   }
 }

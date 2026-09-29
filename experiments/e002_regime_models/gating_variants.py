@@ -71,7 +71,7 @@ def r_pnl(month: pd.DataFrame, d: pd.Timestamp, arch: str) -> float:
 
 def run_variants(preds: pd.DataFrame, payoff: Dict[str, float]) -> Dict[str, Dict]:
     trades: Dict[str, List[Tuple[pd.Timestamp, str, float]]] = {
-        "ml_pwin_repro": [], "ml_ev": [], "condor_rule": [], "condor_ml": [],
+        "ml_pwin_repro": [], "ml_ev": [], "condor_rule": [], "condor_ml": [], "condor_ml_ev": [],
     }
     for _, month in preds.groupby(preds["date"].dt.to_period("M")):
         base = month[month["rule_signal"].isin(RULE_TO_ARCH)]
@@ -87,6 +87,11 @@ def run_variants(preds: pd.DataFrame, payoff: Dict[str, float]) -> Dict[str, Dic
             for _, r in flat.iterrows():
                 trades["condor_rule"].append((r["date"], CONDOR, r[PNL_COLUMNS[CONDOR]]))
             trades["condor_ml"] += pick_slots(month, k_condor, lambda r, a: r[f"lgbm__{a}"], [CONDOR])
+            # ponytail: within a single archetype, payoff is a constant multiplier, so
+            # P x payoff ranks identically to P — condor_ml_ev is a no-op by construction
+            # (kept as a self-demonstrating control; real EV choice is cross-archetype).
+            trades["condor_ml_ev"] += pick_slots(
+                month, k_condor, lambda r, a: float(r[f"lgbm__{a}"]) * payoff[a], [CONDOR])
 
     out: Dict[str, Dict] = {}
     for name, tl in trades.items():
@@ -120,7 +125,8 @@ def main() -> int:
     print("self-check OK: P(win) reproduction matches gating_sim.json ml_lgbm\n")
 
     order = [("ml_pwin_repro", "P(win) e002 (repro)"), ("ml_ev", "EV = P x payoff"),
-             ("condor_rule", "Condor only, rule days"), ("condor_ml", "Condor only, ML days")]
+             ("condor_rule", "Condor only, rule days"), ("condor_ml", "Condor only, ML days"),
+             ("condor_ml_ev", "Condor only, ML + EV")]
     print(f"{'policy':<26}{'n':>5}{'net':>11}{'avg':>8}{'wr':>7}{'pf':>7}{'maxDD':>9}{'DD%':>7}")
     for key, label in order:
         r = results[key]

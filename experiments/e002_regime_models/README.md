@@ -88,7 +88,9 @@ Run on the frozen OOS predictions (no retraining). Self-check: the P(win) policy
 | **EV = P(win) × payoff** | 919 | **+583,124** | **+634** | 50.4% | **2.79** | 28,873 (14.4%) |
 | Condor only, rule days | 306 | +273,871 | +895 | 50.7% | 5.20 | 5,729 (2.9%) |
 | **Condor only, ML days** | 306 | **+404,703** | **+1,323** | **64.7%** | 9.45 | **6,439 (3.2%)** |
+| Condor only, ML + EV | 306 | +404,703 | +1,323 | 64.7% | 9.45 | 6,439 (3.2%) |
 
 - **EV ranking works, by the expected mechanism.** Payoff multipliers frozen from pre-OOS e001 labels (Bull 0.88 / Bear 1.03 / Condor 2.21). Same 919 trades, same drawdown, +₹137k net — because multiplying by payoff pushes the allocation toward the condor (439 → 765 condor trades; spreads nearly vanish, n=25 bull). This is the one-line ranking-key upgrade the `ponytail` note in `walkforward.py` pointed at; adopt P×payoff over P alone.
 - **Condor-only gets 91% of the net with a fifth of the drawdown.** The two directional books bleed −₹60k combined inside the full ML book; dropping them costs 9% of net, cuts trades to a third (919 → 306), and max DD from 14.3% → 3.2%. Per-trade quality 486 → ₹1,323.
+- **EV + condor-only combined is a no-op by construction** (last row is bit-identical to condor-only ML): within a single archetype the payoff multiplier is a positive constant, so P×payoff ranks identically to P. EV ranking is a *cross-book* reallocation lever — the two upgrades answer the same allocation question from two sides and do not stack. Choose one: EV ranking if you keep all three books, condor-only if you want minimal surface.
 - **Caveat unchanged:** condor open→close numbers are the optimistic end (no intraday stop-out in the proxy) until e004 runs. PF 9.45 on n=306 is a slice of that same proxy — treat the *relative* comparison as robust and the absolute rupees as provisional.

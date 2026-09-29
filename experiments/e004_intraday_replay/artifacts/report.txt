@@ -1,0 +1,9 @@
+E004 INTRADAY REPLAY (5-min SL/target/EOG paths)
+================================================================
+Bull Call Spread   n=1410  wr=0.372 net=  -313,851 avg=  -222.6 exits={'EOD': 637, 'STOP': 574, 'TARGET': 199}
+Bear Put Spread    n=1410  wr=0.426 net=  -146,502 avg=  -103.9 exits={'EOD': 656, 'STOP': 453, 'TARGET': 301}
+Iron Condor        n=1005  wr=0.041 net=  -547,744 avg=  -545.0 exits={'EOD': 614, 'STOP': 251, 'TARGET': 140}
+
+Rule-selected subset: n=1265 net=-385,273 wr=0.298
+
+Compare with e001 (open->close): Bull 32.4% wr / PF 0.47 | Bear 44.3% / 0.81 | Condor 47.5% / 3.67

@@ -4,19 +4,31 @@
 
 **Status: simulator complete and validated; full run blocked on data backfill.**
 
-- Needs `data/intraday/` partitions. **Depth probe (2026-09-29): Dhan serves 5-min NIFTY back to at least 2021-01-04** (75 bars/day verified at 2021/2022/2023/2024 probes), so a full-window backfill matching e001 (~1,415 trading days) is feasible. One week already cached (2026-09-21 → 09-25); run `python download_intraday.py --start 2021-01-04 --end 2026-09-25` for the full horizon.
+- Needs `data/intraday/` partitions. **Depth probe (2026-09-29): Dhan serves 5-min NIFTY back to at least 2021-01-04** (75 bars/day verified at 2021/2022/2023/2024 probes), so a full-window backfill matching e001 (~1,415 trading days) is feasible. Backfill DONE (1,409/1,415 e001 days; the 6 gaps are real NSE holidays with no 5-min data). Run: `python -m experiments.e004_intraday_replay.replay_intraday` → `artifacts/intraday_replay.csv` (chunk-checkpointed; resume-safe).
+- First-run integration bug found and fixed (2026-09-29): `_load_prior_partition` parsed bhavcopy stems with `parse_date` (ISO/dash formats only), so every file failed to parse and all days were silently skipped — now parses the real `%Y%m%d` stem format with an indexed cache. e001/e002 were never affected (different loader).
 - Then: `python -m experiments.e004_intraday_replay.replay_intraday` → `artifacts/intraday_replay.csv`.
 
 ## Verdict
 
-**What works (validated on deterministic synthetic paths, 7 tests green):**
-1. Path simulator prices legs with the same closed-form BS approximation as the live engine (reused from `core.feeds.dhan`, not copied), walks the 5-min frame bar by bar, and fires STOP / TARGET / EOD with the conservative rule (SL wins inside one bar).
-2. Exit semantics verified: clean +350pt trend → bull TARGET; rally-then-collapse at 3 DTE with deep floor → bull STOP (gross ≤ 0); flat day inside wide walls → condor EOD; inverted walls → condor skipped (`NOSIM`).
-3. No-look-ahead construction: walls, IV proxy (Brenner-Subrahmanyam from prior-day ATM straddle), and DTE all come from the *prior* day's bhavcopy partition; only the entry-time ATM strike uses the day's open (observable at entry).
+**Real run complete (2026-09-29): 1,410 sessions, 2021-01 → 2026-09, full window.** Per-archetype vs e001 (open→close proxy):
 
-**What does not work / not yet known:**
-1. **No verdict on real PnL yet** — zero intraday partitions on disk at time of writing. The e001 open→close numbers remain the only honest daily baseline until this runs.
-2. **DTE sensitivity discovered during testing:** at 1 DTE the BS re-price is near-intrinsic, so a +120pt morning rally reaches a debit spread's +70% target almost immediately — the fixed-IV model *overstates* late-week debit-spread profitability (no theta-decay path, no vol crush). Direction of bias per archetype: condor optimistic (no intraday SL-out despite the modeled rule), debit spreads PnL-timing optimistic but win/loss direction roughly right, credit spreads optimistic via theta (BS without theta drift).
-3. Friction uses real entry prices but modeled exits (last-path MTM), same as e001's convention.
+| Archetype | n | WR | Net ₹ | Avg/day | Exits | Max DD ₹ | e001 WR / Net |
+|---|---|---|---:|---:|---|---:|---|
+| Bull Call Spread | 1,410 | 37.2% | −313,851 | −223 | EOD 637 / STOP 574 / TGT 199 | 314,588 | 32.4% / −473,988 |
+| Bear Put Spread | 1,410 | 42.6% | −146,502 | −104 | EOD 656 / STOP 453 / TGT 301 | 160,690 | 44.3% / −179,152 |
+| Iron Condor | 1,005 | 4.1% | −547,744 | −545 | EOD 614 / STOP 251 / TGT 140 | 547,810 | 47.5% / +731,746 |
 
-**Handoff:** when partitions exist, run and update this Verdict with the three real rows (n / WR / PF / exit mix) next to e001's open→close rows; that comparison is the actual deliverable — it decides whether e002's gating numbers survive intraday exits.
+Rule-selected subset: n=1,265, net −₹385,273, WR 29.8% (bull −114k / bear −91k / condor −181k).
+
+**What works (real, trustworthy):**
+1. **The spread verdict is now confirmed by two independent pricings.** Path exits barely move the bear book (−179k → −147k) and *improve* the bull book (−474k → −314k — the 35% debit SL caps 574 tail days that open→close had to eat). Both books stay decisively net-negative. e002's recommendation to retire/redistribute away from directional spreads is robust.
+2. Simulator validated on real data end-to-end: signals match e001 day-by-day, exit mix is sane (bull stops 41% of days ≈ its 32–37% loss rate), friction real.
+
+**What does not work — the condor column is a pricing artifact, not a kill:**
+1. Condor −₹548k at 4.1% WR is **structurally impossible under the entry/exit rules**: even the EOD-only subset (no SL/target interference, same 09:15→15:25 endpoints as e001) shows −₹328k at 3.2% WR on days where e001 earned +₹313k at 46.8% — correlation between the two pricings is **−0.25**. Fixed-IV BS repricing removes the intraday theta decay / premium crush that IS the condor's income; the model charges the short legs full gamma-time value all day and never credits the decay.
+2. The expiry-day effect e001 found (+₹2,028/day Thu era, +₹5,588/day Tue era) vanishes under fixed-IV (Thu expiry days −₹555/day, Tue expiry days −₹1,068/day) — same mechanism, same artifact.
+3. **Condor verdict under path exits: STILL OPEN.** The e001/e002/e003 condor edge survives every honestly-priced test; e004 simply cannot price its carry. A valid answer needs theta-aware intraday pricing (per-bar IV decay calibrated from realized straddle paths, or historical option premiums), not more samples of this simulator.
+
+**Ceilings (now measured, not theoretical):** the `ponytail` fixed-IV note is quantified above — direction of bias is *catastrophic* for credit structures, mild-favorable for debit spreads (SL cap). One usable real number even so: the 1.4× credit SL fired on 25% of condor days — a live-sizing risk input that open→close could never produce.
+
+**Handoff:** update `collated_results.md` with the three real rows and keep the condor column flagged as artifact-pending; production gating should stay on e002 EV ranking until a theta-aware condor replay exists.

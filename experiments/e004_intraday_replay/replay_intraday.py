@@ -64,16 +64,21 @@ def _safe_parse(e):
         return None
 
 
-def _load_prior_partition(historical_dir: Path, d) -> Optional[pd.DataFrame]:
-    """Loads the most recent bhavcopy partition strictly BEFORE day d."""
-    for f in sorted(historical_dir.glob("**/*.parquet"), reverse=True):
-        try:
-            fd = parse_date(f.stem.replace("fo_", "").replace(".parquet", ""))
-        except Exception:
-            continue
-        if fd and fd < d:
-            return pd.read_parquet(f)
-    return None
+def _load_prior_partition(historical_dir: Path, d, _cache: Dict = {}) -> Optional[pd.DataFrame]:
+    """Loads the most recent bhavcopy partition strictly BEFORE day d (stem date = YYYYMMDD)."""
+    if not _cache:
+        for f in historical_dir.glob("**/*.parquet"):
+            stem = f.stem
+            if stem.startswith("fo_") and len(stem) == 11 and stem[3:].isdigit():
+                try:
+                    fd = datetime.strptime(stem[3:], "%Y%m%d").date()
+                except ValueError:
+                    continue
+                _cache[fd] = f
+    prior_dates = sorted([fd for fd in _cache if fd < d])
+    if not prior_dates:
+        return None
+    return pd.read_parquet(_cache[prior_dates[-1]])
 
 
 def _iv_from_straddle(spot: float, atm: float, dte: float, straddle: float) -> float:
@@ -263,11 +268,26 @@ def main() -> int:
     if not dates:
         print("No intraday partitions found. Run: python download_intraday.py --start YYYY-MM-DD --end YYYY-MM-DD")
         return 1
-    print(f"Replaying {len(dates)} intraday sessions (SL/target/EOG paths)...")
 
-    df = run_days(dates, config.HISTORICAL_DATA_DIR)
-    ARTIFACTS.mkdir(parents=True, exist_ok=True)
-    df.to_csv(ARTIFACTS / "intraday_replay.csv", index=False)
+    # Chunked checkpointing: append after each chunk, skip already-replayed dates on re-run,
+    # so an interrupted full-window replay resumes instead of restarting from zero.
+    out_csv = ARTIFACTS / "intraday_replay.csv"
+    if out_csv.exists():
+        done = set(pd.read_csv(out_csv, usecols=["date"])["date"].map(parse_date))
+        dates = [d for d in dates if d not in done]
+        print(f"resuming: {len(done)} sessions already replayed")
+    if not dates:
+        df = pd.read_csv(out_csv)
+    else:
+        print(f"Replaying {len(dates)} intraday sessions (SL/target/EOG paths)...")
+        ARTIFACTS.mkdir(parents=True, exist_ok=True)
+        CHUNK = 60
+        for i in range(0, len(dates), CHUNK):
+            df = run_days(dates[i:i + CHUNK], config.HISTORICAL_DATA_DIR)
+            df.to_csv(out_csv, mode="a", header=not out_csv.exists(), index=False)
+            print(f"  {min(i + CHUNK, len(dates))}/{len(dates)} sessions done", flush=True)
+        df = pd.read_csv(out_csv)
+
     report = summarize(df)
     (ARTIFACTS / "report.txt").write_text(report + "\n", encoding="utf-8")
     print(report)
