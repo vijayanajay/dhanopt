@@ -120,14 +120,27 @@ At the *measured* stop rate the book survives: net nearly halves but **drawdown 
 
 ## Addendum 4 — Exit-aware gating: e005's real intraday condor PnLs replace the open→close labels (`gating_exit_aware.py`)
 
-The dte gating above prices condor trades with e001's open→close proxy. e005's validated replay supplies real exit outcomes for the condor column (both exit configs; e001 labels kept on e005's 88 skipped days; bull/bear stay on e001 labels — e004 confirmed them directionally). Same frozen gating machinery, dte features:
+The dte gating above prices condor trades with e001's open→close proxy. e005's validated replay supplies real exit outcomes for the condor column (both exit configs; e001 labels kept on e005's 88 skipped days; bull/bear stay on e001 labels — e004 confirmed them directionally). Same frozen gating machinery, dte features. Numbers below are from the regenerated (column-consistent) e005 artifact; an earlier version of this table used rows corrupted by a chunk-append column-order bug:
 
 | Policy | open→close | documented exits (SL+50% tgt) | drop-target exits (SL+EOD) |
 |---|---:|---:|---:|
-| baseline (rule) | +108,306 | **−60,988** (PF 0.89) | +115,628 |
-| ml_lgbm | +439,906 | +116,398 | +439,490 |
-| **ml_logistic (dte)** | +653,520 | +241,260 | **+650,052** (DD 18,746) |
-| EV-ranked lgbm | +646,433 | +250,057 | **+656,062** (PF 3.08, DD 14,581) |
-| condor-only ML | +498,382 | +230,564 | **+494,665** (PF 15.41, DD 2,336) |
+| baseline (rule) | +108,306 | **−42,980** (PF 0.92) | +106,839 |
+| ml_lgbm | +439,906 | +135,774 | +433,876 |
+| **ml_logistic (dte)** | +653,520 | +283,222 | **+649,104** (DD 18,746) |
+| EV-ranked lgbm | +646,433 | +267,130 | **+639,125** (PF 2.97, DD 14,581) |
+| condor-only ML | +498,382 | +245,225 | **+492,500** (PF 14.75, DD 2,336) |
 
-**Reading:** (1) Under the *documented* +50% profit target, the selector's edge largely evaporates — the target caps exactly the crush days the ML picks, and the naive rule's condor subset goes negative. (2) With the target dropped, every gating conclusion survives exit-awareness essentially unchanged — because e005 showed the 1.4× SL is a non-event and EOD exits reproduce the endpoint. **The ML edge was never an artifact of missing stops; the +50% cap is the single point of failure.** (3) Best exit-aware policies: EV-ranked lgbm +₹656k at 7.3% DD, condor-only ML +₹495k at 1.2% DD. Caveats: mixed exit world for bull/bear; drop-target column is a counterfactual (TARGET→endpoint reconstruction); 74 fallback days; best-of inflation across the policy panel still applies.
+**Reading:** (1) Under the *documented* +50% profit target, the selector's edge largely evaporates — the target caps exactly the crush days the ML picks, and the naive rule's condor subset goes negative. (2) With the target dropped, every gating conclusion survives exit-awareness essentially unchanged — because e005 showed the 1.4× SL is a non-event and EOD exits reproduce the endpoint. **The ML edge was never an artifact of missing stops; the +50% cap is the single point of failure.** (3) e005's target sweep refined the pick to **100% of credit** (flat optimum 100–200%); the drop-target column here approximates it. Caveats: mixed exit world for bull/bear; drop-target column is a counterfactual (TARGET→endpoint reconstruction); 74 fallback days; best-of inflation across the policy panel still applies.
+
+## Addendum 5 — Expiry-only gate (dte ≤ 1): Kailash Nadh's expiry-centric proposal, validated (`expiry_gate.py`)
+
+At the same monthly trade budget k (the rule's count), the ML condor book restricted to days with days-to-nearest-expiry ≤ 1 (375 of 920 OOS days) vs unrestricted — e005's clean exit-aware condor PnLs, both exit configs:
+
+| Book | n | Net ₹ | Avg/trade | WR | PF | Max DD (DD%) |
+|---|---:|---:|---:|---:|---:|---:|
+| documented, unrestricted | 847 | +301,360 | +356 | 50.5% | 2.58 | 9,362 (4.7%) |
+| **documented, expiry-only** | **371** | **+376,977** | **+1,016** | **75.5%** | **10.97** | **2,336 (1.2%)** |
+| drop-target, unrestricted | 847 | +676,387 | +799 | 50.6% | 4.51 | 9,459 (4.7%) |
+| **drop-target, expiry-only** | **371** | **+747,983** | **+2,016** | **76.5%** | **20.27** | **2,336 (1.2%)** |
+
+The expiry gate **adds money while more than halving the workload**: +25% net (documented) / +11% (drop-target), −56% trades, −75% drawdown. It also matches the reviewer's capital argument — the book is flat ~80% of days, freeing collateral for the liquid-fund yield play. Caveats: expiry-day-only selection is close to a calendar rule (the ML still chooses *which* expiry days and SKIPS some — the gate is a restriction, not a calendar); Tue-era 100% WR is a 52-day sample; the composition warning (e005 Add. 2 — inverted-wall days carry the edge) applies to every row here. e005 Add. 3 completes the picture: IV regime does not matter on expiry days, so the gate, not IV timing, is the right concentration.

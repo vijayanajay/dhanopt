@@ -55,6 +55,13 @@ STOP_FRAC, TARGET_FRAC = 1.40, 0.50
 N_BARS = 75  # full 09:15-15:30 session at 5-min bars
 WING_OFFSET = 150  # e001's CONDOR_WING_OFFSET
 
+# Fixed column order for chunked CSV appends: pandas to_csv(mode="a") does NOT align
+# columns across chunks, and a chunk whose first row is a NOLEG/NOSIM skip otherwise
+# writes its (differently ordered) frame under the first chunk's header.
+ROW_COLUMNS = ["date", "is_rule_day", "expiry", "exit_reason", "net_pnl", "bars_held",
+               "gross_pnl", "friction", "win", "net_delta", "credit",
+               "put_wall", "call_wall"]
+
 
 def _condor_legs_unconditional(put_wall: float, call_wall: float) -> List[dict]:
     """Legs exactly as e001 builds them: NO put_wall < atm < call_wall guard.
@@ -160,9 +167,14 @@ def build_sigma_path(sigma_prev_close: float, sigma_day_close: float, n_bars: in
 
 def simulate_theta_condor(candles: pd.DataFrame, legs: List[dict], entry_closes: List[float],
                           exit_closes: List[float], lot: int, dte0: float,
-                          spot_open: float) -> Dict:
+                          spot_open: float, target_frac: float = TARGET_FRAC,
+                          trail_time=None, trail_frac: float = None) -> Dict:
     """Walks the condor through the 5-min path: real greek response + theta glide
-    landing exactly on the real open->close endpoint PnL (see module docstring)."""
+    landing exactly on the real open->close endpoint PnL (see module docstring).
+    target_frac=None disables the profit target (SL + EOD only).
+    trail_time/trail_frac: decay-trailing exit — from trail_time (e.g. 14:00) onward,
+    close as soon as MTM >= trail_frac x credit (locks in decay, dodges late-day gamma).
+    """
     qty = lot
     ivs = [_implied_iv_safe(spot_open, l["strike"], l["is_call"], float(ec), dte0)
            for l, ec in zip(legs, entry_closes)]
@@ -187,7 +199,7 @@ def simulate_theta_condor(candles: pd.DataFrame, legs: List[dict], entry_closes:
     entry_credit = sum(e * qty for e, l in zip(entry_closes, legs) if l["action"] == "SELL") \
         - sum(e * qty for e, l in zip(entry_closes, legs) if l["action"] == "BUY")
     stop_level = -STOP_FRAC * abs(entry_credit)
-    target_level = TARGET_FRAC * abs(entry_credit)
+    target_level = target_frac * abs(entry_credit) if target_frac is not None else float("inf")
 
     n = len(candles)
     exit_reason, exit_bar = "EOD", n
@@ -201,6 +213,10 @@ def simulate_theta_condor(candles: pd.DataFrame, legs: List[dict], entry_closes:
         if mtm >= target_level:
             exit_reason, exit_bar = "TARGET", i + 1
             break
+        if trail_time is not None and trail_frac is not None and pd.notna(bar.get("timestamp")):
+            if bar["timestamp"].time() >= trail_time and mtm >= trail_frac * abs(entry_credit):
+                exit_reason, exit_bar = "TRAIL", i + 1
+                break
     gross_pnl = float(mtm_series[exit_bar - 1])
 
     from core.friction.zerodha import OptionLeg, calculate_friction
@@ -218,71 +234,106 @@ def simulate_theta_condor(candles: pd.DataFrame, legs: List[dict], entry_closes:
     }
 
 
-def run_days(dates: List, historical_dir: Path, cal: Dict, rule_days: set) -> pd.DataFrame:
+def prepare_day(d, cal: Dict, rule_days: set) -> Optional[Dict]:
+    """All per-day inputs for the condor replay: walls, legs, real open/close anchors,
+    candles, greeks inputs. Returns None for unsimulatable days (mirrors e001's skips
+    with an exit_reason code)."""
+    d_date = d.date() if hasattr(d, "date") else d
+    ts = pd.Timestamp(d)
+    try:
+        candles = load_intraday_candles(d)
+    except FileNotFoundError:
+        return None
+    own_path = cal.get(d_date)  # day-d's own partition: entry opens, exit closes, e001 anchor
+    own_df = pd.read_parquet(own_path) if own_path else None
+    if own_df is None:
+        return None
+
+    # Walls + expiry from day-d's OWN chain — the exact convention of the e001 labels
+    # (walls = max-OI strike of the nearest expiry in the same partition). Matching it
+    # makes EOD exits comparable to e001 leg-for-leg; the no-look-ahead wall variant
+    # (t-1 OI) is a stricter design left to a follow-up.
+    nifty = own_df[(own_df["symbol"] == "NIFTY") & (own_df["instrument"].isin(["OPTIDX", "IDO"]))]
+    exps = [x for x in (_safe_exp(e) for e in nifty["expiry"].unique()) if x and x >= d_date]
+    if not exps:
+        return None
+    expiry = min(exps)
+    pe, ce = _chain_view(own_df, expiry)
+    if pe.empty or ce.empty:
+        return None
+    put_wall = float(pe.loc[pe["open_interest"].idxmax(), "strike"])
+    call_wall = float(ce.loc[ce["open_interest"].idxmax(), "strike"])
+    dte0 = max((expiry - d_date).days, 0.5)
+
+    legs = _condor_legs_unconditional(put_wall, call_wall)
+    spot_open = float(candles.iloc[0]["open"])
+
+    # Entry anchors = the leg OPEN prices of day d (observable at 09:15, e001's
+    # convention); exit anchors = the leg closes. Same chain/expiry, day-d partition.
+    e1_chain = pd.concat([pe, ce])
+
+    def _px_map(col: str) -> Dict:
+        m = {}
+        for _, r in e1_chain.iterrows():
+            k = (float(r["strike"]), str(r["option_type"]))  # strikes collide across PE/CE
+            if k not in m and float(r[col]) > 0:
+                m[k] = float(r[col])  # first row per (strike, type), e001's _ohlc_at convention
+        return m
+
+    open_map, exit_map = _px_map("open"), _px_map("close")
+    entry_closes = [open_map.get((float(l["strike"]), "PE" if not l["is_call"] else "CE")) for l in legs]
+    exit_closes = [exit_map.get((float(l["strike"]), "PE" if not l["is_call"] else "CE")) for l in legs]
+    if any(c is None or c <= 0 for c in entry_closes) or any(c is None or c < 0 for c in exit_closes):
+        return {"date": ts.isoformat(), "is_rule_day": ts in rule_days,
+                "expiry": expiry.isoformat(), "exit_reason": "NOLEG", "net_pnl": 0.0}
+    # e001 skips the day when the structure opens at zero-or-negative credit.
+    qty = lot_for_date(d)
+    credit = sum(entry_closes[i] * qty for i, l in enumerate(legs) if l["action"] == "SELL") \
+        - sum(entry_closes[i] * qty for i, l in enumerate(legs) if l["action"] == "BUY")
+    if credit <= 0:
+        return {"date": ts.isoformat(), "is_rule_day": ts in rule_days,
+                "expiry": expiry.isoformat(), "exit_reason": "NOSIM", "net_pnl": 0.0}
+
+    return {"date": ts.isoformat(), "is_rule_day": ts in rule_days, "expiry": expiry.isoformat(),
+            "candles": candles, "legs": legs, "entry": [float(c) for c in entry_closes],
+            "exit": [float(c) for c in exit_closes], "lot": qty, "dte0": dte0,
+            "spot_open": spot_open, "credit": credit,
+            "put_wall": put_wall, "call_wall": call_wall}
+
+
+def run_days(dates: List, cal: Dict, rule_days: set,
+             target_frac: float = TARGET_FRAC) -> pd.DataFrame:
     rows: List[Dict] = []
     for d in dates:
-        d_date = d.date() if hasattr(d, "date") else d
-        ts = pd.Timestamp(d)
-        try:
-            candles = load_intraday_candles(d)
-        except FileNotFoundError:
+        prep = prepare_day(d, cal, rule_days)
+        if prep is None:
             continue
-        own_df = cal.get(d_date)  # day-d's own partition: entry opens, exit closes, e001 anchor
-        own_df = pd.read_parquet(own_df) if own_df else None
-        if own_df is None:
+        if "exit_reason" in prep:  # NOLEG / NOSIM passthrough
+            rows.append(prep)
             continue
+        sim = simulate_theta_condor(prep["candles"], prep["legs"], prep["entry"], prep["exit"],
+                                    prep["lot"], prep["dte0"], prep["spot_open"], target_frac)
+        rows.append({k: v for k, v in prep.items() if k not in ("candles", "legs", "entry", "exit")} | sim)
+    return pd.DataFrame(rows, columns=ROW_COLUMNS)
 
-        # Walls + expiry from day-d's OWN chain — the exact convention of the e001 labels
-        # (walls = max-OI strike of the nearest expiry in the same partition). Matching it
-        # makes EOD exits comparable to e001 leg-for-leg; the no-look-ahead wall variant
-        # (t-1 OI) is a stricter design left to a follow-up.
-        nifty = own_df[(own_df["symbol"] == "NIFTY") & (own_df["instrument"].isin(["OPTIDX", "IDO"]))]
-        exps = [x for x in (_safe_exp(e) for e in nifty["expiry"].unique()) if x and x >= d_date]
-        if not exps:
+
+def run_days_multi_target(dates: List, cal: Dict, rule_days: set,
+                          target_fracs: List) -> Dict[float, List[Dict]]:
+    """Sweeps the profit-target level over the same prepared days (one prep per day)."""
+    out: Dict[float, List[Dict]] = {tf: [] for tf in target_fracs}
+    for d in dates:
+        prep = prepare_day(d, cal, rule_days)
+        if prep is None:
             continue
-        expiry = min(exps)
-        pe, ce = _chain_view(own_df, expiry)
-        if pe.empty or ce.empty:
-            continue
-        put_wall = float(pe.loc[pe["open_interest"].idxmax(), "strike"])
-        call_wall = float(ce.loc[ce["open_interest"].idxmax(), "strike"])
-        dte0 = max((expiry - d_date).days, 0.5)
-
-        legs = _condor_legs_unconditional(put_wall, call_wall)
-        base = {"date": ts.isoformat(), "is_rule_day": ts in rule_days, "expiry": expiry.isoformat()}
-
-        # Entry anchors = the leg OPEN prices of day d (observable at 09:15, e001's
-        # convention); exit anchors = the leg closes. Same chain/expiry, day-d partition.
-        pe_e, ce_e = _chain_view(own_df, expiry)
-        e1_chain = pd.concat([pe_e, ce_e])
-
-        def _px_map(col: str) -> Dict:
-            m = {}
-            for _, r in e1_chain.iterrows():
-                k = (float(r["strike"]), str(r["option_type"]))  # strikes collide across PE/CE
-                if k not in m and float(r[col]) > 0:
-                    m[k] = float(r[col])  # first row per (strike, type), e001's _ohlc_at convention
-            return m
-
-        open_map, exit_map = _px_map("open"), _px_map("close")
-        entry_closes = [open_map.get((float(l["strike"]), "PE" if not l["is_call"] else "CE")) for l in legs]
-        exit_closes = [exit_map.get((float(l["strike"]), "PE" if not l["is_call"] else "CE")) for l in legs]
-        if (any(c is None or c <= 0 for c in entry_closes)
-                or any(c is None or c < 0 for c in exit_closes)):
-            rows.append({**base, "exit_reason": "NOLEG", "net_pnl": 0.0})
-            continue
-        # e001 skips the day when the structure opens at zero-or-negative credit.
-        credit = sum(entry_closes[i] * lot_for_date(d) for i, l in enumerate(legs) if l["action"] == "SELL") \
-            - sum(entry_closes[i] * lot_for_date(d) for i, l in enumerate(legs) if l["action"] == "BUY")
-        if credit <= 0:
-            rows.append({**base, "exit_reason": "NOSIM", "net_pnl": 0.0})
-            continue
-
-        sim = simulate_theta_condor(candles, legs, [float(c) for c in entry_closes],
-                                    [float(c) for c in exit_closes], lot_for_date(d),
-                                    dte0, float(candles.iloc[0]["open"]))
-        rows.append({**base, **sim})
-    return pd.DataFrame(rows)
+        skip = "exit_reason" in prep
+        for tf in target_fracs:
+            if skip:
+                out[tf].append(prep)
+                continue
+            sim = simulate_theta_condor(prep["candles"], prep["legs"], prep["entry"], prep["exit"],
+                                        prep["lot"], prep["dte0"], prep["spot_open"], tf)
+            out[tf].append({k: v for k, v in prep.items() if k not in ("candles", "legs", "entry", "exit")} | sim)
+    return {tf: pd.DataFrame(rows, columns=ROW_COLUMNS) for tf, rows in out.items()}
 
 
 def summarize(df: pd.DataFrame) -> str:
@@ -340,7 +391,7 @@ def main() -> int:
         cal = _partition_calendar(config.HISTORICAL_DATA_DIR)
         CHUNK = 90
         for i in range(0, len(dates), CHUNK):
-            part = run_days(dates[i:i + CHUNK], config.HISTORICAL_DATA_DIR, cal, rule_days)
+            part = run_days(dates[i:i + CHUNK], cal, rule_days)
             part.to_csv(out_csv, mode="a", header=not out_csv.exists(), index=False)
             print(f"  {min(i + CHUNK, len(dates))}/{len(dates)} sessions done", flush=True)
         df = pd.read_csv(out_csv)

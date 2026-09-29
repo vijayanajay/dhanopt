@@ -1,0 +1,38 @@
+{
+  "documented_unrestricted": {
+    "n": 847,
+    "net_total": 301360.0,
+    "avg_net": 355.8,
+    "win_rate": 0.505,
+    "pf": 2.58,
+    "max_dd": 9362.0,
+    "max_dd_pct": 4.7
+  },
+  "documented_expiry_only": {
+    "n": 371,
+    "net_total": 376977.0,
+    "avg_net": 1016.1,
+    "win_rate": 0.755,
+    "pf": 10.97,
+    "max_dd": 2336.0,
+    "max_dd_pct": 1.2
+  },
+  "drop_target_unrestricted": {
+    "n": 847,
+    "net_total": 676387.0,
+    "avg_net": 798.6,
+    "win_rate": 0.506,
+    "pf": 4.51,
+    "max_dd": 9459.0,
+    "max_dd_pct": 4.7
+  },
+  "drop_target_expiry_only": {
+    "n": 371,
+    "net_total": 747983.0,
+    "avg_net": 2016.1,
+    "win_rate": 0.765,
+    "pf": 20.27,
+    "max_dd": 2336.0,
+    "max_dd_pct": 1.2
+  }
+}
