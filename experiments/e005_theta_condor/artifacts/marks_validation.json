@@ -1,0 +1,71 @@
+{
+  "session": "2026-09-25",
+  "expiry": "2026-09-29",
+  "opens_match_exactly": true,
+  "closes_match_last_trade": true,
+  "max_open_diff": 0.0,
+  "max_close_diff": 0.9,
+  "note": "candle opens == bhavcopy opens exactly on every validated leg; closes differ only by last-trade vs settlement timing (<10 pts on the far OTM wing); the 'inverted' walls on 2026-09-25 are prior-OI walls above a spot that crashed between 09-22 and 09-25 (futures open 23,302), and the short wall put's crash-inflated premium crushing on expiry is a real, mechanically-explained post-crash short-vol effect. Composition warning stands but stale-mark contamination is excluded for this session.",
+  "legs": [
+    {
+      "leg": "PE 23500",
+      "dhan_bars": 75,
+      "dhan_open": 428.7,
+      "dhan_close": 322.3,
+      "bhav_open": 428.7,
+      "bhav_close": 323.2,
+      "open_diff": 0.0,
+      "close_diff": -0.9
+    },
+    {
+      "leg": "CE 23500",
+      "dhan_bars": 75,
+      "dhan_open": 14.95,
+      "dhan_close": 12.4,
+      "bhav_open": 14.95,
+      "bhav_close": 12.5,
+      "open_diff": 0.0,
+      "close_diff": -0.1
+    },
+    {
+      "leg": "PE 23250",
+      "dhan_bars": 75,
+      "dhan_open": 215.85,
+      "dhan_close": 127.75,
+      "bhav_open": 215.85,
+      "bhav_close": 127.95,
+      "open_diff": 0.0,
+      "close_diff": -0.2
+    },
+    {
+      "leg": "CE 23650",
+      "dhan_bars": 75,
+      "dhan_open": 6.9,
+      "dhan_close": 5.3,
+      "bhav_open": 6.9,
+      "bhav_close": 5.3,
+      "open_diff": 0.0,
+      "close_diff": 0.0
+    },
+    {
+      "leg": "PE 23400",
+      "dhan_bars": 75,
+      "dhan_open": 336.9,
+      "dhan_close": 234.8,
+      "bhav_open": 336.9,
+      "bhav_close": 234.4,
+      "open_diff": 0.0,
+      "close_diff": 0.4
+    },
+    {
+      "leg": "CE 23400",
+      "dhan_bars": 75,
+      "dhan_open": 27.95,
+      "dhan_close": 24.35,
+      "bhav_open": 27.95,
+      "bhav_close": 24.7,
+      "open_diff": 0.0,
+      "close_diff": -0.35
+    }
+  ]
+}

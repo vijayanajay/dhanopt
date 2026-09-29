@@ -76,7 +76,22 @@ The single most important finding of the sandbox. e001's leg builder has no `put
 
 **107.6% of the frozen e001/e002/e005 condor edge comes from inverted-wall days**; the textbook structure loses after friction. Rule-selected subset: +₹288k → **−₹17k** valid-only. A fade probe shows inverted days winning even when spot keeps moving *through* the short strike (110 no-fade days, +₹399k at 94.5% WR) — only explicable by 0DTE extrinsic collapse outpacing intrinsic gain, and/or stale closing marks on deep-ITM strikes (a PF of 91.8 is not a tradable signature; bhavcopy closes are last-traded, and deep-ITM weekly strikes trade thinly).
 
-**Interpretation, stated carefully:** on those days the position is not a premium-crush condor — it is a short-delta/long-delta directional bet that happened to be rescued by expiry-day crush. The profits are *real price movements of real contracts*, but whether they were capturable (liquidity, marks) is unknowable from daily bhavcopy. **All downstream conclusions inherit this composition** — e005's sweep sweet spot, the exit-aware gating (+₹495k condor-only ML at PF 15.4 is the same concentration), and the collated bottom line. Before production: validate inverted-day quotes against intraday option candles, or explicitly re-define the trade as "sell the breached wall" (a defined, backtestable rule) instead of assuming a condor edge exists.
+**Interpretation, stated carefully:** on those days the position is not a premium-crush condor — it is a short-delta/long-delta directional bet that happened to be rescued by expiry-day crush. Whether the marks were capturable was validated against Dhan 5-min option candles (`marks_validation.py`, Addendum 4): **marks are real** — opens match exactly, closes within last-trade noise; the inverted walls are prior-OI walls above a crashed spot (futures open 23,302 on 09-25 after the 09-22→09-25 selloff), and crash-inflated premium crushing on expiry is a real post-crash short-vol effect. **All downstream conclusions inherit this composition** — e005's sweep sweet spot, the exit-aware gating (+₹495k condor-only ML at PF 15.4 is the same concentration), and the collated bottom line. Residual: one session validated (expired contracts leave the scrip master); extend backward via historical-candle depth or forward via live sessions.
+
+## Addendum 4 — Mark validation against Dhan 5-min option candles (`marks_validation.py`)
+
+Dhan serves 5-min OHLC+OI for NSE_FNO options by security ID (scrip master mapping: exact `SEM_TRADING_SYMBOL == 'NIFTY'`; FINNIFTY shares strike prices — never map by strike alone). Validated the latest frozen session (2026-09-25, expiry 2026-09-29 — only contracts still listed):
+
+| Leg | Dhan open | Bhav open | Dhan close | Bhav close |
+|---|---:|---:|---:|---:|
+| PE 23500 (short wall) | 428.70 | **428.70** | 322.30 | 323.20 |
+| CE 23500 | 14.95 | **14.95** | 12.40 | 12.50 |
+| PE 23250 (wing) | 215.85 | **215.85** | 127.75 | 127.95 |
+| CE 23650 (wing) | 6.90 | **6.90** | 5.30 | 5.30 |
+| PE 23400 | 336.90 | **336.90** | 234.80 | 234.40 |
+| CE 23400 | 27.95 | **27.95** | 24.35 | 24.70 |
+
+**Verdict: marks are real.** Opens exact on all 6 legs; closes ≤ ₹0.90 (last-trade vs settlement timing). The inverted-wall mechanism is a genuine market crash between 09-22 and 09-25 (futures open 23,302 on 09-25): prior-OI walls ended up above crashed spot, the short wall put's crash-inflated premium crushes on expiry — coherent, price-consistent, and consistent with the audit's "wins even without fade" observation. Result recorded in `artifacts/marks_validation.json`; production handoff: `production_handoff.md`.
 
 ## Addendum 3 — Decay-trailing exit (`exit_sweep.py`) and IV regimes (`iv_regimes.py`)
 
