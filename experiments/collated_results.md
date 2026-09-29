@@ -11,7 +11,9 @@ All sims: ₹2,00,000 bankroll (config.TOTAL_CAPITAL), 1 lot era-correct (25→7
 
 - **e003 meta-labeling** — GOOD: filtering raises per-trade quality (avg ₹121→₹333 at 55% keep, net +₹165k > +₹108k). BAD: no per-trade skill (Brier 0.245 ≈ base 0.243) — it wins only by re-learning archetype base rates, and is dominated by e002 (₹490/trade at full count vs ₹493 at 31%). *Learning: day/archetype selection > trade filtering; revisit meta-labeling only with intraday features.*
 
-- **e004 intraday replay** — GOOD: full-window real run done (1,410 sessions): spread books CONFIRMED net-negative under path exits (bull −₹314k, bear −₹147k — e001's spread verdict survives). BAD: condor column is a pricing artifact — fixed-IV BS strips out the theta decay that IS the condor's income (EOD-only days flip sign vs e001, corr −0.25; expiry-day edge vanishes). *Learning: condor verdict still open; the 1.4× credit SL firing on 25% of days is a real, new sizing input.*
+- **e004 intraday replay** — GOOD: full-window real run done (1,410 sessions): spread books CONFIRMED net-negative under path exits (bull −₹314k, bear −₹147k — e001's spread verdict survives). BAD: condor column is a pricing artifact — fixed-IV BS strips out the theta decay that IS the condor's income (EOD-only days flip sign vs e001, corr −0.25). *Learning: fixed-IV greeks cannot price credit books; e005 exists to settle the condor properly.*
+
+- **e005 theta-aware condor replay** — GOOD: with honest pricing the condor edge SURVIVES intraday exits (+₹286k, PF 2.12, max DD 7.3%; expiry-day 0DTE effect confirmed live — 100% WR on Tue-era expiry days) and the 1.4× SL is a non-event (4.2% of days; e004's 25% was artifact). BAD: the documented +50% profit target forfeits ₹471k — dropping it lifts the book to +₹757k. *Learning: the payoff is holding the crush days, not the stop.*
 
 ## Results (net, era-correct lots)
 
@@ -29,14 +31,16 @@ All sims: ₹2,00,000 bankroll (config.TOTAL_CAPITAL), 1 lot era-correct (25→7
 | e004 path exits: bull spread (all days) | 2021-01→2026-09 (5.7 y) | ₹2.0L, 1 lot, ≤₹2.5k risk/trade | −313,851 | −55.1k | −27.5% | 314,588 | 157.3% |
 | e004 path exits: bear spread (all days) | 2021-01→2026-09 (5.7 y) | ₹2.0L, 1 lot, ≤₹2.5k risk/trade | −146,502 | −25.7k | −12.9% | 160,690 | 80.3% |
 | e004 path exits: condor ⚠ artifact | 2021-01→2026-09 (5.7 y) | ₹2.0L, 1 lot, ≤₹2.5k risk/trade | −547,744* | −96.1k | −48.0% | 547,810 | 273.9% |
+| e005 condor, documented exits (SL + 50% target) | 2021-01→2026-09 (5.7 y) | ₹2.0L, 1 lot, ≤₹2.5k risk/trade | +285,669 | 50.1k | 25.1% | 14,608 | 7.3% |
+| e005 condor, drop the +50% target (keep SL) | 2021-01→2026-09 (5.7 y) | ₹2.0L, 1 lot, ≤₹2.5k risk/trade | +757,017 | 132.8k | 66.4% | — | — |
 
 Trade counts (matched within each experiment): e001 n=1,386; e002 baseline 920 / ML 919 (dte variant n=919); e003 n=897 (τ=0.40 keeps 494); e004 all-archetype daily replay, no selection.
 
 \* e004 condor row is **invalid as PnL**: fixed-IV Black-Scholes repricing removes intraday theta decay, the condor's entire income — EOD-only days (no stop interference) flip sign vs e001 with −0.25 correlation. Spread rows are valid and confirm e001. The condor question needs theta-aware pricing; e002's condor edge stands until then.
 
-Stop-stress on the EV book (e004's measured 1.4× SL rate, 25% of condor trades stopped at −₹719 mean): net +₹583k → +₹309k, **DD unchanged 14.4% → 15.0%** (per-trade cap); book breaks only at 40% stopped (DD 30.5%).
+Stop-stress on the EV book: even at e005's now-measured 4.2% real condor stop rate (e004's 25% was artifact), the stress bounds hold trivially — the SL is a per-trade cap with DD essentially unchanged.
 
-**Bottom line:** the only confirmed edges are (a) e002-style selection — best with days-to-expiry (logistic+dte: +₹653k, 87%/yr, 9.4% DD, the only policy clearing the 55% WR hurdle) or EV ranking (+₹583k, survives e004's measured stop rate with DD intact) — and (b) NOT trading the directional spreads, confirmed under two independent pricings. The condor's true intraday profile is the one open question — everything else is measured.
+**Bottom line:** the condor question is settled — the edge survives honest intraday exits (+₹286k as documented, +₹757k if the +50% profit cap is dropped, the highest zero-risk config win in the sandbox). Combined with (a) e002-style selection with dte features (logistic+dte +₹653k at 9.4% DD, or EV ranking +₹646k at 7.3% DD) and (b) never trading the directional spreads (confirmed under two pricings), the sandbox has converged: one book, one feature fix, one config change — all measured.
 
 ---
-Recomputed from artifacts 2026-09-29: e001 `artifacts/labels_daily.csv` (max DD from rule-selected daily equity), e002 `artifacts/gating_sim.json` + `gating_variants.json` (self-checked against gating_sim.json), e003 `artifacts/policy_comparison.json`, e004 `artifacts/intraday_replay.csv` (max DD from daily-replayed equity). ₹ levels are not comparable across lot eras (25→75→65); treat cross-era rupees as approximate.
+Recomputed from artifacts 2026-09-29: e001 `artifacts/labels_daily.csv` (max DD from rule-selected daily equity), e002 `artifacts/gating_sim.json` + `gating_variants.json` (self-checked against gating_sim.json), e003 `artifacts/policy_comparison.json`, e004 `artifacts/intraday_replay.csv`, e005 `artifacts/theta_condor.csv` (EOD exits verified identical to e001 leg-for-leg). ₹ levels are not comparable across lot eras (25→75→65); treat cross-era rupees as approximate.

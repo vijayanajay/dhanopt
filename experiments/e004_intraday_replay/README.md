@@ -27,8 +27,8 @@ Rule-selected subset: n=1,265, net −₹385,273, WR 29.8% (bull −114k / bear 
 **What does not work — the condor column is a pricing artifact, not a kill:**
 1. Condor −₹548k at 4.1% WR is **structurally impossible under the entry/exit rules**: even the EOD-only subset (no SL/target interference, same 09:15→15:25 endpoints as e001) shows −₹328k at 3.2% WR on days where e001 earned +₹313k at 46.8% — correlation between the two pricings is **−0.25**. Fixed-IV BS repricing removes the intraday theta decay / premium crush that IS the condor's income; the model charges the short legs full gamma-time value all day and never credits the decay.
 2. The expiry-day effect e001 found (+₹2,028/day Thu era, +₹5,588/day Tue era) vanishes under fixed-IV (Thu expiry days −₹555/day, Tue expiry days −₹1,068/day) — same mechanism, same artifact.
-3. **Condor verdict under path exits: STILL OPEN.** The e001/e002/e003 condor edge survives every honestly-priced test; e004 simply cannot price its carry. A valid answer needs theta-aware intraday pricing (per-bar IV decay calibrated from realized straddle paths, or historical option premiums), not more samples of this simulator.
+3. **Condor verdict under path exits: resolved by e005** (`experiments/e005_theta_condor/`) — with endpoint-anchored theta-aware pricing the condor edge survives intraday exits (+₹286k as documented, +₹757k without the +50% profit cap). e004's collapse is fully attributed to fixed-IV pricing.
 
 **Ceilings (now measured, not theoretical):** the `ponytail` fixed-IV note is quantified above — direction of bias is *catastrophic* for credit structures, mild-favorable for debit spreads (SL cap). One usable real number even so: the 1.4× credit SL fired on 25% of condor days — a live-sizing risk input that open→close could never produce.
 
-**Handoff:** update `collated_results.md` with the three real rows and keep the condor column flagged as artifact-pending; production gating should stay on e002 EV ranking until a theta-aware condor replay exists.
+**Handoff:** done — e005 settled the condor; see `experiments/e005_theta_condor/README.md` and the updated `collated_results.md`.
