@@ -1,0 +1,44 @@
+{
+  "baseline": {
+    "n": 920,
+    "net_total": 108306.0,
+    "avg_net": 117.7,
+    "win_rate": 0.408,
+    "pf": 1.2,
+    "max_dd": 67526.0,
+    "n_Bull Call Spread": 292,
+    "net_Bull Call Spread": -118480.0,
+    "n_Bear Put Spread": 301,
+    "net_Bear Put Spread": -47085.0,
+    "n_Iron Condor": 327,
+    "net_Iron Condor": 273871.0
+  },
+  "ml_lgbm": {
+    "n": 919,
+    "net_total": 446344.0,
+    "avg_net": 485.7,
+    "win_rate": 0.518,
+    "pf": 2.01,
+    "max_dd": 28543.0,
+    "n_Bull Call Spread": 115,
+    "net_Bull Call Spread": -34307.0,
+    "n_Bear Put Spread": 365,
+    "net_Bear Put Spread": -26418.0,
+    "n_Iron Condor": 439,
+    "net_Iron Condor": 507069.0
+  },
+  "ml_logistic": {
+    "n": 919,
+    "net_total": 376794.0,
+    "avg_net": 410.0,
+    "win_rate": 0.499,
+    "pf": 1.82,
+    "max_dd": 31025.0,
+    "n_Bull Call Spread": 67,
+    "net_Bull Call Spread": -19432.0,
+    "n_Bear Put Spread": 356,
+    "net_Bear Put Spread": -37461.0,
+    "n_Iron Condor": 496,
+    "net_Iron Condor": 433687.0
+  }
+}

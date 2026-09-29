@@ -1,0 +1,19 @@
+E001 LEAK-FREE REPLAY — HONEST BASELINE (decision from t-1 close, entry at day-t open)
+========================================================================================
+rows: 4245 | days with signal: 1414
+
+Per archetype, ALL days simulated:
+archetype              n  win_rate   avg_net   total_net      pf
+Bull Call Spread    1408     0.324    -336.6     -473988    0.47
+Bear Put Spread     1406     0.443    -127.4     -179152    0.81
+Iron Condor         1326     0.475     551.8      731746    3.67
+
+Rule-selected subset (what the t-1 momentum rule would actually have traded):
+  Bull Call Spread  n=479   wr=0.330  avg_net=  -320.7  total=   -153593  pf=0.5
+  Bear Put Spread   n=466   wr=0.459  avg_net=  -101.8  total=    -47421  pf=0.85
+  Iron Condor       n=441   wr=0.488  avg_net=   654.1  total=    288455  pf=4.33
+  TOTAL: n=1386  net=87,440  wr=0.424
+
+OLD BIASED ENGINE (for comparison — NOT valid): decision from day-t close = look-ahead.
+Old output: Bull 79.5% wr pf 12.41 | Bear 87.4% wr pf 26.16 | Condor 45.9% wr pf 7.03 | aggregate pf 22.17
+Expectation: honest numbers must land near ~50% wr / pf ~1. Anything far above suggests residual bias — investigate, don't celebrate.

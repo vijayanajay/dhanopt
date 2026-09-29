@@ -1,0 +1,1532 @@
+[
+  {
+    "fold": 1,
+    "test": "2023-01-01..2023-01-31",
+    "n": 21,
+    "metrics": {
+      "Bull Call Spread": {
+        "base_rate": 0.333,
+        "lgbm_brier": 0.2252,
+        "lgbm_acc": 0.619,
+        "logistic_brier": 0.2284,
+        "logistic_acc": 0.571,
+        "persistence_brier": 0.24,
+        "persistence_acc": 0.667
+      },
+      "Bear Put Spread": {
+        "base_rate": 0.667,
+        "lgbm_brier": 0.2624,
+        "lgbm_acc": 0.524,
+        "logistic_brier": 0.2636,
+        "logistic_acc": 0.571,
+        "persistence_brier": 0.24,
+        "persistence_acc": 0.667
+      },
+      "Iron Condor": {
+        "base_rate": 0.524,
+        "lgbm_brier": 0.2012,
+        "lgbm_acc": 0.667,
+        "logistic_brier": 0.2405,
+        "logistic_acc": 0.476,
+        "persistence_brier": 0.2648,
+        "persistence_acc": 0.476
+      }
+    }
+  },
+  {
+    "fold": 2,
+    "test": "2023-02-01..2023-02-28",
+    "n": 20,
+    "metrics": {
+      "Bull Call Spread": {
+        "base_rate": 0.2,
+        "lgbm_brier": 0.2378,
+        "lgbm_acc": 0.6,
+        "logistic_brier": 0.2086,
+        "logistic_acc": 0.7,
+        "persistence_brier": 0.16,
+        "persistence_acc": 0.8
+      },
+      "Bear Put Spread": {
+        "base_rate": 0.55,
+        "lgbm_brier": 0.277,
+        "lgbm_acc": 0.45,
+        "logistic_brier": 0.2462,
+        "logistic_acc": 0.45,
+        "persistence_brier": 0.31,
+        "persistence_acc": 0.55
+      },
+      "Iron Condor": {
+        "base_rate": 0.6,
+        "lgbm_brier": 0.2197,
+        "lgbm_acc": 0.6,
+        "logistic_brier": 0.2778,
+        "logistic_acc": 0.35,
+        "persistence_brier": 0.24,
+        "persistence_acc": 0.6
+      }
+    }
+  },
+  {
+    "fold": 3,
+    "test": "2023-03-01..2023-03-31",
+    "n": 21,
+    "metrics": {
+      "Bull Call Spread": {
+        "base_rate": 0.286,
+        "lgbm_brier": 0.2118,
+        "lgbm_acc": 0.714,
+        "logistic_brier": 0.2247,
+        "logistic_acc": 0.667,
+        "persistence_brier": 0.2857,
+        "persistence_acc": 0.714
+      },
+      "Bear Put Spread": {
+        "base_rate": 0.429,
+        "lgbm_brier": 0.2727,
+        "lgbm_acc": 0.429,
+        "logistic_brier": 0.2373,
+        "logistic_acc": 0.571,
+        "persistence_brier": 0.5714,
+        "persistence_acc": 0.429
+      },
+      "Iron Condor": {
+        "base_rate": 0.524,
+        "lgbm_brier": 0.2036,
+        "lgbm_acc": 0.714,
+        "logistic_brier": 0.222,
+        "logistic_acc": 0.667,
+        "persistence_brier": 0.2648,
+        "persistence_acc": 0.476
+      }
+    }
+  },
+  {
+    "fold": 4,
+    "test": "2023-04-01..2023-04-30",
+    "n": 17,
+    "metrics": {
+      "Bull Call Spread": {
+        "base_rate": 0.412,
+        "lgbm_brier": 0.2864,
+        "lgbm_acc": 0.529,
+        "logistic_brier": 0.2499,
+        "logistic_acc": 0.588,
+        "persistence_brier": 0.2871,
+        "persistence_acc": 0.588
+      },
+      "Bear Put Spread": {
+        "base_rate": 0.235,
+        "lgbm_brier": 0.1866,
+        "lgbm_acc": 0.706,
+        "logistic_brier": 0.1955,
+        "logistic_acc": 0.765,
+        "persistence_brier": 0.2071,
+        "persistence_acc": 0.765
+      },
+      "Iron Condor": {
+        "base_rate": 0.647,
+        "lgbm_brier": 0.2084,
+        "lgbm_acc": 0.529,
+        "logistic_brier": 0.2582,
+        "logistic_acc": 0.647,
+        "persistence_brier": 0.4282,
+        "persistence_acc": 0.353
+      }
+    }
+  },
+  {
+    "fold": 5,
+    "test": "2023-05-01..2023-05-31",
+    "n": 22,
+    "metrics": {
+      "Bull Call Spread": {
+        "base_rate": 0.409,
+        "lgbm_brier": 0.2556,
+        "lgbm_acc": 0.636,
+        "logistic_brier": 0.2565,
+        "logistic_acc": 0.591,
+        "persistence_brier": 0.2855,
+        "persistence_acc": 0.591
+      },
+      "Bear Put Spread": {
+        "base_rate": 0.455,
+        "lgbm_brier": 0.2634,
+        "lgbm_acc": 0.591,
+        "logistic_brier": 0.2672,
+        "logistic_acc": 0.5,
+        "persistence_brier": 0.2509,
+        "persistence_acc": 0.545
+      },
+      "Iron Condor": {
+        "base_rate": 0.591,
+        "lgbm_brier": 0.2644,
+        "lgbm_acc": 0.5,
+        "logistic_brier": 0.2528,
+        "logistic_acc": 0.545,
+        "persistence_brier": 0.2782,
+        "persistence_acc": 0.409
+      }
+    }
+  },
+  {
+    "fold": 6,
+    "test": "2023-06-01..2023-06-30",
+    "n": 21,
+    "metrics": {
+      "Bull Call Spread": {
+        "base_rate": 0.238,
+        "lgbm_brier": 0.2117,
+        "lgbm_acc": 0.762,
+        "logistic_brier": 0.2026,
+        "logistic_acc": 0.762,
+        "persistence_brier": 0.4971,
+        "persistence_acc": 0.238
+      },
+      "Bear Put Spread": {
+        "base_rate": 0.381,
+        "lgbm_brier": 0.2719,
+        "lgbm_acc": 0.429,
+        "logistic_brier": 0.276,
+        "logistic_acc": 0.429,
+        "persistence_brier": 0.2362,
+        "persistence_acc": 0.619
+      },
+      "Iron Condor": {
+        "base_rate": 0.619,
+        "lgbm_brier": 0.2525,
+        "lgbm_acc": 0.571,
+        "logistic_brier": 0.2489,
+        "logistic_acc": 0.571,
+        "persistence_brier": 0.381,
+        "persistence_acc": 0.619
+      }
+    }
+  },
+  {
+    "fold": 7,
+    "test": "2023-07-01..2023-07-31",
+    "n": 21,
+    "metrics": {
+      "Bull Call Spread": {
+        "base_rate": 0.429,
+        "lgbm_brier": 0.2697,
+        "lgbm_acc": 0.571,
+        "logistic_brier": 0.2435,
+        "logistic_acc": 0.571,
+        "persistence_brier": 0.2971,
+        "persistence_acc": 0.571
+      },
+      "Bear Put Spread": {
+        "base_rate": 0.429,
+        "lgbm_brier": 0.2011,
+        "lgbm_acc": 0.762,
+        "logistic_brier": 0.1965,
+        "logistic_acc": 0.81,
+        "persistence_brier": 0.2743,
+        "persistence_acc": 0.429
+      },
+      "Iron Condor": {
+        "base_rate": 0.619,
+        "lgbm_brier": 0.2163,
+        "lgbm_acc": 0.619,
+        "logistic_brier": 0.2548,
+        "logistic_acc": 0.524,
+        "persistence_brier": 0.2686,
+        "persistence_acc": 0.619
+      }
+    }
+  },
+  {
+    "fold": 8,
+    "test": "2023-08-01..2023-08-31",
+    "n": 22,
+    "metrics": {
+      "Bull Call Spread": {
+        "base_rate": 0.318,
+        "lgbm_brier": 0.2111,
+        "lgbm_acc": 0.636,
+        "logistic_brier": 0.2104,
+        "logistic_acc": 0.682,
+        "persistence_brier": 0.2236,
+        "persistence_acc": 0.682
+      },
+      "Bear Put Spread": {
+        "base_rate": 0.455,
+        "lgbm_brier": 0.3226,
+        "lgbm_acc": 0.318,
+        "logistic_brier": 0.2873,
+        "logistic_acc": 0.455,
+        "persistence_brier": 0.2509,
+        "persistence_acc": 0.545
+      },
+      "Iron Condor": {
+        "base_rate": 0.545,
+        "lgbm_brier": 0.2274,
+        "lgbm_acc": 0.682,
+        "logistic_brier": 0.2703,
+        "logistic_acc": 0.5,
+        "persistence_brier": 0.3127,
+        "persistence_acc": 0.545
+      }
+    }
+  },
+  {
+    "fold": 9,
+    "test": "2023-09-01..2023-09-30",
+    "n": 20,
+    "metrics": {
+      "Bull Call Spread": {
+        "base_rate": 0.35,
+        "lgbm_brier": 0.2343,
+        "lgbm_acc": 0.6,
+        "logistic_brier": 0.234,
+        "logistic_acc": 0.7,
+        "persistence_brier": 0.23,
+        "persistence_acc": 0.65
+      },
+      "Bear Put Spread": {
+        "base_rate": 0.4,
+        "lgbm_brier": 0.2497,
+        "lgbm_acc": 0.55,
+        "logistic_brier": 0.232,
+        "logistic_acc": 0.65,
+        "persistence_brier": 0.24,
+        "persistence_acc": 0.6
+      },
+      "Iron Condor": {
+        "base_rate": 0.55,
+        "lgbm_brier": 0.281,
+        "lgbm_acc": 0.5,
+        "logistic_brier": 0.238,
+        "logistic_acc": 0.7,
+        "persistence_brier": 0.37,
+        "persistence_acc": 0.45
+      }
+    }
+  },
+  {
+    "fold": 10,
+    "test": "2023-10-01..2023-10-31",
+    "n": 20,
+    "metrics": {
+      "Bull Call Spread": {
+        "base_rate": 0.25,
+        "lgbm_brier": 0.1557,
+        "lgbm_acc": 0.8,
+        "logistic_brier": 0.1929,
+        "logistic_acc": 0.75,
+        "persistence_brier": 0.25,
+        "persistence_acc": 0.75
+      },
+      "Bear Put Spread": {
+        "base_rate": 0.45,
+        "lgbm_brier": 0.2041,
+        "lgbm_acc": 0.65,
+        "logistic_brier": 0.238,
+        "logistic_acc": 0.55,
+        "persistence_brier": 0.55,
+        "persistence_acc": 0.45
+      },
+      "Iron Condor": {
+        "base_rate": 0.6,
+        "lgbm_brier": 0.254,
+        "lgbm_acc": 0.55,
+        "logistic_brier": 0.2458,
+        "logistic_acc": 0.5,
+        "persistence_brier": 0.28,
+        "persistence_acc": 0.6
+      }
+    }
+  },
+  {
+    "fold": 11,
+    "test": "2023-11-01..2023-11-30",
+    "n": 20,
+    "metrics": {
+      "Bull Call Spread": {
+        "base_rate": 0.25,
+        "lgbm_brier": 0.2002,
+        "lgbm_acc": 0.65,
+        "logistic_brier": 0.1917,
+        "logistic_acc": 0.75,
+        "persistence_brier": 0.25,
+        "persistence_acc": 0.75
+      },
+      "Bear Put Spread": {
+        "base_rate": 0.4,
+        "lgbm_brier": 0.2662,
+        "lgbm_acc": 0.5,
+        "logistic_brier": 0.2233,
+        "logistic_acc": 0.55,
+        "persistence_brier": 0.4,
+        "persistence_acc": 0.4
+      },
+      "Iron Condor": {
+        "base_rate": 0.5,
+        "lgbm_brier": 0.2322,
+        "lgbm_acc": 0.6,
+        "logistic_brier": 0.258,
+        "logistic_acc": 0.45,
+        "persistence_brier": 0.26,
+        "persistence_acc": 0.5
+      }
+    }
+  },
+  {
+    "fold": 12,
+    "test": "2023-12-01..2023-12-31",
+    "n": 20,
+    "metrics": {
+      "Bull Call Spread": {
+        "base_rate": 0.35,
+        "lgbm_brier": 0.2391,
+        "lgbm_acc": 0.55,
+        "logistic_brier": 0.2184,
+        "logistic_acc": 0.65,
+        "persistence_brier": 0.25,
+        "persistence_acc": 0.65
+      },
+      "Bear Put Spread": {
+        "base_rate": 0.35,
+        "lgbm_brier": 0.2736,
+        "lgbm_acc": 0.6,
+        "logistic_brier": 0.2271,
+        "logistic_acc": 0.6,
+        "persistence_brier": 0.29,
+        "persistence_acc": 0.35
+      },
+      "Iron Condor": {
+        "base_rate": 0.5,
+        "lgbm_brier": 0.1701,
+        "lgbm_acc": 0.7,
+        "logistic_brier": 0.2551,
+        "logistic_acc": 0.5,
+        "persistence_brier": 0.26,
+        "persistence_acc": 0.5
+      }
+    }
+  },
+  {
+    "fold": 13,
+    "test": "2024-01-01..2024-01-31",
+    "n": 21,
+    "metrics": {
+      "Bull Call Spread": {
+        "base_rate": 0.286,
+        "lgbm_brier": 0.2059,
+        "lgbm_acc": 0.667,
+        "logistic_brier": 0.221,
+        "logistic_acc": 0.667,
+        "persistence_brier": 0.2171,
+        "persistence_acc": 0.714
+      },
+      "Bear Put Spread": {
+        "base_rate": 0.429,
+        "lgbm_brier": 0.2877,
+        "lgbm_acc": 0.571,
+        "logistic_brier": 0.2489,
+        "logistic_acc": 0.571,
+        "persistence_brier": 0.2971,
+        "persistence_acc": 0.571
+      },
+      "Iron Condor": {
+        "base_rate": 0.667,
+        "lgbm_brier": 0.2673,
+        "lgbm_acc": 0.571,
+        "logistic_brier": 0.3009,
+        "logistic_acc": 0.381,
+        "persistence_brier": 0.2267,
+        "persistence_acc": 0.667
+      }
+    }
+  },
+  {
+    "fold": 14,
+    "test": "2024-02-01..2024-02-29",
+    "n": 21,
+    "metrics": {
+      "Bull Call Spread": {
+        "base_rate": 0.429,
+        "lgbm_brier": 0.2652,
+        "lgbm_acc": 0.619,
+        "logistic_brier": 0.2671,
+        "logistic_acc": 0.571,
+        "persistence_brier": 0.2971,
+        "persistence_acc": 0.571
+      },
+      "Bear Put Spread": {
+        "base_rate": 0.381,
+        "lgbm_brier": 0.2482,
+        "lgbm_acc": 0.619,
+        "logistic_brier": 0.2286,
+        "logistic_acc": 0.667,
+        "persistence_brier": 0.2362,
+        "persistence_acc": 0.619
+      },
+      "Iron Condor": {
+        "base_rate": 0.476,
+        "lgbm_brier": 0.2173,
+        "lgbm_acc": 0.714,
+        "logistic_brier": 0.2594,
+        "logistic_acc": 0.429,
+        "persistence_brier": 0.2648,
+        "persistence_acc": 0.476
+      }
+    }
+  },
+  {
+    "fold": 15,
+    "test": "2024-03-01..2024-03-31",
+    "n": 18,
+    "metrics": {
+      "Bull Call Spread": {
+        "base_rate": 0.333,
+        "lgbm_brier": 0.2527,
+        "lgbm_acc": 0.556,
+        "logistic_brier": 0.2435,
+        "logistic_acc": 0.667,
+        "persistence_brier": 0.2933,
+        "persistence_acc": 0.333
+      },
+      "Bear Put Spread": {
+        "base_rate": 0.278,
+        "lgbm_brier": 0.2285,
+        "lgbm_acc": 0.722,
+        "logistic_brier": 0.2043,
+        "logistic_acc": 0.667,
+        "persistence_brier": 0.2156,
+        "persistence_acc": 0.722
+      },
+      "Iron Condor": {
+        "base_rate": 0.444,
+        "lgbm_brier": 0.2001,
+        "lgbm_acc": 0.611,
+        "logistic_brier": 0.2377,
+        "logistic_acc": 0.5,
+        "persistence_brier": 0.2489,
+        "persistence_acc": 0.556
+      }
+    }
+  },
+  {
+    "fold": 16,
+    "test": "2024-04-01..2024-04-30",
+    "n": 20,
+    "metrics": {
+      "Bull Call Spread": {
+        "base_rate": 0.25,
+        "lgbm_brier": 0.1968,
+        "lgbm_acc": 0.65,
+        "logistic_brier": 0.2044,
+        "logistic_acc": 0.75,
+        "persistence_brier": 0.19,
+        "persistence_acc": 0.75
+      },
+      "Bear Put Spread": {
+        "base_rate": 0.5,
+        "lgbm_brier": 0.2615,
+        "lgbm_acc": 0.65,
+        "logistic_brier": 0.2564,
+        "logistic_acc": 0.55,
+        "persistence_brier": 0.26,
+        "persistence_acc": 0.5
+      },
+      "Iron Condor": {
+        "base_rate": 0.4,
+        "lgbm_brier": 0.2368,
+        "lgbm_acc": 0.6,
+        "logistic_brier": 0.2689,
+        "logistic_acc": 0.5,
+        "persistence_brier": 0.28,
+        "persistence_acc": 0.4
+      }
+    }
+  },
+  {
+    "fold": 17,
+    "test": "2024-05-01..2024-05-31",
+    "n": 21,
+    "metrics": {
+      "Bull Call Spread": {
+        "base_rate": 0.333,
+        "lgbm_brier": 0.2164,
+        "lgbm_acc": 0.667,
+        "logistic_brier": 0.2258,
+        "logistic_acc": 0.571,
+        "persistence_brier": 0.2267,
+        "persistence_acc": 0.667
+      },
+      "Bear Put Spread": {
+        "base_rate": 0.429,
+        "lgbm_brier": 0.2476,
+        "lgbm_acc": 0.429,
+        "logistic_brier": 0.2614,
+        "logistic_acc": 0.476,
+        "persistence_brier": 0.2457,
+        "persistence_acc": 0.571
+      },
+      "Iron Condor": {
+        "base_rate": 0.333,
+        "lgbm_brier": 0.1798,
+        "lgbm_acc": 0.762,
+        "logistic_brier": 0.2476,
+        "logistic_acc": 0.476,
+        "persistence_brier": 0.2267,
+        "persistence_acc": 0.667
+      }
+    }
+  },
+  {
+    "fold": 18,
+    "test": "2024-06-01..2024-06-30",
+    "n": 19,
+    "metrics": {
+      "Bull Call Spread": {
+        "base_rate": 0.368,
+        "lgbm_brier": 0.2675,
+        "lgbm_acc": 0.579,
+        "logistic_brier": 0.2466,
+        "logistic_acc": 0.579,
+        "persistence_brier": 0.2863,
+        "persistence_acc": 0.368
+      },
+      "Bear Put Spread": {
+        "base_rate": 0.263,
+        "lgbm_brier": 0.2937,
+        "lgbm_acc": 0.368,
+        "logistic_brier": 0.2543,
+        "logistic_acc": 0.684,
+        "persistence_brier": 0.2632,
+        "persistence_acc": 0.737
+      },
+      "Iron Condor": {
+        "base_rate": 0.211,
+        "lgbm_brier": 0.1579,
+        "lgbm_acc": 0.895,
+        "logistic_brier": 0.2261,
+        "logistic_acc": 0.474,
+        "persistence_brier": 0.2021,
+        "persistence_acc": 0.789
+      }
+    }
+  },
+  {
+    "fold": 19,
+    "test": "2024-07-01..2024-07-31",
+    "n": 22,
+    "metrics": {
+      "Bull Call Spread": {
+        "base_rate": 0.227,
+        "lgbm_brier": 0.2219,
+        "lgbm_acc": 0.682,
+        "logistic_brier": 0.1957,
+        "logistic_acc": 0.727,
+        "persistence_brier": 0.2055,
+        "persistence_acc": 0.773
+      },
+      "Bear Put Spread": {
+        "base_rate": 0.455,
+        "lgbm_brier": 0.244,
+        "lgbm_acc": 0.636,
+        "logistic_brier": 0.2219,
+        "logistic_acc": 0.727,
+        "persistence_brier": 0.2509,
+        "persistence_acc": 0.545
+      },
+      "Iron Condor": {
+        "base_rate": 0.364,
+        "lgbm_brier": 0.2075,
+        "lgbm_acc": 0.636,
+        "logistic_brier": 0.2489,
+        "logistic_acc": 0.545,
+        "persistence_brier": 0.2582,
+        "persistence_acc": 0.636
+      }
+    }
+  },
+  {
+    "fold": 20,
+    "test": "2024-08-01..2024-08-31",
+    "n": 21,
+    "metrics": {
+      "Bull Call Spread": {
+        "base_rate": 0.19,
+        "lgbm_brier": 0.1987,
+        "lgbm_acc": 0.762,
+        "logistic_brier": 0.1909,
+        "logistic_acc": 0.762,
+        "persistence_brier": 0.1981,
+        "persistence_acc": 0.81
+      },
+      "Bear Put Spread": {
+        "base_rate": 0.429,
+        "lgbm_brier": 0.2894,
+        "lgbm_acc": 0.571,
+        "logistic_brier": 0.2655,
+        "logistic_acc": 0.571,
+        "persistence_brier": 0.2743,
+        "persistence_acc": 0.429
+      },
+      "Iron Condor": {
+        "base_rate": 0.286,
+        "lgbm_brier": 0.182,
+        "lgbm_acc": 0.762,
+        "logistic_brier": 0.2289,
+        "logistic_acc": 0.571,
+        "persistence_brier": 0.3029,
+        "persistence_acc": 0.286
+      }
+    }
+  },
+  {
+    "fold": 21,
+    "test": "2024-09-01..2024-09-30",
+    "n": 21,
+    "metrics": {
+      "Bull Call Spread": {
+        "base_rate": 0.238,
+        "lgbm_brier": 0.1637,
+        "lgbm_acc": 0.762,
+        "logistic_brier": 0.1982,
+        "logistic_acc": 0.762,
+        "persistence_brier": 0.1829,
+        "persistence_acc": 0.762
+      },
+      "Bear Put Spread": {
+        "base_rate": 0.286,
+        "lgbm_brier": 0.2522,
+        "lgbm_acc": 0.619,
+        "logistic_brier": 0.2698,
+        "logistic_acc": 0.524,
+        "persistence_brier": 0.2857,
+        "persistence_acc": 0.714
+      },
+      "Iron Condor": {
+        "base_rate": 0.286,
+        "lgbm_brier": 0.1402,
+        "lgbm_acc": 0.81,
+        "logistic_brier": 0.2627,
+        "logistic_acc": 0.524,
+        "persistence_brier": 0.2114,
+        "persistence_acc": 0.714
+      }
+    }
+  },
+  {
+    "fold": 22,
+    "test": "2024-10-01..2024-10-31",
+    "n": 22,
+    "metrics": {
+      "Bull Call Spread": {
+        "base_rate": 0.136,
+        "lgbm_brier": 0.1929,
+        "lgbm_acc": 0.682,
+        "logistic_brier": 0.1745,
+        "logistic_acc": 0.818,
+        "persistence_brier": 0.1873,
+        "persistence_acc": 0.864
+      },
+      "Bear Put Spread": {
+        "base_rate": 0.773,
+        "lgbm_brier": 0.3194,
+        "lgbm_acc": 0.318,
+        "logistic_brier": 0.3003,
+        "logistic_acc": 0.364,
+        "persistence_brier": 0.7727,
+        "persistence_acc": 0.227
+      },
+      "Iron Condor": {
+        "base_rate": 0.364,
+        "lgbm_brier": 0.2196,
+        "lgbm_acc": 0.545,
+        "logistic_brier": 0.3504,
+        "logistic_acc": 0.364,
+        "persistence_brier": 0.2582,
+        "persistence_acc": 0.636
+      }
+    }
+  },
+  {
+    "fold": 23,
+    "test": "2024-11-01..2024-11-30",
+    "n": 19,
+    "metrics": {
+      "Bull Call Spread": {
+        "base_rate": 0.263,
+        "lgbm_brier": 0.2229,
+        "lgbm_acc": 0.737,
+        "logistic_brier": 0.1999,
+        "logistic_acc": 0.737,
+        "persistence_brier": 0.2632,
+        "persistence_acc": 0.737
+      },
+      "Bear Put Spread": {
+        "base_rate": 0.684,
+        "lgbm_brier": 0.3443,
+        "lgbm_acc": 0.263,
+        "logistic_brier": 0.3217,
+        "logistic_acc": 0.421,
+        "persistence_brier": 0.3158,
+        "persistence_acc": 0.684
+      },
+      "Iron Condor": {
+        "base_rate": 0.263,
+        "lgbm_brier": 0.1812,
+        "lgbm_acc": 0.684,
+        "logistic_brier": 0.2388,
+        "logistic_acc": 0.526,
+        "persistence_brier": 0.2126,
+        "persistence_acc": 0.737
+      }
+    }
+  },
+  {
+    "fold": 24,
+    "test": "2024-12-01..2024-12-31",
+    "n": 21,
+    "metrics": {
+      "Bull Call Spread": {
+        "base_rate": 0.19,
+        "lgbm_brier": 0.1936,
+        "lgbm_acc": 0.762,
+        "logistic_brier": 0.1929,
+        "logistic_acc": 0.762,
+        "persistence_brier": 0.1543,
+        "persistence_acc": 0.81
+      },
+      "Bear Put Spread": {
+        "base_rate": 0.571,
+        "lgbm_brier": 0.2722,
+        "lgbm_acc": 0.524,
+        "logistic_brier": 0.2425,
+        "logistic_acc": 0.429,
+        "persistence_brier": 0.2971,
+        "persistence_acc": 0.571
+      },
+      "Iron Condor": {
+        "base_rate": 0.333,
+        "lgbm_brier": 0.1871,
+        "lgbm_acc": 0.714,
+        "logistic_brier": 0.26,
+        "logistic_acc": 0.571,
+        "persistence_brier": 0.24,
+        "persistence_acc": 0.667
+      }
+    }
+  },
+  {
+    "fold": 25,
+    "test": "2025-01-01..2025-01-31",
+    "n": 23,
+    "metrics": {
+      "Bull Call Spread": {
+        "base_rate": 0.174,
+        "lgbm_brier": 0.1723,
+        "lgbm_acc": 0.826,
+        "logistic_brier": 0.1628,
+        "logistic_acc": 0.826,
+        "persistence_brier": 0.1739,
+        "persistence_acc": 0.826
+      },
+      "Bear Put Spread": {
+        "base_rate": 0.652,
+        "lgbm_brier": 0.2926,
+        "lgbm_acc": 0.348,
+        "logistic_brier": 0.2454,
+        "logistic_acc": 0.565,
+        "persistence_brier": 0.2296,
+        "persistence_acc": 0.652
+      },
+      "Iron Condor": {
+        "base_rate": 0.391,
+        "lgbm_brier": 0.1776,
+        "lgbm_acc": 0.739,
+        "logistic_brier": 0.2263,
+        "logistic_acc": 0.565,
+        "persistence_brier": 0.2383,
+        "persistence_acc": 0.609
+      }
+    }
+  },
+  {
+    "fold": 26,
+    "test": "2025-02-01..2025-02-28",
+    "n": 19,
+    "metrics": {
+      "Bull Call Spread": {
+        "base_rate": 0.105,
+        "lgbm_brier": 0.1223,
+        "lgbm_acc": 0.895,
+        "logistic_brier": 0.1263,
+        "logistic_acc": 0.895,
+        "persistence_brier": 0.1032,
+        "persistence_acc": 0.895
+      },
+      "Bear Put Spread": {
+        "base_rate": 0.526,
+        "lgbm_brier": 0.2576,
+        "lgbm_acc": 0.474,
+        "logistic_brier": 0.2675,
+        "logistic_acc": 0.421,
+        "persistence_brier": 0.3242,
+        "persistence_acc": 0.526
+      },
+      "Iron Condor": {
+        "base_rate": 0.368,
+        "lgbm_brier": 0.1699,
+        "lgbm_acc": 0.684,
+        "logistic_brier": 0.2886,
+        "logistic_acc": 0.474,
+        "persistence_brier": 0.2337,
+        "persistence_acc": 0.632
+      }
+    }
+  },
+  {
+    "fold": 27,
+    "test": "2025-03-01..2025-03-31",
+    "n": 19,
+    "metrics": {
+      "Bull Call Spread": {
+        "base_rate": 0.421,
+        "lgbm_brier": 0.26,
+        "lgbm_acc": 0.579,
+        "logistic_brier": 0.2697,
+        "logistic_acc": 0.579,
+        "persistence_brier": 0.2926,
+        "persistence_acc": 0.579
+      },
+      "Bear Put Spread": {
+        "base_rate": 0.368,
+        "lgbm_brier": 0.2696,
+        "lgbm_acc": 0.526,
+        "logistic_brier": 0.2417,
+        "logistic_acc": 0.632,
+        "persistence_brier": 0.2611,
+        "persistence_acc": 0.632
+      },
+      "Iron Condor": {
+        "base_rate": 0.421,
+        "lgbm_brier": 0.1707,
+        "lgbm_acc": 0.684,
+        "logistic_brier": 0.2026,
+        "logistic_acc": 0.684,
+        "persistence_brier": 0.2442,
+        "persistence_acc": 0.579
+      }
+    }
+  },
+  {
+    "fold": 28,
+    "test": "2025-04-01..2025-04-30",
+    "n": 19,
+    "metrics": {
+      "Bull Call Spread": {
+        "base_rate": 0.421,
+        "lgbm_brier": 0.3078,
+        "lgbm_acc": 0.579,
+        "logistic_brier": 0.2427,
+        "logistic_acc": 0.632,
+        "persistence_brier": 0.2442,
+        "persistence_acc": 0.579
+      },
+      "Bear Put Spread": {
+        "base_rate": 0.421,
+        "lgbm_brier": 0.2886,
+        "lgbm_acc": 0.421,
+        "logistic_brier": 0.3297,
+        "logistic_acc": 0.421,
+        "persistence_brier": 0.2442,
+        "persistence_acc": 0.579
+      },
+      "Iron Condor": {
+        "base_rate": 0.474,
+        "lgbm_brier": 0.2253,
+        "lgbm_acc": 0.737,
+        "logistic_brier": 0.3005,
+        "logistic_acc": 0.526,
+        "persistence_brier": 0.2653,
+        "persistence_acc": 0.474
+      }
+    }
+  },
+  {
+    "fold": 29,
+    "test": "2025-05-01..2025-05-31",
+    "n": 21,
+    "metrics": {
+      "Bull Call Spread": {
+        "base_rate": 0.238,
+        "lgbm_brier": 0.2039,
+        "lgbm_acc": 0.619,
+        "logistic_brier": 0.22,
+        "logistic_acc": 0.714,
+        "persistence_brier": 0.1829,
+        "persistence_acc": 0.762
+      },
+      "Bear Put Spread": {
+        "base_rate": 0.619,
+        "lgbm_brier": 0.2508,
+        "lgbm_acc": 0.619,
+        "logistic_brier": 0.2807,
+        "logistic_acc": 0.476,
+        "persistence_brier": 0.2362,
+        "persistence_acc": 0.619
+      },
+      "Iron Condor": {
+        "base_rate": 0.381,
+        "lgbm_brier": 0.2176,
+        "lgbm_acc": 0.667,
+        "logistic_brier": 0.2511,
+        "logistic_acc": 0.476,
+        "persistence_brier": 0.2686,
+        "persistence_acc": 0.619
+      }
+    }
+  },
+  {
+    "fold": 30,
+    "test": "2025-06-01..2025-06-30",
+    "n": 21,
+    "metrics": {
+      "Bull Call Spread": {
+        "base_rate": 0.381,
+        "lgbm_brier": 0.2722,
+        "lgbm_acc": 0.619,
+        "logistic_brier": 0.2594,
+        "logistic_acc": 0.619,
+        "persistence_brier": 0.2362,
+        "persistence_acc": 0.619
+      },
+      "Bear Put Spread": {
+        "base_rate": 0.524,
+        "lgbm_brier": 0.2855,
+        "lgbm_acc": 0.333,
+        "logistic_brier": 0.2372,
+        "logistic_acc": 0.667,
+        "persistence_brier": 0.3257,
+        "persistence_acc": 0.524
+      },
+      "Iron Condor": {
+        "base_rate": 0.333,
+        "lgbm_brier": 0.1314,
+        "lgbm_acc": 0.857,
+        "logistic_brier": 0.2275,
+        "logistic_acc": 0.667,
+        "persistence_brier": 0.2267,
+        "persistence_acc": 0.667
+      }
+    }
+  },
+  {
+    "fold": 31,
+    "test": "2025-07-01..2025-07-31",
+    "n": 23,
+    "metrics": {
+      "Bull Call Spread": {
+        "base_rate": 0.261,
+        "lgbm_brier": 0.194,
+        "lgbm_acc": 0.739,
+        "logistic_brier": 0.1984,
+        "logistic_acc": 0.739,
+        "persistence_brier": 0.1965,
+        "persistence_acc": 0.739
+      },
+      "Bear Put Spread": {
+        "base_rate": 0.522,
+        "lgbm_brier": 0.2858,
+        "lgbm_acc": 0.609,
+        "logistic_brier": 0.2838,
+        "logistic_acc": 0.522,
+        "persistence_brier": 0.353,
+        "persistence_acc": 0.478
+      },
+      "Iron Condor": {
+        "base_rate": 0.609,
+        "lgbm_brier": 0.2104,
+        "lgbm_acc": 0.652,
+        "logistic_brier": 0.2554,
+        "logistic_acc": 0.565,
+        "persistence_brier": 0.2383,
+        "persistence_acc": 0.609
+      }
+    }
+  },
+  {
+    "fold": 32,
+    "test": "2025-08-01..2025-08-31",
+    "n": 19,
+    "metrics": {
+      "Bull Call Spread": {
+        "base_rate": 0.105,
+        "lgbm_brier": 0.0937,
+        "lgbm_acc": 0.895,
+        "logistic_brier": 0.1117,
+        "logistic_acc": 0.895,
+        "persistence_brier": 0.1811,
+        "persistence_acc": 0.895
+      },
+      "Bear Put Spread": {
+        "base_rate": 0.526,
+        "lgbm_brier": 0.2519,
+        "lgbm_acc": 0.526,
+        "logistic_brier": 0.2418,
+        "logistic_acc": 0.526,
+        "persistence_brier": 0.2547,
+        "persistence_acc": 0.526
+      },
+      "Iron Condor": {
+        "base_rate": 0.632,
+        "lgbm_brier": 0.3273,
+        "lgbm_acc": 0.474,
+        "logistic_brier": 0.2658,
+        "logistic_acc": 0.579,
+        "persistence_brier": 0.2611,
+        "persistence_acc": 0.632
+      }
+    }
+  },
+  {
+    "fold": 33,
+    "test": "2025-09-01..2025-09-30",
+    "n": 22,
+    "metrics": {
+      "Bull Call Spread": {
+        "base_rate": 0.091,
+        "lgbm_brier": 0.1202,
+        "lgbm_acc": 0.909,
+        "logistic_brier": 0.1049,
+        "logistic_acc": 0.909,
+        "persistence_brier": 0.0909,
+        "persistence_acc": 0.909
+      },
+      "Bear Put Spread": {
+        "base_rate": 0.455,
+        "lgbm_brier": 0.2166,
+        "lgbm_acc": 0.682,
+        "logistic_brier": 0.2287,
+        "logistic_acc": 0.591,
+        "persistence_brier": 0.2691,
+        "persistence_acc": 0.455
+      },
+      "Iron Condor": {
+        "base_rate": 0.5,
+        "lgbm_brier": 0.3828,
+        "lgbm_acc": 0.318,
+        "logistic_brier": 0.3191,
+        "logistic_acc": 0.409,
+        "persistence_brier": 0.5,
+        "persistence_acc": 0.5
+      }
+    }
+  },
+  {
+    "fold": 34,
+    "test": "2025-10-01..2025-10-31",
+    "n": 21,
+    "metrics": {
+      "Bull Call Spread": {
+        "base_rate": 0.476,
+        "lgbm_brier": 0.2827,
+        "lgbm_acc": 0.524,
+        "logistic_brier": 0.2852,
+        "logistic_acc": 0.524,
+        "persistence_brier": 0.4762,
+        "persistence_acc": 0.524
+      },
+      "Bear Put Spread": {
+        "base_rate": 0.524,
+        "lgbm_brier": 0.2547,
+        "lgbm_acc": 0.571,
+        "logistic_brier": 0.2648,
+        "logistic_acc": 0.476,
+        "persistence_brier": 0.3257,
+        "persistence_acc": 0.524
+      },
+      "Iron Condor": {
+        "base_rate": 0.619,
+        "lgbm_brier": 0.3379,
+        "lgbm_acc": 0.381,
+        "logistic_brier": 0.3049,
+        "logistic_acc": 0.333,
+        "persistence_brier": 0.4114,
+        "persistence_acc": 0.381
+      }
+    }
+  },
+  {
+    "fold": 35,
+    "test": "2025-11-01..2025-11-30",
+    "n": 19,
+    "metrics": {
+      "Bull Call Spread": {
+        "base_rate": 0.211,
+        "lgbm_brier": 0.1397,
+        "lgbm_acc": 0.842,
+        "logistic_brier": 0.1644,
+        "logistic_acc": 0.789,
+        "persistence_brier": 0.1663,
+        "persistence_acc": 0.789
+      },
+      "Bear Put Spread": {
+        "base_rate": 0.368,
+        "lgbm_brier": 0.2735,
+        "lgbm_acc": 0.474,
+        "logistic_brier": 0.2616,
+        "logistic_acc": 0.474,
+        "persistence_brier": 0.4189,
+        "persistence_acc": 0.368
+      },
+      "Iron Condor": {
+        "base_rate": 0.579,
+        "lgbm_brier": 0.3532,
+        "lgbm_acc": 0.316,
+        "logistic_brier": 0.3466,
+        "logistic_acc": 0.263,
+        "persistence_brier": 0.2442,
+        "persistence_acc": 0.579
+      }
+    }
+  },
+  {
+    "fold": 36,
+    "test": "2025-12-01..2025-12-31",
+    "n": 22,
+    "metrics": {
+      "Bull Call Spread": {
+        "base_rate": 0.136,
+        "lgbm_brier": 0.1425,
+        "lgbm_acc": 0.864,
+        "logistic_brier": 0.1325,
+        "logistic_acc": 0.864,
+        "persistence_brier": 0.1873,
+        "persistence_acc": 0.864
+      },
+      "Bear Put Spread": {
+        "base_rate": 0.273,
+        "lgbm_brier": 0.2265,
+        "lgbm_acc": 0.545,
+        "logistic_brier": 0.2702,
+        "logistic_acc": 0.409,
+        "persistence_brier": 0.2036,
+        "persistence_acc": 0.727
+      },
+      "Iron Condor": {
+        "base_rate": 0.773,
+        "lgbm_brier": 0.2876,
+        "lgbm_acc": 0.5,
+        "logistic_brier": 0.2915,
+        "logistic_acc": 0.455,
+        "persistence_brier": 0.2055,
+        "persistence_acc": 0.773
+      }
+    }
+  },
+  {
+    "fold": 37,
+    "test": "2026-01-01..2026-01-31",
+    "n": 20,
+    "metrics": {
+      "Bull Call Spread": {
+        "base_rate": 0.05,
+        "lgbm_brier": 0.1216,
+        "lgbm_acc": 0.9,
+        "logistic_brier": 0.09,
+        "logistic_acc": 0.95,
+        "persistence_brier": 0.05,
+        "persistence_acc": 0.95
+      },
+      "Bear Put Spread": {
+        "base_rate": 0.45,
+        "lgbm_brier": 0.2284,
+        "lgbm_acc": 0.6,
+        "logistic_brier": 0.2233,
+        "logistic_acc": 0.6,
+        "persistence_brier": 0.31,
+        "persistence_acc": 0.55
+      },
+      "Iron Condor": {
+        "base_rate": 0.55,
+        "lgbm_brier": 0.2197,
+        "lgbm_acc": 0.65,
+        "logistic_brier": 0.2297,
+        "logistic_acc": 0.55,
+        "persistence_brier": 0.31,
+        "persistence_acc": 0.55
+      }
+    }
+  },
+  {
+    "fold": 38,
+    "test": "2026-02-01..2026-02-28",
+    "n": 20,
+    "metrics": {
+      "Bull Call Spread": {
+        "base_rate": 0.25,
+        "lgbm_brier": 0.2202,
+        "lgbm_acc": 0.75,
+        "logistic_brier": 0.1837,
+        "logistic_acc": 0.7,
+        "persistence_brier": 0.25,
+        "persistence_acc": 0.75
+      },
+      "Bear Put Spread": {
+        "base_rate": 0.3,
+        "lgbm_brier": 0.2993,
+        "lgbm_acc": 0.35,
+        "logistic_brier": 0.2802,
+        "logistic_acc": 0.4,
+        "persistence_brier": 0.46,
+        "persistence_acc": 0.3
+      },
+      "Iron Condor": {
+        "base_rate": 0.4,
+        "lgbm_brier": 0.3134,
+        "lgbm_acc": 0.45,
+        "logistic_brier": 0.2952,
+        "logistic_acc": 0.35,
+        "persistence_brier": 0.4,
+        "persistence_acc": 0.4
+      }
+    }
+  },
+  {
+    "fold": 39,
+    "test": "2026-03-01..2026-03-31",
+    "n": 19,
+    "metrics": {
+      "Bull Call Spread": {
+        "base_rate": 0.105,
+        "lgbm_brier": 0.1916,
+        "lgbm_acc": 0.789,
+        "logistic_brier": 0.1448,
+        "logistic_acc": 0.842,
+        "persistence_brier": 0.1811,
+        "persistence_acc": 0.895
+      },
+      "Bear Put Spread": {
+        "base_rate": 0.579,
+        "lgbm_brier": 0.2624,
+        "lgbm_acc": 0.526,
+        "logistic_brier": 0.256,
+        "logistic_acc": 0.526,
+        "persistence_brier": 0.2758,
+        "persistence_acc": 0.421
+      },
+      "Iron Condor": {
+        "base_rate": 0.263,
+        "lgbm_brier": 0.2568,
+        "lgbm_acc": 0.579,
+        "logistic_brier": 0.2702,
+        "logistic_acc": 0.474,
+        "persistence_brier": 0.2126,
+        "persistence_acc": 0.737
+      }
+    }
+  },
+  {
+    "fold": 40,
+    "test": "2026-04-01..2026-04-30",
+    "n": 20,
+    "metrics": {
+      "Bull Call Spread": {
+        "base_rate": 0.4,
+        "lgbm_brier": 0.3124,
+        "lgbm_acc": 0.6,
+        "logistic_brier": 0.2969,
+        "logistic_acc": 0.6,
+        "persistence_brier": 0.28,
+        "persistence_acc": 0.6
+      },
+      "Bear Put Spread": {
+        "base_rate": 0.35,
+        "lgbm_brier": 0.2976,
+        "lgbm_acc": 0.35,
+        "logistic_brier": 0.2641,
+        "logistic_acc": 0.55,
+        "persistence_brier": 0.43,
+        "persistence_acc": 0.35
+      },
+      "Iron Condor": {
+        "base_rate": 0.25,
+        "lgbm_brier": 0.2542,
+        "lgbm_acc": 0.65,
+        "logistic_brier": 0.2295,
+        "logistic_acc": 0.65,
+        "persistence_brier": 0.19,
+        "persistence_acc": 0.75
+      }
+    }
+  },
+  {
+    "fold": 41,
+    "test": "2026-05-01..2026-05-31",
+    "n": 19,
+    "metrics": {
+      "Bull Call Spread": {
+        "base_rate": 0.421,
+        "lgbm_brier": 0.3086,
+        "lgbm_acc": 0.579,
+        "logistic_brier": 0.2768,
+        "logistic_acc": 0.579,
+        "persistence_brier": 0.2442,
+        "persistence_acc": 0.579
+      },
+      "Bear Put Spread": {
+        "base_rate": 0.526,
+        "lgbm_brier": 0.2494,
+        "lgbm_acc": 0.474,
+        "logistic_brier": 0.2592,
+        "logistic_acc": 0.526,
+        "persistence_brier": 0.3558,
+        "persistence_acc": 0.474
+      },
+      "Iron Condor": {
+        "base_rate": 0.368,
+        "lgbm_brier": 0.1945,
+        "lgbm_acc": 0.737,
+        "logistic_brier": 0.2211,
+        "logistic_acc": 0.632,
+        "persistence_brier": 0.2611,
+        "persistence_acc": 0.632
+      }
+    }
+  },
+  {
+    "fold": 42,
+    "test": "2026-06-01..2026-06-30",
+    "n": 21,
+    "metrics": {
+      "Bull Call Spread": {
+        "base_rate": 0.381,
+        "lgbm_brier": 0.2542,
+        "lgbm_acc": 0.571,
+        "logistic_brier": 0.2442,
+        "logistic_acc": 0.619,
+        "persistence_brier": 0.2362,
+        "persistence_acc": 0.619
+      },
+      "Bear Put Spread": {
+        "base_rate": 0.476,
+        "lgbm_brier": 0.2595,
+        "lgbm_acc": 0.524,
+        "logistic_brier": 0.2564,
+        "logistic_acc": 0.476,
+        "persistence_brier": 0.2552,
+        "persistence_acc": 0.524
+      },
+      "Iron Condor": {
+        "base_rate": 0.476,
+        "lgbm_brier": 0.1959,
+        "lgbm_acc": 0.667,
+        "logistic_brier": 0.2198,
+        "logistic_acc": 0.619,
+        "persistence_brier": 0.2552,
+        "persistence_acc": 0.524
+      }
+    }
+  },
+  {
+    "fold": 43,
+    "test": "2026-07-01..2026-07-31",
+    "n": 23,
+    "metrics": {
+      "Bull Call Spread": {
+        "base_rate": 0.391,
+        "lgbm_brier": 0.2731,
+        "lgbm_acc": 0.565,
+        "logistic_brier": 0.2764,
+        "logistic_acc": 0.609,
+        "persistence_brier": 0.2383,
+        "persistence_acc": 0.609
+      },
+      "Bear Put Spread": {
+        "base_rate": 0.217,
+        "lgbm_brier": 0.2847,
+        "lgbm_acc": 0.565,
+        "logistic_brier": 0.2501,
+        "logistic_acc": 0.565,
+        "persistence_brier": 0.3165,
+        "persistence_acc": 0.217
+      },
+      "Iron Condor": {
+        "base_rate": 0.391,
+        "lgbm_brier": 0.3009,
+        "lgbm_acc": 0.391,
+        "logistic_brier": 0.2966,
+        "logistic_acc": 0.435,
+        "persistence_brier": 0.2383,
+        "persistence_acc": 0.609
+      }
+    }
+  },
+  {
+    "fold": 44,
+    "test": "2026-08-01..2026-08-31",
+    "n": 21,
+    "metrics": {
+      "Bull Call Spread": {
+        "base_rate": 0.238,
+        "lgbm_brier": 0.1958,
+        "lgbm_acc": 0.762,
+        "logistic_brier": 0.1732,
+        "logistic_acc": 0.762,
+        "persistence_brier": 0.1829,
+        "persistence_acc": 0.762
+      },
+      "Bear Put Spread": {
+        "base_rate": 0.429,
+        "lgbm_brier": 0.2401,
+        "lgbm_acc": 0.571,
+        "logistic_brier": 0.2589,
+        "logistic_acc": 0.476,
+        "persistence_brier": 0.2457,
+        "persistence_acc": 0.571
+      },
+      "Iron Condor": {
+        "base_rate": 0.476,
+        "lgbm_brier": 0.2718,
+        "lgbm_acc": 0.571,
+        "logistic_brier": 0.2333,
+        "logistic_acc": 0.571,
+        "persistence_brier": 0.2552,
+        "persistence_acc": 0.524
+      }
+    }
+  },
+  {
+    "fold": 45,
+    "test": "2026-09-01..2026-09-30",
+    "n": 18,
+    "metrics": {
+      "Bull Call Spread": {
+        "base_rate": 0.278,
+        "lgbm_brier": 0.1911,
+        "lgbm_acc": 0.722,
+        "logistic_brier": 0.1951,
+        "logistic_acc": 0.722,
+        "persistence_brier": 0.2156,
+        "persistence_acc": 0.722
+      },
+      "Bear Put Spread": {
+        "base_rate": 0.556,
+        "lgbm_brier": 0.2773,
+        "lgbm_acc": 0.444,
+        "logistic_brier": 0.268,
+        "logistic_acc": 0.5,
+        "persistence_brier": 0.2711,
+        "persistence_acc": 0.444
+      },
+      "Iron Condor": {
+        "base_rate": 0.556,
+        "lgbm_brier": 0.2253,
+        "lgbm_acc": 0.611,
+        "logistic_brier": 0.2303,
+        "logistic_acc": 0.667,
+        "persistence_brier": 0.2489,
+        "persistence_acc": 0.556
+      }
+    }
+  }
+]

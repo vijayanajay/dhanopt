@@ -1,0 +1,202 @@
+[
+  {
+    "date": "2025-05-23",
+    "p_model": 0.687,
+    "actual_win": 0.0,
+    "base_value": -0.2701,
+    "top_contributions": [
+      {
+        "feature": "fut_prev_gap_pct",
+        "shap": 0.2962
+      },
+      {
+        "feature": "delta_oi_skew",
+        "shap": 0.2555
+      },
+      {
+        "feature": "wall_call_dist_pct",
+        "shap": -0.2297
+      },
+      {
+        "feature": "straddle_pct_chg",
+        "shap": 0.2258
+      },
+      {
+        "feature": "range5_mean_pct",
+        "shap": 0.1814
+      },
+      {
+        "feature": "pcr_t1",
+        "shap": 0.1641
+      },
+      {
+        "feature": "gap_open_pct",
+        "shap": 0.16
+      },
+      {
+        "feature": "fut_prev_ret",
+        "shap": -0.108
+      }
+    ]
+  },
+  {
+    "date": "2022-09-30",
+    "p_model": 0.679,
+    "actual_win": 0.0,
+    "base_value": -0.2701,
+    "top_contributions": [
+      {
+        "feature": "straddle_pct",
+        "shap": 0.3077
+      },
+      {
+        "feature": "mom10",
+        "shap": -0.2979
+      },
+      {
+        "feature": "pcr_t2",
+        "shap": 0.2837
+      },
+      {
+        "feature": "gap_open_pct",
+        "shap": 0.2339
+      },
+      {
+        "feature": "mom5",
+        "shap": 0.2212
+      },
+      {
+        "feature": "straddle_pct_chg",
+        "shap": 0.1979
+      },
+      {
+        "feature": "fut_prev_gap_pct",
+        "shap": -0.1902
+      },
+      {
+        "feature": "delta_oi_skew",
+        "shap": 0.156
+      }
+    ]
+  },
+  {
+    "date": "2024-07-25",
+    "p_model": 0.679,
+    "actual_win": 0.0,
+    "base_value": -0.2701,
+    "top_contributions": [
+      {
+        "feature": "pcr_t1",
+        "shap": 0.2626
+      },
+      {
+        "feature": "mom5",
+        "shap": 0.221
+      },
+      {
+        "feature": "fut_prev_ret",
+        "shap": 0.1689
+      },
+      {
+        "feature": "gap_open_pct",
+        "shap": 0.1665
+      },
+      {
+        "feature": "straddle_pct_chg",
+        "shap": 0.1649
+      },
+      {
+        "feature": "fut_prev_gap_pct",
+        "shap": 0.113
+      },
+      {
+        "feature": "wall_call_dist_pct",
+        "shap": 0.0925
+      },
+      {
+        "feature": "mom10",
+        "shap": -0.089
+      }
+    ]
+  },
+  {
+    "date": "2022-06-09",
+    "p_model": 0.663,
+    "actual_win": 0.0,
+    "base_value": -0.2701,
+    "top_contributions": [
+      {
+        "feature": "pcr_t2",
+        "shap": 0.3588
+      },
+      {
+        "feature": "straddle_pct_chg",
+        "shap": 0.2646
+      },
+      {
+        "feature": "range5_mean_pct",
+        "shap": 0.2236
+      },
+      {
+        "feature": "mom10",
+        "shap": 0.1983
+      },
+      {
+        "feature": "pcr_t1",
+        "shap": 0.1587
+      },
+      {
+        "feature": "fut_prev_gap_pct",
+        "shap": -0.1389
+      },
+      {
+        "feature": "fut_prev_ret",
+        "shap": -0.1203
+      },
+      {
+        "feature": "wall_call_dist_pct",
+        "shap": 0.1131
+      }
+    ]
+  },
+  {
+    "date": "2026-04-23",
+    "p_model": 0.642,
+    "actual_win": 0.0,
+    "base_value": -0.2701,
+    "top_contributions": [
+      {
+        "feature": "gap_open_pct",
+        "shap": 0.4234
+      },
+      {
+        "feature": "wall_put_dist_pct",
+        "shap": 0.3325
+      },
+      {
+        "feature": "mom10",
+        "shap": 0.2593
+      },
+      {
+        "feature": "mom5",
+        "shap": -0.1999
+      },
+      {
+        "feature": "fut_prev_gap_pct",
+        "shap": -0.1866
+      },
+      {
+        "feature": "pcr_t2",
+        "shap": 0.1625
+      },
+      {
+        "feature": "pcr_chg",
+        "shap": 0.1372
+      },
+      {
+        "feature": "delta_oi_skew",
+        "shap": 0.1333
+      }
+    ]
+  }
+]
