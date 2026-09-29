@@ -117,3 +117,17 @@ Gating (matched count, vs frozen run): baseline identical (protocol check ✓). 
 | 40% | +168,428 | 33.7% | 1.35 | 60,939 (30.5%) |
 
 At the *measured* stop rate the book survives: net nearly halves but **drawdown is unchanged** — the SL is a per-trade cap, so stops convert tail days into single capped losses. The book only breaks at 1.6× the measured rate (DD 30.5%). Ceiling: magnitudes are e004's mean stop applied by random draw, not path-matched to the same days (random sampling also understates vol-clustered stop correlation) — `stress_test.py` ponytail note.
+
+## Addendum 4 — Exit-aware gating: e005's real intraday condor PnLs replace the open→close labels (`gating_exit_aware.py`)
+
+The dte gating above prices condor trades with e001's open→close proxy. e005's validated replay supplies real exit outcomes for the condor column (both exit configs; e001 labels kept on e005's 88 skipped days; bull/bear stay on e001 labels — e004 confirmed them directionally). Same frozen gating machinery, dte features:
+
+| Policy | open→close | documented exits (SL+50% tgt) | drop-target exits (SL+EOD) |
+|---|---:|---:|---:|
+| baseline (rule) | +108,306 | **−60,988** (PF 0.89) | +115,628 |
+| ml_lgbm | +439,906 | +116,398 | +439,490 |
+| **ml_logistic (dte)** | +653,520 | +241,260 | **+650,052** (DD 18,746) |
+| EV-ranked lgbm | +646,433 | +250,057 | **+656,062** (PF 3.08, DD 14,581) |
+| condor-only ML | +498,382 | +230,564 | **+494,665** (PF 15.41, DD 2,336) |
+
+**Reading:** (1) Under the *documented* +50% profit target, the selector's edge largely evaporates — the target caps exactly the crush days the ML picks, and the naive rule's condor subset goes negative. (2) With the target dropped, every gating conclusion survives exit-awareness essentially unchanged — because e005 showed the 1.4× SL is a non-event and EOD exits reproduce the endpoint. **The ML edge was never an artifact of missing stops; the +50% cap is the single point of failure.** (3) Best exit-aware policies: EV-ranked lgbm +₹656k at 7.3% DD, condor-only ML +₹495k at 1.2% DD. Caveats: mixed exit world for bull/bear; drop-target column is a counterfactual (TARGET→endpoint reconstruction); 74 fallback days; best-of inflation across the policy panel still applies.
