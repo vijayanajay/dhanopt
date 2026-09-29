@@ -2,41 +2,41 @@
   "stop_pnl": -718.9,
   "baseline_ev": {
     "n": 919,
-    "net_total": 583124.0,
-    "avg_net": 634.5,
-    "win_rate": 0.504,
-    "pf": 2.79,
-    "max_dd": 28873.0
+    "net_total": 761977.0,
+    "avg_net": 829.1,
+    "win_rate": 0.536,
+    "pf": 3.41,
+    "max_dd": 17671.0
   },
   "policies": {
     "stress_10": {
       "n": 919,
-      "net_total": 458519.0,
-      "avg_net": 498.9,
-      "win_rate": 0.46,
-      "pf": 2.26,
-      "max_dd": 28567.0,
-      "max_dd_pct": 14.3,
+      "net_total": 621289.0,
+      "avg_net": 676.0,
+      "win_rate": 0.484,
+      "pf": 2.74,
+      "max_dd": 23171.0,
+      "max_dd_pct": 11.6,
       "frac": 0.1
     },
     "stress_25": {
       "n": 919,
-      "net_total": 309162.0,
-      "avg_net": 336.4,
-      "win_rate": 0.396,
-      "pf": 1.73,
-      "max_dd": 29909.0,
-      "max_dd_pct": 15.0,
+      "net_total": 423509.0,
+      "avg_net": 460.8,
+      "win_rate": 0.417,
+      "pf": 2.03,
+      "max_dd": 23171.0,
+      "max_dd_pct": 11.6,
       "frac": 0.25
     },
     "stress_40": {
       "n": 919,
-      "net_total": 168428.0,
-      "avg_net": 183.3,
-      "win_rate": 0.337,
-      "pf": 1.35,
-      "max_dd": 60939.0,
-      "max_dd_pct": 30.5,
+      "net_total": 207778.0,
+      "avg_net": 226.1,
+      "win_rate": 0.343,
+      "pf": 1.44,
+      "max_dd": 30382.0,
+      "max_dd_pct": 15.2,
       "frac": 0.4
     }
   }

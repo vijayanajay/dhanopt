@@ -69,7 +69,10 @@ def make_day(prev_close: float, open_: float, close: float, put_oi: float = 500_
 
 class TestLots(unittest.TestCase):
     def test_era_table(self):
-        self.assertEqual(lot_for_date(date(2021, 6, 1)), 25)
+        self.assertEqual(lot_for_date(date(2021, 6, 1)), 75)   # pre-Jul-2021: 75
+        self.assertEqual(lot_for_date(date(2021, 7, 1)), 50)   # FAOP47854 era: 50
+        self.assertEqual(lot_for_date(date(2024, 4, 25)), 50)
+        self.assertEqual(lot_for_date(date(2024, 4, 26)), 25)  # Apr-2024 review: 25
         self.assertEqual(lot_for_date(date(2024, 11, 19)), 25)
         self.assertEqual(lot_for_date(date(2024, 11, 20)), 75)
         self.assertEqual(lot_for_date(date(2025, 12, 29)), 75)

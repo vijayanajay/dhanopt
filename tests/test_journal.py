@@ -11,6 +11,8 @@ import json
 import os
 import tempfile
 import unittest
+
+import config
 from pathlib import Path
 
 from backtest.engine import WalkForwardEngine, generate_16_folds
@@ -49,9 +51,10 @@ class TestTradeJournal(unittest.TestCase):
         self.assertIsNotNone(trade_id)
 
         # Record winning exit: target hit
+        QTY = config.NIFTY_LOT_SIZE  # era-correct (65 since 2025-12-30)
         record = self.journal.record_exit(
             trade_id=trade_id,
-            exit_price=124.0,     # Profit of (124 - 76) * 75 = 3,600
+            exit_price=124.0,     # Profit of (124 - 76) * lot
             charges=188.40,
             exit_reason="TARGET_HIT",
             exit_time="11:30:00",
@@ -61,9 +64,9 @@ class TestTradeJournal(unittest.TestCase):
         )
 
         self.assertEqual(record.trade_id, trade_id)
-        self.assertEqual(record.gross_pnl, 3600.0)
+        self.assertEqual(record.gross_pnl, 48.0 * QTY)
         self.assertEqual(record.charges, 188.40)
-        self.assertEqual(record.net_pnl, 3411.60)
+        self.assertEqual(record.net_pnl, 48.0 * QTY - 188.40)
         self.assertEqual(record.attribution, "CLEAN_WIN")
         self.assertEqual(record.exit_reason, "TARGET_HIT")
 
@@ -128,11 +131,11 @@ class TestTradeJournal(unittest.TestCase):
         daily = self.journal.get_daily_pnl("2026-09-30")
         monthly = self.journal.get_monthly_pnl("2026-09")
 
-        # Trade 1 net: (30 * 75) - 190 = 2250 - 190 = 2060
-        # Trade 2 net (credit): (50 - 20) * 75 - 190 = 2250 - 190 = 2060
-        # Total = 4120
-        self.assertEqual(daily, 4120.0)
-        self.assertEqual(monthly, 4120.0)
+        # Trade 1 net: (30 * lot) - 190
+        # Trade 2 net (credit): (50 - 20) * lot - 190
+        QTY = config.NIFTY_LOT_SIZE
+        self.assertEqual(daily, 30.0 * QTY - 190.0 + 30.0 * QTY - 190.0)
+        self.assertEqual(monthly, 30.0 * QTY - 190.0 + 30.0 * QTY - 190.0)
 
     def test_consecutive_losses_streak(self):
         """Action Plan Task 7.1: Verify tracking of losing streaks for circuit breaker."""

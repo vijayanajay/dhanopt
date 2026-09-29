@@ -16,33 +16,33 @@ Run: `python -m experiments.e005_theta_condor.replay_theta` (chunk-checkpointed,
 | Metric | e005 path exits | e001 open→close (endpoint) |
 |---|---:|---:|
 | n | 1,321 (of 1,409 sessions; 67 NOLEG + 21 NOSIM excluded, mirroring e001's skips) | 1,321 (common days) |
-| WR | 46.7% | 47.5% |
-| **Net** | **+₹288,581** | +₹732,244 |
-| PF | 2.05 | 3.68 |
-| Max DD | **₹14,608** | (not computed) |
+| WR | 51.8% | 52.1% |
+| **Net** | **+₹469,637** | +₹1,047,001 |
+| PF | 2.38 | 4.08 |
+| Max DD | **₹6,676** | (not computed) |
 | Exits | TARGET 651 / EOD 614 / **STOP 56** | — |
 
-Expiry-day concentration survives path exits: expiry days +₹327k (Thu era +₹181k on 229 days @ 87.8% WR; Tue era +₹146k on 52 days @ **100% WR**); non-expiry days ≈ −₹42k.
+Expiry-day concentration survives path exits: expiry days +₹513k (Thu era +₹351k on 242 days @ 90.5% WR; Tue era +₹162k on 56 days @ **100% WR**); non-expiry days ≈ −₹44k.
 
 **Exit-rule decomposition (vs endpoint PnL on the same days):**
 
 | Exit | n | e005 PnL | Endpoint PnL | Delta |
 |---|---:|---:|---:|---:|
-| TARGET (+50%) | 651 | +466,593 | +904,695 | **−438,102** |
-| EOD | 614 | −133,472 | −133,472 | **0 (identity)** |
-| STOP (1.4×) | 56 | −44,540 | −38,978 | −5,562 |
+| TARGET (+50%) | 651 | +669,483 | +1,239,627 | **−570,144** |
+| EOD | 614 | −140,946 | −140,946 | **0 (identity)** |
+| STOP (1.4×) | 56 | −58,900 | −51,680 | −7,220 |
 
-Counterfactuals on identical days: as-run **+₹289k**; drop-the-target (keep SL) **+₹727k** (sweep's no-cap row: +₹726k); pure endpoint (= e001) +₹732k. The 1.4× SL is a non-event (4.2% of days; net effect −₹6k — stopped days' endpoints were no better) — **e004's 25% stop rate was pure pricing artifact**. The +50% profit target is what forfeits ₹438k: 651 days exit at avg +₹717 that would have closed at avg +₹1,390. (Numbers from the regenerated, column-consistent artifact — see the sweep addendum's note on the chunk-append bug.)
+Counterfactuals on identical days: as-run **+₹470k**; drop-the-target (keep SL) **+₹1,037k** (sweep's no-cap row); pure endpoint (= e001) +₹1,047k. The 1.4× SL is a non-event (4.2% of days; net effect −₹7k — stopped days' endpoints were no better) — **e004's 25% stop rate was pure pricing artifact**. The +50% profit target is what forfeits ₹570k: 651 days exit at avg +₹1,029 that would have closed at avg +₹1,904. (Numbers from the regenerated, column-consistent artifact — see the sweep addendum's note on the chunk-append bug.)
 
 ## Verdict
 
 **What works:**
-1. **The condor book survives honest intraday exits.** +₹289k at PF 2.05 with max DD ₹14.6k (7.3% of bankroll) under the *documented* exit rules — the e001/e002 thesis stands at the book level. e004's condor collapse is now fully explained and closed. (But see Addendum 2: the edge is concentrated in inverted-wall days.)
+1. **The condor book survives honest intraday exits.** +₹470k at PF 2.38 with max DD ₹6.7k (3.3% of bankroll) under the *documented* exit rules — the e001/e002 thesis stands at the book level. e004's condor collapse is now fully explained and closed. (But see Addendum 2: the edge is concentrated in inverted-wall days.)
 2. **The expiry-day 0DTE effect is real intraday, not a daily-bar artifact** — 100% WR on Tue-era expiry days, 87.8% in the Thu era.
 3. The e001-identity construction (real opens in, real closes out) gives a leg-for-leg validated harness — any future exit rule can be tested against the same frozen labels.
 
 **What does not work:**
-1. **The documented +50% profit target destroys ~60% of the edge (−₹438k).** It caps exactly the big crush days that are the strategy's payoff. Raising it to **100% of credit** lifts net to +₹761k with *lower* drawdown (sweep addendum) — the single highest-value, zero-risk config change the sandbox has produced. (Post-hoc comparison of exit configs — mild selection bias, logged per protocol; validate before production.)
+1. **The documented +50% profit target destroys ~54% of the edge (−₹570k).** It caps exactly the big crush days that are the strategy's payoff. Raising it to **100% of credit** lifts net to +₹1.09M with *lower* drawdown (sweep addendum) — the single highest-value, zero-risk config change the sandbox has produced. (Post-hoc comparison of exit configs — mild selection bias, logged per protocol; validate before production.)
 2. e004's lesson stands as a process rule: **fixed-IV greeks cannot price credit books**; the first two e005 designs (ATM-σ ratios, per-leg IV ratios) failed the same way before the endpoint-anchored design.
 
 **Ceilings:** greeks frozen at entry (no intraday vol response — understates spike losses slightly, biases toward *fewer* stops, i.e. conservative in the direction that favors the conclusion); friction on real opens; 67 NOLEG + 21 NOSIM days excluded (mirroring e001's zero-credit/missing-leg skips).
@@ -55,14 +55,14 @@ One prepared day set, six target levels (fixed-column CSV writer added after the
 
 | Target | WR | Net ₹ | PF | Max DD ₹ | TARGET/EOD/STOP days |
 |---|---:|---:|---:|---:|---|
-| 50% (documented) | 46.7% | +288,581 | 2.05 | 14,608 | 651/614/56 |
-| 75% | 47.7% | +567,818 | 3.06 | 3,910 | 388/876/57 |
-| **100%** | **47.9%** | **+760,856** | **3.76** | **3,888** | 117/1,145/59 |
-| 150% | 47.5% | +762,073 | 3.76 | 3,888 | 27/1,234/60 |
-| 200% | 47.5% | +756,561 | 3.73 | 4,483 | 15/1,245/61 |
-| no cap | 47.4% | +726,053 | 3.60 | 4,483 | 0/1,256/65 |
+| 50% (documented) | 51.8% | +469,637 | 2.38 | 6,676 | 651/614/56 |
+| 75% | 52.2% | +837,820 | 3.45 | 6,245 | 388/876/57 |
+| **100%** | **52.2%** | **+1,086,580** | **4.18** | **5,504** | 117/1,145/59 |
+| 150% | 52.2% | +1,085,638 | 4.17 | 5,650 | 27/1,234/60 |
+| 200% | 52.0% | +1,082,758 | 4.13 | 8,344 | 15/1,245/61 |
+| no cap | 51.9% | +1,037,476 | 3.98 | 8,344 | 0/1,256/65 |
 
-**Pick: target = 100% of credit.** Flat-optimum plateau 100–200%, all ≈ +₹760k at DD ≈ ₹3.9k (the target itself is a mild DD *reducer* — it banks gains on days that would fade). The documented 50% level sits off the cliff edge: −₹474k vs 100%, DD 3.8× worse. Below the plateau the cap amputates winners; beyond it nothing changes (few than 30 days ever reach +150%).
+**Pick: target = 100% of credit.** Flat-optimum plateau 100–200%, all ≈ +₹1.09M at DD ₹5.5–8.3k (the target itself is a mild DD *reducer* — it banks gains on days that would fade). The documented 50% level sits off the cliff edge: −₹617k vs 100%, with 1.2× the drawdown. Below the plateau the cap amputates winners; beyond it nothing changes (fewer than 30 days ever reach +150%).
 
 ## Addendum 2 — Inverted-wall audit (`audit_inverted_walls.py`): the edge is NOT the condor
 
@@ -70,13 +70,13 @@ The single most important finding of the sandbox. e001's leg builder has no `put
 
 | Structure | n | Net ₹ | PF |
 |---|---:|---:|---:|
-| **valid (put_wall < open < call_wall)** | 964 | **−55,428** | **0.78** |
-| inverted call wall (call ≤ open) | 173 | +474,465 | 91.8 |
-| inverted put wall (put ≥ open) | 184 | +313,208 | 21.2 |
+| **valid (put_wall < open < call_wall)** | 964 | **+34,589** | **1.11** |
+| inverted call wall (call ≤ open) | 173 | +601,268 | 75.9 |
+| inverted put wall (put ≥ open) | 184 | +411,145 | 20.0 |
 
-**107.6% of the frozen e001/e002/e005 condor edge comes from inverted-wall days**; the textbook structure loses after friction. Rule-selected subset: +₹288k → **−₹17k** valid-only. A fade probe shows inverted days winning even when spot keeps moving *through* the short strike (110 no-fade days, +₹399k at 94.5% WR) — only explicable by 0DTE extrinsic collapse outpacing intrinsic gain, and/or stale closing marks on deep-ITM strikes (a PF of 91.8 is not a tradable signature; bhavcopy closes are last-traded, and deep-ITM weekly strikes trade thinly).
+(Fresh audit runs on the endpoint labels it always classified; the pre-era-fix table read −₹55k/PF 0.78 for valid days.) **~97% of the frozen endpoint condor edge comes from inverted-wall days**; the textbook structure is breakeven after friction (+3.3% of the edge). Rule-selected subset: +₹380k → **+₹16k (PF 1.17)** valid-only. A PF of 75.9 on 173 days is not a tradable signature; bhavcopy closes are last-traded, and deep-ITM weekly strikes trade thinly.
 
-**Interpretation, stated carefully:** on those days the position is not a premium-crush condor — it is a short-delta/long-delta directional bet that happened to be rescued by expiry-day crush. Whether the marks were capturable was validated against Dhan 5-min option candles (`marks_validation.py`, Addendum 4): **marks are real** — opens match exactly, closes within last-trade noise; the inverted walls are prior-OI walls above a crashed spot (futures open 23,302 on 09-25 after the 09-22→09-25 selloff), and crash-inflated premium crushing on expiry is a real post-crash short-vol effect. **All downstream conclusions inherit this composition** — e005's sweep sweet spot, the exit-aware gating (+₹495k condor-only ML at PF 15.4 is the same concentration), and the collated bottom line. Residual: one session validated (expired contracts leave the scrip master); extend backward via historical-candle depth or forward via live sessions.
+**Interpretation, stated carefully:** on those days the position is not a premium-crush condor — it is a short-delta/long-delta directional bet that happened to be rescued by expiry-day crush. Whether the marks were capturable was validated against Dhan 5-min option candles (`marks_validation.py`, Addendum 4): **marks are real** — opens match exactly, closes within last-trade noise; the inverted walls are prior-OI walls above a crashed spot (futures open 23,302 on 09-25 after the 09-22→09-25 selloff), and crash-inflated premium crushing on expiry is a real post-crash short-vol effect. **All downstream conclusions inherit this composition** — e005's sweep sweet spot, the exit-aware gating (+₹589k condor-only ML at PF 18.6 is the same concentration), and the collated bottom line. Residual: one session validated (expired contracts leave the scrip master); extend backward via historical-candle depth or forward via live sessions.
 
 ## Addendum 4 — Mark validation against Dhan 5-min option candles (`marks_validation.py`)
 
@@ -99,25 +99,25 @@ Dhan serves 5-min OHLC+OI for NSE_FNO options by security ID (scrip master mappi
 
 | Config | WR | Net ₹ | PF | Max DD ₹ | TRAIL/EOD/STOP days |
 |---|---:|---:|---:|---:|---|
-| documented (SL + 50% tgt) | 46.7% | +288,581 | 2.05 | 14,608 | —/614/56 |
-| target 100% (sweep pick) | 47.9% | +760,856 | 3.76 | 3,888 | —/1,145/59 |
-| no cap | 47.4% | +726,053 | 3.60 | 4,483 | —/1,256/65 |
-| trail 75% @ 14:00 | 47.7% | +629,641 | 3.29 | 3,888 | 373/885/63 |
-| trail 75% @ 13:30 | 47.8% | +611,734 | 3.22 | 3,888 | 377/881/63 |
-| trail 80% @ 14:00 | 47.8% | +666,225 | 3.42 | 3,888 | 338/920/63 |
-| **trail 80% @ 14:30** | 47.6% | **+685,327** | 3.48 | 3,888 | 334/924/63 |
+| documented (SL + 50% tgt) | 51.8% | +469,637 | 2.38 | 6,676 | —/614/56 |
+| target 100% (sweep pick) | 52.2% | +1,086,580 | 4.18 | 5,504 | —/1,145/59 |
+| no cap | 51.9% | +1,037,476 | 3.98 | 8,344 | —/1,256/65 |
+| trail 75% @ 14:00 | 52.2% | +923,910 | 3.70 | 5,671 | 373/885/63 |
+| trail 75% @ 13:30 | 52.2% | +899,950 | 3.63 | 6,059 | 377/881/63 |
+| trail 80% @ 14:00 | 52.2% | +970,939 | 3.84 | 5,671 | 338/920/63 |
+| **trail 80% @ 14:30** | 52.2% | **+995,153** | 3.90 | 5,671 | 334/924/63 |
 
-Every trail config beats the documented 50% target by 2.1–2.4× at the same DD — his instinct about the cap is right. But none beats the plain 100%-of-credit target (best trail −₹75k vs it): in this first-order model the 100% target already locks in mid-crush before the late-day spike. Honest caveat favoring the trail: the delta/gamma model has no intraday vol response, so it *understates* the real 14:30–15:15 gamma spike — the trail's true benefit is a lower bound. As a risk-management overlay (capping late-day tail gamma) it remains attractive even at −₹75k.
+Every trail config beats the documented 50% target by ~1.9–2.1× — his instinct about the cap is right. But none beats the plain 100%-of-credit target (best trail −₹91k vs it): in this first-order model the 100% target already locks in mid-crush before the late-day spike. Honest caveat favoring the trail: the delta/gamma model has no intraday vol response, so it *understates* the real 14:30–15:15 gamma spike — the trail's true benefit is a lower bound. As a risk-management overlay (capping late-day tail gamma) it remains attractive even at −₹75k.
 
 **IV regimes contradict the VIX-sizing hypothesis** (per-day PnL bucketed by within-year expanding percentile of `straddle_pct`, the live-conditionable IV proxy):
 
 | IV bucket | all days: n / net / avg / PF | expiry days: n / net / avg |
 |---|---|---|
-| q1 (low) | 264 / +76k / +289 / 2.25 | 49 / +102k / +2,075 |
-| q2 | 297 / +128k / +431 / 3.99 | 152 / +131k / +862 |
-| q3 | 262 / +43k / +165 / 1.75 | 42 / +64k / +1,526 |
-| q4 | 205 / +1.5k / +7 / 1.03 | 10 / +20k / +2,034 |
-| q5 (high) | 179 / +15k / +86 / 1.34 | 19 / +45k / +2,371 |
+| q1 (low) | 264 / +90k / +342 / 2.14 | 49 / +107k / +2,190 |
+| q2 | 297 / +226k / +761 / 5.61 | 152 / +214k / +1,410 |
+| q3 | 262 / +73k / +278 / 2.05 | 42 / +82k / +1,953 |
+| q4 | 205 / +16k / +77 / 1.28 | 10 / +21k / +2,101 |
+| q5 (high) | 179 / +23k / +128 / 1.41 | 19 / +46k / +2,436 |
 
 The edge does **not** concentrate in high IV — on non-expiry days the best buckets are low-to-mid IV and the highest-IV quintile earns almost nothing (classic short-vol: high IV means a stressed market). On **expiry days IV is nearly irrelevant** (every bucket profitable) — the 0DTE crush mechanism dominates regime. Sizing implication: do not upsize in high IV on non-expiry days; the defensible concentration is expiry-day-focused (see the expiry-gate result in e002 Add. 5), not IV-timed. Composition caveat (Add. 2) applies to these buckets too.
 
@@ -127,10 +127,30 @@ Kailash's Idea 3 formalized: on dte≤1 days where spot gapped over the prior ma
 
 | Book (same 249 days) | Net ₹ | WR | Max DD ₹ | Worst day ₹ |
 |---|---:|---:|---:|---:|
-| **breach spread (SL + 100% tgt)** | +734,388 | 98.8% | 6,139 | **−6,139** |
-| 4-leg condor (SL + 100% tgt) | +780,604 | 98.4% | **551** | (unbounded tail) |
-| breach spread (SL only, no cap) | +674,162 | 98.4% | 6,139 | −6,139 |
+| **breach spread (SL + 100% tgt)** | +940,697 | 98.8% | 6,139 | **−6,139** |
+| 4-leg condor (SL + 100% tgt) | +987,124 | 98.8% | **657** | (unbounded tail) |
+| breach spread (SL only, no cap) | +867,006 | 98.4% | 6,139 | −6,139 |
 
-Call-breach days: 139, +₹444k, 100% WR. Put-breach days: 110, +₹290k, 97.3% WR. Only **2 STOPs in 249 days**; worst-5% day still positive (p5 = +₹678); worst day −₹6,139 = the defined max loss working (150-pt width − credit).
+Call-breach days: 139, +₹563k, 100% WR. Put-breach days: 110, +₹377k, 97.3% WR. Only **2 STOPs in 249 days**; worst-5% day still positive (p5 = +₹1,007); worst day −₹6,139 = the defined max loss working (150-pt width − credit).
 
-**Reading — the spread is tail insurance, not a PnL upgrade:** the condor earns *more* on these days (+₹781k vs +₹734k at the same target, DD ₹551 vs ₹6,139) because the unbreached wing also pays on crush days. The spread's value is convexity: its worst day is a *known* ~₹7.9k (width − credit), while the condor's gap-through loss past the short strike is bounded only by the far wing (potentially ₹20k+ on a cascade day the first-order model understates). Adopt the spread if the tail matters more than ₹46k/5.7y; keep the condor if the marks and hedges are trusted. Either way: **stop trading 4-leg condors on valid-structure days** (PF 0.78) — on 319 days a year the right trade is no trade.
+**Reading — the spread is tail insurance, not a PnL upgrade:** the condor earns *more* on these days (+₹987k vs +₹941k at the same target, DD ₹657 vs ₹6,139) because the unbreached wing also pays on crush days. The spread's value is convexity: its worst day is a *known* ~₹7.9k (width − credit), while the condor's gap-through loss past the short strike is bounded only by the far wing (potentially ₹20k+ on a cascade day the first-order model understates). Adopt the spread if the tail matters more than ₹46k/5.7y; keep the condor if the marks and hedges are trusted. Either way: **stop trading 4-leg condors on valid-structure days** (PF 1.11, breakeven) — on ~319 days a year the right trade is no trade.
+
+## Addendum 6 — Mark validation backward extension (`marks_validation_v2.py`)
+
+Question: v1 (Add. 4) validated ONE session — the only expiry week whose contracts survive the current scrip master. Can the check reach the expired contracts the frozen window rests on?
+
+**Dhan path found: the Expired-Options API** (`POST /v2/charts/rollingoption` — minute-level expired data, documented "last 5 years", index options ATM±10 near expiry). Probed facts, each pinned by a test: `expiryCode: 0` is rejected by a falsy-zero parse (use `1` = nearest); `drvOptionType` selects the side (CALL→ce, PUT→pe — one request does NOT return both); the series is literally **rolling** (re-centers on ATM as spot moves, so fixed-strike legs are recovered by filtering bars on the per-bar `strike` field, and a given strike appears only while within ATM±k); the dated scrip-master CSV (`?date=`) is a **no-op** (three dates → identical hashes) — deleted instruments are not downloadable (403). Dated scrip-master scaffolding was deleted; the rolling API's per-bar strike/spot makes it unnecessary.
+
+**Result — 4 of 5 sampled sessions validated (2021-01-05, 2025-09-02, 2025-09-04, 2026-09-25):**
+
+| Session (era) | Legs OK/PARTIAL | Opens | Closes |
+|---|---|---|---|
+| 2021-01-05 (Thu, lot 25) | 3 OK, 1 NO_BARS | −4.90 / +0.90 / −3.00 | ≤0.70 |
+| 2022-06-10 (Thu, lot 25) | 0 — walls at ATM−26/+14, **outside the ATM±10 ceiling** | — | — |
+| 2025-09-02 (Tue-era expiry day) | 3 OK, 1 PARTIAL | +8.25 / −8.80 / +1.45 | ≤3.10 |
+| 2025-09-04 (Tue-era, dte 2) | 3 OK, 1 PARTIAL | +4.05 / −3.05 / −21.10 | ≤1.25 |
+| 2026-09-25 (Tue, both endpoints) | 4 OK | **0.00 exact** (cross-checks v1) | ≤1.05 |
+
+**Reading:** on every fully-covered leg, closes match bhavcopy within last-trade/settlement timing (≤3.1 pts), and the one session with full coverage matches **to the paisa on opens** — independently confirming v1 through a different endpoint. **Open-mark caveats are real and bounded:** edge-coverage legs (strike at the ±k window edge at 09:15) differ a few points (worst −21.1 on a ₹50 far-wing), consistent with rolling-API stitching rather than stale bhavcopy marks — flagged, not waved away. Days whose walls sit beyond ATM±10 (wide-wall days like 2022-06-10) are uncoverable on this endpoint. **Depth answer: minute data reaches 2021-01-04, the first FO day of the frozen window** — mark validation can extend to ~40 breach trades' worth of sessions before stage-1 go-live.
+
+Run: `python -m experiments.e005_theta_condor.marks_validation_v2` → `artifacts/marks_validation_v2.json`; self-checks in `test_marks_validation_v2.py`.

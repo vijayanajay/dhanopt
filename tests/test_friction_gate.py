@@ -20,7 +20,8 @@ from core.friction.zerodha import (
 
 class TestFrictionEngine(unittest.TestCase):
     def test_two_leg_spread_friction_breakdown(self):
-        # Bull Call Spread: Long 25000 CE @ 100.0, Short 25150 CE @ 45.0, 1 lot (75 qty)
+        # Bull Call Spread: Long 25000 CE @ 100.0, Short 25150 CE @ 45.0, 1 lot
+        QTY = config.NIFTY_LOT_SIZE  # era-correct (65 since 2025-12-30)
         legs = [
             OptionLeg(strike=25000.0, option_type="CE", action="BUY", entry_price=100.0, target_price=130.0, lots=1),
             OptionLeg(strike=25150.0, option_type="CE", action="SELL", entry_price=45.0, target_price=15.0, lots=1),
@@ -30,26 +31,26 @@ class TestFrictionEngine(unittest.TestCase):
         # 1. Brokerage: 2 legs * 2 sides * ₹20 = ₹80.00
         self.assertEqual(fb.brokerage, 80.00)
 
-        # 2. Slippage: 1.5 pts * 75 qty * 2 legs = ₹225.00
-        self.assertEqual(fb.slippage, 225.00)
+        # 2. Slippage: 1.5 pts * QTY * 2 legs = ₹195.00 at the current 65 lot
+        self.assertEqual(fb.slippage, 1.5 * QTY * 2)
 
         # 3. STT: 0.1% on sell-side turnover
-        # Long leg exit sell: 130 * 75 = 9750
-        # Short leg entry sell: 45 * 75 = 3375
-        # Total sell turnover = 13125 -> STT = 13.125 ~= 13.12 or 13.13
-        self.assertAlmostEqual(fb.stt, 13.13, delta=0.05)
+        # Long leg exit sell: 130 * QTY; short leg entry sell: 45 * QTY
+        self.assertAlmostEqual(fb.stt, 0.001 * (130.0 + 45.0) * QTY, delta=0.05)
 
         # 4. Total rupees must include all charges
-        self.assertGreater(fb.total_rupees, 320.00)
-        self.assertAlmostEqual(fb.points_equivalent, fb.total_rupees / 75.0, places=2)
+        # 4. Total rupees must include all charges (floor valid for the 65 lot)
+        self.assertGreater(fb.total_rupees, 300.00)
+        self.assertAlmostEqual(fb.points_equivalent, fb.total_rupees / QTY, places=2)
 
     def test_four_leg_iron_condor_friction(self):
+        QTY = config.NIFTY_LOT_SIZE
         fb = estimate_spread_friction(num_legs=4, avg_premium=50.0, lots=1)
         # 4 legs * 2 sides * ₹20 = ₹160 brokerage
         self.assertEqual(fb.brokerage, 160.00)
-        # 4 legs * 1.5 pts * 75 = ₹450 slippage
-        self.assertEqual(fb.slippage, 450.00)
-        self.assertGreater(fb.total_rupees, 610.00)
+        # 4 legs * 1.5 pts * lot = ₹390 slippage at the current 65 lot
+        self.assertEqual(fb.slippage, 4 * 1.5 * QTY)
+        self.assertGreater(fb.total_rupees, 610.00 - (75 - QTY) * 6)
 
 
 class TestRuleGatekeeper(unittest.TestCase):

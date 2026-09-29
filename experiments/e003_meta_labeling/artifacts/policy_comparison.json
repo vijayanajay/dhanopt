@@ -1,72 +1,72 @@
 {
   "calibration": {
-    "brier": 0.2452,
-    "acc": 0.573,
-    "base_rate": 0.418,
+    "brier": 0.2473,
+    "acc": 0.567,
+    "base_rate": 0.44,
     "n": 897
   },
   "policies": {
     "baseline_rule": {
       "n": 897,
-      "net_total": 108306.0,
-      "avg_net": 120.7,
-      "win_rate": 0.418,
+      "net_total": 129746.0,
+      "avg_net": 144.6,
+      "win_rate": 0.44,
       "pf": 1.2,
       "max_dd": 67526.0
     },
     "meta_filtered": {
       "n": 897,
-      "net_total": 108306.0,
-      "avg_net": 120.7,
-      "win_rate": 0.418,
+      "net_total": 129746.0,
+      "avg_net": 144.6,
+      "win_rate": 0.44,
       "pf": 1.2,
       "max_dd": 67526.0
     },
     "e002_style_selector": {
       "n": 897,
-      "net_total": 439345.0,
-      "avg_net": 489.8,
-      "win_rate": 0.517,
-      "pf": 2.03,
-      "max_dd": 29303.0
+      "net_total": 578639.0,
+      "avg_net": 645.1,
+      "win_rate": 0.532,
+      "pf": 2.28,
+      "max_dd": 25799.0
     }
   },
   "threshold_sweep": {
     "tau_0.40": {
-      "n": 494,
-      "net_total": 164593.0,
-      "avg_net": 333.2,
-      "win_rate": 0.466,
-      "pf": 1.58,
-      "max_dd": 28165.0,
-      "keep_rate": 0.551
+      "n": 567,
+      "net_total": 213963.0,
+      "avg_net": 377.4,
+      "win_rate": 0.499,
+      "pf": 1.59,
+      "max_dd": 36581.0,
+      "keep_rate": 0.632
     },
     "tau_0.45": {
-      "n": 381,
-      "net_total": 148020.0,
-      "avg_net": 388.5,
-      "win_rate": 0.491,
-      "pf": 1.69,
-      "max_dd": 19877.0,
-      "keep_rate": 0.425
+      "n": 475,
+      "net_total": 198522.0,
+      "avg_net": 417.9,
+      "win_rate": 0.503,
+      "pf": 1.66,
+      "max_dd": 31818.0,
+      "keep_rate": 0.53
     },
     "tau_0.50": {
-      "n": 280,
-      "net_total": 138108.0,
-      "avg_net": 493.2,
-      "win_rate": 0.486,
-      "pf": 2.01,
-      "max_dd": 15931.0,
-      "keep_rate": 0.312
+      "n": 351,
+      "net_total": 181993.0,
+      "avg_net": 518.5,
+      "win_rate": 0.51,
+      "pf": 1.85,
+      "max_dd": 26253.0,
+      "keep_rate": 0.391
     },
     "tau_0.55": {
-      "n": 196,
-      "net_total": 95723.0,
-      "avg_net": 488.4,
-      "win_rate": 0.495,
-      "pf": 1.96,
-      "max_dd": 17535.0,
-      "keep_rate": 0.219
+      "n": 259,
+      "net_total": 144275.0,
+      "avg_net": 557.0,
+      "win_rate": 0.502,
+      "pf": 1.94,
+      "max_dd": 17246.0,
+      "keep_rate": 0.289
     }
   }
 }

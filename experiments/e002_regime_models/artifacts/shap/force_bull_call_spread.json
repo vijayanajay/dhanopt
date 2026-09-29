@@ -1,201 +1,201 @@
 [
   {
-    "date": "2021-08-25",
-    "p_model": 0.594,
+    "date": "2021-10-22",
+    "p_model": 0.67,
     "actual_win": 0.0,
-    "base_value": -0.8493,
+    "base_value": -0.8067,
     "top_contributions": [
       {
-        "feature": "wall_put_dist_pct",
-        "shap": 0.5367
+        "feature": "wall_call_dist_pct",
+        "shap": 0.4311
       },
       {
         "feature": "mom10",
-        "shap": 0.2974
-      },
-      {
-        "feature": "pcr_t1",
-        "shap": 0.229
-      },
-      {
-        "feature": "straddle_pct",
-        "shap": -0.2261
-      },
-      {
-        "feature": "fut_prev_gap_pct",
-        "shap": 0.2073
-      },
-      {
-        "feature": "wall_call_dist_pct",
-        "shap": 0.0888
-      },
-      {
-        "feature": "fut_prev_ret",
-        "shap": -0.0851
-      },
-      {
-        "feature": "pcr_chg",
-        "shap": 0.0819
-      }
-    ]
-  },
-  {
-    "date": "2021-05-27",
-    "p_model": 0.593,
-    "actual_win": 0.0,
-    "base_value": -0.8493,
-    "top_contributions": [
-      {
-        "feature": "wall_put_dist_pct",
-        "shap": 0.4698
-      },
-      {
-        "feature": "pcr_t1",
-        "shap": 0.2681
-      },
-      {
-        "feature": "straddle_pct",
-        "shap": -0.2287
-      },
-      {
-        "feature": "wall_call_dist_pct",
-        "shap": 0.2189
-      },
-      {
-        "feature": "pcr_chg",
-        "shap": 0.2138
-      },
-      {
-        "feature": "mom10",
-        "shap": 0.1427
-      },
-      {
-        "feature": "pcr_t2",
-        "shap": 0.1249
-      },
-      {
-        "feature": "gap_open_pct",
-        "shap": 0.1021
-      }
-    ]
-  },
-  {
-    "date": "2026-03-12",
-    "p_model": 0.592,
-    "actual_win": 0.0,
-    "base_value": -0.8493,
-    "top_contributions": [
-      {
-        "feature": "straddle_pct_chg",
-        "shap": 0.2807
+        "shap": -0.3957
       },
       {
         "feature": "fut_prev_range_pct",
-        "shap": 0.2748
-      },
-      {
-        "feature": "range5_mean_pct",
-        "shap": 0.2538
+        "shap": 0.36
       },
       {
         "feature": "gap_open_pct",
-        "shap": 0.2014
+        "shap": 0.3057
       },
       {
-        "feature": "mom10",
-        "shap": 0.107
+        "feature": "pcr_chg",
+        "shap": 0.2127
       },
       {
-        "feature": "dow",
-        "shap": -0.1046
+        "feature": "fut_prev_ret",
+        "shap": 0.1983
       },
       {
         "feature": "fut_prev_gap_pct",
-        "shap": 0.1
+        "shap": 0.1772
       },
       {
-        "feature": "pcr_t1",
-        "shap": 0.0974
+        "feature": "straddle_pct",
+        "shap": -0.1383
       }
     ]
   },
   {
     "date": "2022-11-23",
-    "p_model": 0.578,
+    "p_model": 0.62,
     "actual_win": 0.0,
-    "base_value": -0.8493,
+    "base_value": -0.8067,
     "top_contributions": [
       {
-        "feature": "wall_put_dist_pct",
-        "shap": 0.3677
-      },
-      {
         "feature": "wall_call_dist_pct",
-        "shap": 0.3276
+        "shap": 0.3107
       },
       {
-        "feature": "mom5",
-        "shap": 0.2681
-      },
-      {
-        "feature": "straddle_pct",
-        "shap": -0.2506
-      },
-      {
-        "feature": "pcr_t1",
-        "shap": 0.2375
+        "feature": "wall_put_dist_pct",
+        "shap": 0.3064
       },
       {
         "feature": "gap_open_pct",
-        "shap": 0.2144
+        "shap": 0.2963
       },
       {
-        "feature": "pcr_chg",
-        "shap": 0.1821
+        "feature": "mom5",
+        "shap": 0.2773
+      },
+      {
+        "feature": "straddle_pct",
+        "shap": -0.2379
       },
       {
         "feature": "fut_prev_ret",
-        "shap": -0.1652
+        "shap": -0.2091
+      },
+      {
+        "feature": "pcr_t1",
+        "shap": 0.193
+      },
+      {
+        "feature": "mom10",
+        "shap": 0.1574
       }
     ]
   },
   {
-    "date": "2023-01-16",
-    "p_model": 0.562,
+    "date": "2022-05-16",
+    "p_model": 0.609,
     "actual_win": 0.0,
-    "base_value": -0.8493,
+    "base_value": -0.8067,
     "top_contributions": [
       {
-        "feature": "wall_put_dist_pct",
-        "shap": 0.4529
+        "feature": "range5_mean_pct",
+        "shap": 0.3839
+      },
+      {
+        "feature": "straddle_pct_chg",
+        "shap": 0.3485
       },
       {
         "feature": "mom10",
-        "shap": -0.1562
+        "shap": 0.2617
       },
       {
-        "feature": "pcr_chg",
-        "shap": 0.1553
-      },
-      {
-        "feature": "straddle_pct",
-        "shap": 0.1446
-      },
-      {
-        "feature": "pcr_t1",
-        "shap": 0.1217
+        "feature": "mom5",
+        "shap": -0.2148
       },
       {
         "feature": "fut_prev_range_pct",
-        "shap": 0.1132
+        "shap": 0.1968
+      },
+      {
+        "feature": "wall_call_dist_pct",
+        "shap": -0.1619
       },
       {
         "feature": "gap_open_pct",
-        "shap": 0.0862
+        "shap": 0.1395
+      },
+      {
+        "feature": "pcr_chg",
+        "shap": 0.1229
+      }
+    ]
+  },
+  {
+    "date": "2021-11-16",
+    "p_model": 0.591,
+    "actual_win": 0.0,
+    "base_value": -0.8067,
+    "top_contributions": [
+      {
+        "feature": "fut_prev_ret",
+        "shap": 0.3268
+      },
+      {
+        "feature": "wall_put_dist_pct",
+        "shap": 0.2113
+      },
+      {
+        "feature": "straddle_pct",
+        "shap": 0.1993
+      },
+      {
+        "feature": "gap_open_pct",
+        "shap": -0.1992
+      },
+      {
+        "feature": "pcr_t2",
+        "shap": 0.1917
+      },
+      {
+        "feature": "fut_prev_range_pct",
+        "shap": 0.1914
+      },
+      {
+        "feature": "mom10",
+        "shap": 0.1617
+      },
+      {
+        "feature": "pcr_chg",
+        "shap": -0.1516
+      }
+    ]
+  },
+  {
+    "date": "2021-11-29",
+    "p_model": 0.577,
+    "actual_win": 0.0,
+    "base_value": -0.8067,
+    "top_contributions": [
+      {
+        "feature": "straddle_pct_chg",
+        "shap": 0.4253
       },
       {
         "feature": "range5_mean_pct",
-        "shap": 0.0616
+        "shap": 0.3193
+      },
+      {
+        "feature": "mom10",
+        "shap": 0.298
+      },
+      {
+        "feature": "mom5",
+        "shap": -0.2206
+      },
+      {
+        "feature": "gap_open_pct",
+        "shap": 0.1575
+      },
+      {
+        "feature": "fut_prev_range_pct",
+        "shap": 0.1519
+      },
+      {
+        "feature": "delta_oi_skew",
+        "shap": -0.1486
+      },
+      {
+        "feature": "pcr_t1",
+        "shap": 0.0906
       }
     ]
   }

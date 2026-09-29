@@ -125,8 +125,9 @@ class TestEmpiricalCalibration(unittest.TestCase):
         self.assertEqual(config.get_nifty_lot_size("2021-07-01"), 50)   # July 2021 to April 2024: 50
         self.assertEqual(config.get_nifty_lot_size("2023-05-15"), 50)
         self.assertEqual(config.get_nifty_lot_size("2024-05-01"), 25)   # April 2024 to Nov 2024: 25
-        self.assertEqual(config.get_nifty_lot_size("2024-11-20"), 75)   # Post-Nov 20, 2024: 75
-        self.assertEqual(config.get_nifty_lot_size("2026-09-28"), 75)
+        self.assertEqual(config.get_nifty_lot_size("2024-11-20"), 75)   # Nov 2024 to Dec 2025: 75
+        self.assertEqual(config.get_nifty_lot_size("2025-12-30"), 65)   # FAOP70616 era: 65
+        self.assertEqual(config.get_nifty_lot_size("2026-09-28"), 65)
 
     def test_fail_closed_when_calibration_missing(self):
         """Verify missing calibration data returns None and forces strategy to zero win rate (TIER 0)."""

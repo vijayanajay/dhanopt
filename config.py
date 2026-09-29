@@ -50,17 +50,21 @@ TIER_2_MAX_RISK: float = 2_500.0
 
 # --- Nifty 50 Contract Specifications ---
 NIFTY_SYMBOL: str = "NIFTY"
-NIFTY_LOT_SIZE: int = 75
+# Current-era contract lot (NSE FAOP70616: 65 effective from the Jan-2026 weekly
+# cycle, ~Dec 30, 2025). Historical eras via get_nifty_lot_size(); live qty must
+# use the era-correct value, not this static default.
+NIFTY_LOT_SIZE: int = 65
 
 
 def get_nifty_lot_size(trade_date: Optional[Union[str, date, datetime]] = None) -> int:
     """Returns exact NSE NIFTY lot size based on circular enforcement dates.
 
-    Historical Lot Eras:
+    Historical Lot Eras (verified against NSE circulars):
     - Pre-July 2021: 75 (before July 2021 expiry)
     - July 2021 to April 25, 2024: 50 (NSE Circular 25/2021)
     - April 26, 2024 to Nov 19, 2024: 25 (NSE Circular 45/2024)
-    - Nov 20, 2024 to present: 75 (SEBI index derivatives circular)
+    - Nov 20, 2024 to Dec 29, 2025: 75 (SEBI index derivatives circular / FAOP67372)
+    - Dec 30, 2025 to present: 65 (FAOP70616: Jan-2026 weekly cycle onwards)
     """
     if not trade_date:
         return NIFTY_LOT_SIZE
@@ -70,7 +74,9 @@ def get_nifty_lot_size(trade_date: Optional[Union[str, date, datetime]] = None) 
     except Exception:
         d_str = str(trade_date)[:10]
 
-    if d_str >= "2024-11-20":
+    if d_str >= "2025-12-30":
+        return 65
+    elif d_str >= "2024-11-20":
         return 75
     elif d_str >= "2024-04-26":
         return 25
@@ -92,6 +98,8 @@ GST_RATE: float = 0.18                   # 18% on (Brokerage + Exchange + SEBI)
 SLIPPAGE_POINTS_PER_LEG: float = 1.5     # Modeled slippage buffer per leg
 
 # --- Weekday Execution Windows & Expiry Gamma Cutoffs ---
+# Weekly expiry moved Thursday -> Tuesday effective 2025-09-01 (NSE FAOP68747);
+# schedules below are calibrated to the CURRENT Tuesday-expiry regime.
 # Python weekday index: Monday=0, Tuesday=1, Wednesday=2, Thursday=3, Friday=4
 @dataclass(frozen=True, slots=True)
 class ExecutionWindow:
@@ -128,24 +136,24 @@ WEEKDAY_SCHEDULES: dict[int, WeekdaySchedule] = {
     ),
     1: WeekdaySchedule(
         day_name="Tuesday",
-        primary_window=ExecutionWindow(time(9, 45), time(10, 30)),
-        secondary_window=ExecutionWindow(time(12, 45), time(13, 30)),
-        square_off_time=time(15, 0),
-        description="Directional momentum drift",
+        primary_window=ExecutionWindow(time(9, 15), time(9, 45)),
+        secondary_window=ExecutionWindow(time(13, 30), time(14, 15)),
+        square_off_time=time(14, 45),  # hard square-off before late-day 0DTE gamma spikes
+        description="WEEKLY EXPIRY DAY (since 2025-09-01); 09:15 entry, gamma cutoff 14:45",
     ),
     2: WeekdaySchedule(
         day_name="Wednesday",
         primary_window=ExecutionWindow(time(10, 0), time(11, 0)),
         secondary_window=ExecutionWindow(time(13, 30), time(14, 15)),
         square_off_time=time(15, 0),
-        description="Pre-expiry theta decay initiation",
+        description="Post-expiry day; no trade per breach-only mandate",
     ),
     3: WeekdaySchedule(
         day_name="Thursday",
-        primary_window=ExecutionWindow(time(9, 35), time(10, 15)),
-        secondary_window=ExecutionWindow(time(13, 15), time(14, 0)),
-        square_off_time=time(14, 45),  # 14:45 hard square-off before 0DTE gamma spikes
-        description="Weekly expiry day; gamma cutoff at 14:45",
+        primary_window=ExecutionWindow(time(10, 0), time(11, 0)),
+        secondary_window=None,
+        square_off_time=time(15, 0),
+        description="Mid-week; no trade per breach-only mandate",
     ),
     4: WeekdaySchedule(
         day_name="Friday",

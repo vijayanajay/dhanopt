@@ -163,7 +163,7 @@ class TestExecutionUI(unittest.TestCase):
         # In output basket, BUY leg must be first (index 0)
         self.assertEqual(orders[0].transaction_type, "BUY")
         self.assertEqual(orders[0].tradingsymbol, "NIFTY26OCT25250CE")
-        self.assertEqual(orders[0].quantity, 75)
+        self.assertEqual(orders[0].quantity, config.NIFTY_LOT_SIZE)  # era-correct (65 since 2025-12-30)
         self.assertEqual(orders[0].product, "MIS")
         self.assertEqual(orders[0].order_type, "LIMIT")
         self.assertEqual(orders[0].price, 110.0)
@@ -171,7 +171,7 @@ class TestExecutionUI(unittest.TestCase):
         # SELL leg must be second (index 1)
         self.assertEqual(orders[1].transaction_type, "SELL")
         self.assertEqual(orders[1].tradingsymbol, "NIFTY26OCT25400CE")
-        self.assertEqual(orders[1].quantity, 75)
+        self.assertEqual(orders[1].quantity, config.NIFTY_LOT_SIZE)
         self.assertEqual(orders[1].price, 34.0)
 
     def test_basket_builder_json_and_publisher_url(self):

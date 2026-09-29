@@ -6,15 +6,17 @@
 
 ## Results
 
-**Calibration (OOS, rule trades only):** Brier 0.2452 vs base-rate 0.243 — **no better than always predicting the base rate**. Accuracy 0.573 vs 0.582 for always predicting "loss" (base rate 41.8% win). The meta model has **no per-trade discriminative power** on the rule's own trades.
+> **Era correction (2026-09-30):** re-run after the lot-era fix in `experiments/common/lots.py` (flat 25 before Nov-2024 → verified 75/50/25/75/65). Same qualitative verdict, fresher numbers throughout.
+
+**Calibration (OOS, rule trades only):** Brier 0.2473 vs 0.2464 for always predicting the 44% base rate — **no better than always predicting the base rate**. Accuracy 0.567 vs 0.560 for always predicting "loss" (base rate 44.0% win) — a coin-flip over the trivial rule. The meta model has **no per-trade discriminative power** on the rule's own trades.
 
 **Matched-count policies (n=897 each):**
 
 | Policy | Net | Avg/trade | WR | PF | Max DD |
 |---|---|---|---|---|---|
-| Baseline (rule) | +108,306 | +121 | 41.8% | 1.20 | 67,526 |
-| Meta top-K | +108,306 | +121 | 41.8% | 1.20 | 67,526 |
-| **e002-style selector** | **+439,345** | +490 | 51.7% | 2.03 | 29,303 |
+| Baseline (rule) | +129,746 | +145 | 44.0% | 1.20 | 67,526 |
+| Meta top-K | +129,746 | +145 | 44.0% | 1.20 | 67,526 |
+| **e002-style selector** | **+578,639** | +645 | 53.2% | 2.28 | 25,799 |
 
 (Meta top-K is identical to baseline by construction: K = the full rule set leaves zero freedom.)
 
@@ -22,21 +24,21 @@
 
 | τ | keep | n | Net | Avg/trade | PF |
 |---|---|---|---|---|---|
-| 0.40 | 55% | 494 | +164,593 | +333 | 1.58 |
-| 0.45 | 42% | 381 | +148,020 | +389 | 1.69 |
-| 0.50 | 31% | 280 | +138,108 | +493 | 2.01 |
-| 0.55 | 22% | 196 | +95,723 | +488 | 1.96 |
+| 0.40 | 63% | 567 | +213,963 | +377 | 1.59 |
+| 0.45 | 53% | 475 | +198,522 | +418 | 1.66 |
+| 0.50 | 39% | 351 | +181,993 | +519 | 1.85 |
+| 0.55 | 29% | 259 | +144,275 | +557 | 1.94 |
 
 ## Verdict
 
 **What works:**
-1. Meta-labeling's filter *does* improve per-trade quality: τ=0.40 keeps 55% of trades, raises avg/trade 121→₹333, and **total net rises** (+₹165k vs +₹108k). Even cutting trades by 45%, the book makes more money.
+1. Meta-labeling's filter *does* improve per-trade quality: τ=0.40 keeps 63% of trades, raises avg/trade 145→₹377, and **total net rises** (+₹214k vs +₹130k). Even cutting trades by 37%, the book makes more money.
 2. But the mechanism is not per-trade skill: with Brier ≈ base rate, the sweep wins by **re-learning archetype base rates** (the model's P is essentially the rule trade's archetype base rate plus noise — so thresholding silently selects condor trades over bull trades). It is a blunt version of the same conclusion e002 reached properly.
-3. Base rates of rule trades reproduce e001 exactly (Bull .330 / Bear .459 / Condor .486) — pipeline consistency check passed.
+3. Base rates of rule trades reproduce e001 exactly (Bull .298 / Bear .472 / Condor .546) — pipeline consistency check passed.
 
 **What does not work:**
-1. **No within-archetype discrimination.** On the trades the rule already takes, t-1 features carry no additional signal about which specific trade wins (Brier 0.2452 ≈ 0.243; accuracy below loss-only). The rule's trade list is too homogeneous / the features too coarse for trade-level meta-labeling at this granularity.
-2. **Dominated by e002's selector at every operating point:** e002 achieves ₹490/trade at FULL trade count (n=897, net ₹439k) vs meta's ₹493/trade at 31% of trades (n=280, net ₹138k). Same per-trade quality, 3.2× the trades. For this engine, the day/archetype selector strictly dominates meta-labeling.
+1. **No within-archetype discrimination.** On the trades the rule already takes, t-1 features carry no additional signal about which specific trade wins (Brier 0.2473 ≈ 0.2464; accuracy barely clears loss-only). The rule's trade list is too homogeneous / the features too coarse for trade-level meta-labeling at this granularity.
+2. **Dominated by e002's selector at every operating point:** e002 achieves ₹645/trade at FULL trade count (n=897, net ₹579k) vs meta's best sweep point ₹557/trade at 29% of trades (n=259, net ₹144k). Better per-trade quality AND 3.5× the trades. For this engine, the day/archetype selector strictly dominates meta-labeling.
 3. Sweep operating point was chosen post-hoc from 4 τ values — treat the sweep as illustrative, not as a tuned result (mild selection bias, logged per the frozen-protocol rule).
 
 **Recommendation:** keep e002-style selection as the production pattern. Meta-labeling would become interesting again only with richer per-trade features (intraday path stats via e004, live option Greeks, IV term structure) — i.e., when the trade list itself carries more information than the day-level features.

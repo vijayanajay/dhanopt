@@ -16,7 +16,7 @@ class TestConfig(unittest.TestCase):
         self.assertGreaterEqual(config.MIN_WIN_RATE, 0.55)
 
     def test_contract_specs(self):
-        self.assertEqual(config.NIFTY_LOT_SIZE, 75)
+        self.assertEqual(config.NIFTY_LOT_SIZE, 65)  # current era (FAOP70616, since 2025-12-30)
         self.assertEqual(config.STRIKE_INTERVAL, 50)
         self.assertEqual(config.STRIKE_WINDOW, 300)
         self.assertEqual(config.NIFTY_SECURITY_ID, 13)
@@ -37,13 +37,13 @@ class TestConfig(unittest.TestCase):
             self.assertIsNotNone(schedule, f"Missing schedule for day {day}")
             self.assertIsNotNone(schedule.primary_window)
 
-        # Thursday (day 3) must have 14:45 hard square-off time
-        thu_schedule = config.WEEKDAY_SCHEDULES[3]
-        self.assertEqual(thu_schedule.square_off_time, time(14, 45))
+        # Tuesday (day 1) is weekly expiry day (since 2025-09-01): 14:45 gamma cutoff
+        tue_schedule = config.WEEKDAY_SCHEDULES[1]
+        self.assertEqual(tue_schedule.square_off_time, time(14, 45))
 
-        # Friday must have no secondary window
-        fri_schedule = config.WEEKDAY_SCHEDULES[4]
-        self.assertIsNone(fri_schedule.secondary_window)
+        # Thursday must have no secondary window (no longer expiry day)
+        thu_schedule = config.WEEKDAY_SCHEDULES[3]
+        self.assertIsNone(thu_schedule.secondary_window)
 
     def test_window_evaluations(self):
         # Synthetic Monday 10:15 -> Inside primary window (10:00 - 10:45)
@@ -58,9 +58,9 @@ class TestConfig(unittest.TestCase):
         self.assertFalse(in_win)
         self.assertIn("Outside", reason)
 
-        # Synthetic Thursday 14:45 square-off check
-        thu = datetime(2026, 10, 1, 10, 0)  # Thursday
-        self.assertEqual(config.get_square_off_time(thu), time(14, 45))
+        # Synthetic Tuesday 14:45 square-off check (expiry day)
+        tue = datetime(2026, 10, 6, 10, 0)  # Tuesday
+        self.assertEqual(config.get_square_off_time(tue), time(14, 45))
 
         # Weekend test (Sunday)
         sun = datetime(2026, 9, 27, 10, 0)

@@ -1,0 +1,258 @@
+{
+  "sessions": [
+    {
+      "date": "2021-01-05",
+      "status": "VALIDATED",
+      "legs": [
+        {
+          "leg": "PE14000",
+          "status": "OK",
+          "dhan_open": 40.0,
+          "bhav_open": 44.9,
+          "open_diff": -4.9,
+          "dhan_close": 27.0,
+          "bhav_close": 27.55,
+          "close_diff": -0.55,
+          "action": "SELL",
+          "dhan_bars": 71
+        },
+        {
+          "leg": "CE14500",
+          "status": "OK",
+          "dhan_open": 3.05,
+          "bhav_open": 2.15,
+          "open_diff": 0.9,
+          "dhan_close": 1.5,
+          "bhav_close": 1.55,
+          "close_diff": -0.05,
+          "action": "SELL",
+          "dhan_bars": 75
+        },
+        {
+          "leg": "PE13850",
+          "status": "OK",
+          "dhan_open": 21.0,
+          "bhav_open": 24.0,
+          "open_diff": -3.0,
+          "dhan_close": 13.85,
+          "bhav_close": 14.55,
+          "close_diff": -0.7,
+          "action": "BUY",
+          "dhan_bars": 75
+        },
+        {
+          "leg": "CE14650",
+          "status": "PARTIAL",
+          "first_bar": "2021-01-05 11:20:00",
+          "last_bar": "2021-01-05 15:25:00",
+          "n_bars": 44,
+          "dhan_close": 1.0,
+          "bhav_close": 1.1,
+          "close_diff": -0.1
+        }
+      ],
+      "n_legs_ok": 3,
+      "n_legs_partial": 1,
+      "opens_match_exactly": false,
+      "closes_match_last_trade": true,
+      "max_open_diff": 4.9,
+      "max_close_diff": 0.7,
+      "credit_bhav": 536.25,
+      "lot": 25,
+      "expiry": "2021-01-07"
+    },
+    {
+      "date": "2022-06-10",
+      "status": "ALL_LEGS_MISSING",
+      "legs": [
+        {
+          "leg": "PE15000",
+          "status": "NO_BARS"
+        },
+        {
+          "leg": "CE17000",
+          "status": "NO_BARS"
+        },
+        {
+          "leg": "PE14850",
+          "status": "NO_BARS"
+        },
+        {
+          "leg": "CE17150",
+          "status": "NO_BARS"
+        }
+      ]
+    },
+    {
+      "date": "2025-09-02",
+      "status": "VALIDATED",
+      "legs": [
+        {
+          "leg": "PE24550",
+          "status": "PARTIAL",
+          "first_bar": "2025-09-02 09:15:00",
+          "last_bar": "2025-09-02 13:50:00",
+          "n_bars": 56,
+          "dhan_open": 25.25,
+          "bhav_open": 17.0,
+          "open_diff": 8.25
+        },
+        {
+          "leg": "CE24600",
+          "status": "PARTIAL",
+          "first_bar": "2025-09-02 09:30:00",
+          "last_bar": "2025-09-02 13:35:00",
+          "n_bars": 50
+        },
+        {
+          "leg": "PE24400",
+          "status": "OK",
+          "dhan_open": 4.95,
+          "bhav_open": 3.5,
+          "open_diff": 1.45,
+          "dhan_close": 0.05,
+          "bhav_close": 0.15,
+          "close_diff": -0.1,
+          "action": "BUY",
+          "dhan_bars": 75
+        },
+        {
+          "leg": "CE24750",
+          "status": "OK",
+          "dhan_open": 6.4,
+          "bhav_open": 15.2,
+          "open_diff": -8.8,
+          "dhan_close": 0.05,
+          "bhav_close": 0.15,
+          "close_diff": -0.1,
+          "action": "BUY",
+          "dhan_bars": 25
+        }
+      ],
+      "n_legs_ok": 2,
+      "n_legs_partial": 2,
+      "opens_match_exactly": false,
+      "closes_match_last_trade": true,
+      "max_open_diff": 8.8,
+      "max_close_diff": 0.1,
+      "credit_bhav": 5411.25,
+      "lot": 75,
+      "expiry": "2025-09-02"
+    },
+    {
+      "date": "2025-09-04",
+      "status": "VALIDATED",
+      "legs": [
+        {
+          "leg": "PE24500",
+          "status": "OK",
+          "dhan_open": 20.05,
+          "bhav_open": 16.0,
+          "open_diff": 4.05,
+          "dhan_close": 24.05,
+          "bhav_close": 25.3,
+          "close_diff": -1.25,
+          "action": "SELL",
+          "dhan_bars": 75
+        },
+        {
+          "leg": "CE25000",
+          "status": "OK",
+          "dhan_open": 69.95,
+          "bhav_open": 73.0,
+          "open_diff": -3.05,
+          "dhan_close": 24.45,
+          "bhav_close": 24.75,
+          "close_diff": -0.3,
+          "action": "SELL",
+          "dhan_bars": 74
+        },
+        {
+          "leg": "PE24350",
+          "status": "OK",
+          "dhan_open": 12.9,
+          "bhav_open": 8.8,
+          "open_diff": 4.1,
+          "dhan_close": 10.9,
+          "bhav_close": 11.8,
+          "close_diff": -0.9,
+          "action": "BUY",
+          "dhan_bars": 67
+        },
+        {
+          "leg": "CE25150",
+          "status": "OK",
+          "dhan_open": 28.9,
+          "bhav_open": 50.0,
+          "open_diff": -21.1,
+          "dhan_close": 9.4,
+          "bhav_close": 9.75,
+          "close_diff": -0.35,
+          "action": "BUY",
+          "dhan_bars": 75
+        }
+      ],
+      "n_legs_ok": 4,
+      "n_legs_partial": 0,
+      "opens_match_exactly": false,
+      "closes_match_last_trade": true,
+      "max_open_diff": 21.1,
+      "max_close_diff": 1.25,
+      "credit_bhav": 2265.0,
+      "lot": 75,
+      "expiry": "2025-09-09"
+    },
+    {
+      "date": "2026-09-25",
+      "status": "VALIDATED",
+      "legs": [
+        {
+          "leg": "PE23000",
+          "status": "OK",
+          "dhan_open": 87.25,
+          "bhav_open": 87.25,
+          "open_diff": 0.0,
+          "dhan_close": 34.3,
+          "bhav_close": 34.25,
+          "close_diff": 0.05,
+          "action": "SELL",
+          "dhan_bars": 48
+        },
+        {
+          "leg": "CE24000",
+          "status": "NO_BARS"
+        },
+        {
+          "leg": "PE22850",
+          "status": "OK",
+          "dhan_open": 41.8,
+          "bhav_open": 41.8,
+          "open_diff": 0.0,
+          "dhan_close": 13.55,
+          "bhav_close": 14.6,
+          "close_diff": -1.05,
+          "action": "BUY",
+          "dhan_bars": 77
+        },
+        {
+          "leg": "CE24150",
+          "status": "NO_BARS"
+        }
+      ],
+      "n_legs_ok": 2,
+      "n_legs_partial": 0,
+      "opens_match_exactly": true,
+      "closes_match_last_trade": true,
+      "max_open_diff": 0.0,
+      "max_close_diff": 1.05,
+      "credit_bhav": 2886.0,
+      "lot": 65,
+      "expiry": "2026-09-29"
+    }
+  ],
+  "n_validated": 4,
+  "n_requested": 5,
+  "all_opens_exact": false,
+  "all_closes_within_timing": true,
+  "note": "Expired-Options API (rollingoption) recovers fixed-strike legs for expired contracts back to 2021-01; open marks must match bhavcopy to the paisa. Closes are last-trade prints vs bhavcopy settlement marks (timing noise)."
+}

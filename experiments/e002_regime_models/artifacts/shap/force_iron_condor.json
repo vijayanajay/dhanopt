@@ -1,201 +1,201 @@
 [
   {
-    "date": "2022-01-13",
-    "p_model": 0.872,
+    "date": "2021-12-02",
+    "p_model": 0.909,
     "actual_win": 0.0,
-    "base_value": -0.0681,
+    "base_value": 0.1663,
     "top_contributions": [
       {
         "feature": "dow",
-        "shap": 1.1133
+        "shap": 0.8624
       },
       {
-        "feature": "straddle_pct",
-        "shap": 0.9076
+        "feature": "fut_prev_ret",
+        "shap": 0.3718
+      },
+      {
+        "feature": "mom10",
+        "shap": 0.3297
       },
       {
         "feature": "straddle_pct_chg",
-        "shap": 0.3462
+        "shap": 0.321
+      },
+      {
+        "feature": "straddle_pct",
+        "shap": 0.3129
       },
       {
         "feature": "wall_call_dist_pct",
-        "shap": -0.2451
-      },
-      {
-        "feature": "pcr_t2",
-        "shap": 0.1712
-      },
-      {
-        "feature": "gap_open_pct",
-        "shap": -0.1148
-      },
-      {
-        "feature": "pcr_chg",
-        "shap": -0.0618
-      },
-      {
-        "feature": "mom10",
-        "shap": -0.0603
-      }
-    ]
-  },
-  {
-    "date": "2021-12-02",
-    "p_model": 0.841,
-    "actual_win": 0.0,
-    "base_value": -0.0681,
-    "top_contributions": [
-      {
-        "feature": "dow",
-        "shap": 1.0597
-      },
-      {
-        "feature": "range5_mean_pct",
-        "shap": -0.4495
-      },
-      {
-        "feature": "straddle_pct",
-        "shap": 0.4473
-      },
-      {
-        "feature": "mom10",
-        "shap": 0.2972
-      },
-      {
-        "feature": "straddle_pct_chg",
-        "shap": 0.2651
+        "shap": -0.2799
       },
       {
         "feature": "mom5",
-        "shap": 0.2535
+        "shap": 0.261
       },
       {
-        "feature": "wall_call_dist_pct",
-        "shap": -0.1982
-      },
-      {
-        "feature": "pcr_t1",
-        "shap": -0.1434
+        "feature": "fut_prev_range_pct",
+        "shap": 0.2539
       }
     ]
   },
   {
     "date": "2023-06-22",
-    "p_model": 0.803,
+    "p_model": 0.851,
     "actual_win": 0.0,
-    "base_value": -0.0681,
+    "base_value": 0.1663,
     "top_contributions": [
       {
         "feature": "dow",
-        "shap": 1.0683
+        "shap": 0.9644
       },
       {
         "feature": "straddle_pct",
-        "shap": 0.7555
+        "shap": 0.6147
       },
       {
-        "feature": "wall_put_dist_pct",
-        "shap": -0.3453
+        "feature": "range5_mean_pct",
+        "shap": -0.2665
       },
       {
-        "feature": "pcr_chg",
-        "shap": -0.1374
-      },
-      {
-        "feature": "gap_open_pct",
-        "shap": 0.1204
+        "feature": "pcr_t1",
+        "shap": -0.2106
       },
       {
         "feature": "wall_call_dist_pct",
-        "shap": 0.1194
+        "shap": 0.203
       },
       {
         "feature": "delta_oi_skew",
-        "shap": 0.0985
+        "shap": 0.1668
+      },
+      {
+        "feature": "gap_open_pct",
+        "shap": 0.1375
+      },
+      {
+        "feature": "pcr_chg",
+        "shap": -0.1143
+      }
+    ]
+  },
+  {
+    "date": "2022-01-13",
+    "p_model": 0.83,
+    "actual_win": 0.0,
+    "base_value": 0.1663,
+    "top_contributions": [
+      {
+        "feature": "straddle_pct",
+        "shap": 0.9616
+      },
+      {
+        "feature": "dow",
+        "shap": 0.9349
+      },
+      {
+        "feature": "wall_call_dist_pct",
+        "shap": -0.3611
       },
       {
         "feature": "straddle_pct_chg",
-        "shap": 0.0973
+        "shap": 0.3022
+      },
+      {
+        "feature": "mom10",
+        "shap": -0.2068
+      },
+      {
+        "feature": "mom5",
+        "shap": -0.1382
+      },
+      {
+        "feature": "wall_put_dist_pct",
+        "shap": -0.1172
+      },
+      {
+        "feature": "range5_mean_pct",
+        "shap": -0.1108
       }
     ]
   },
   {
     "date": "2022-08-25",
-    "p_model": 0.777,
+    "p_model": 0.816,
     "actual_win": 0.0,
-    "base_value": -0.0681,
+    "base_value": 0.1663,
     "top_contributions": [
       {
-        "feature": "dow",
-        "shap": 1.1145
-      },
-      {
         "feature": "straddle_pct",
-        "shap": 0.8605
+        "shap": 0.9296
       },
       {
-        "feature": "fut_prev_ret",
-        "shap": -0.2877
-      },
-      {
-        "feature": "fut_prev_gap_pct",
-        "shap": 0.2347
-      },
-      {
-        "feature": "mom5",
-        "shap": -0.203
-      },
-      {
-        "feature": "wall_put_dist_pct",
-        "shap": -0.1871
+        "feature": "dow",
+        "shap": 0.8841
       },
       {
         "feature": "straddle_pct_chg",
-        "shap": 0.1807
+        "shap": 0.2955
+      },
+      {
+        "feature": "mom5",
+        "shap": -0.1908
       },
       {
         "feature": "wall_call_dist_pct",
-        "shap": 0.1632
+        "shap": 0.1679
+      },
+      {
+        "feature": "mom10",
+        "shap": -0.1656
+      },
+      {
+        "feature": "wall_put_dist_pct",
+        "shap": -0.154
+      },
+      {
+        "feature": "pcr_chg",
+        "shap": -0.1367
       }
     ]
   },
   {
-    "date": "2022-01-06",
-    "p_model": 0.771,
+    "date": "2022-12-22",
+    "p_model": 0.799,
     "actual_win": 0.0,
-    "base_value": -0.0681,
+    "base_value": 0.1663,
     "top_contributions": [
       {
         "feature": "dow",
-        "shap": 1.194
+        "shap": 0.8117
       },
       {
         "feature": "straddle_pct",
-        "shap": 0.7688
+        "shap": 0.5445
       },
       {
         "feature": "mom5",
-        "shap": -0.2647
-      },
-      {
-        "feature": "pcr_chg",
-        "shap": -0.2217
+        "shap": -0.2235
       },
       {
         "feature": "fut_prev_range_pct",
-        "shap": -0.206
+        "shap": -0.2192
       },
       {
-        "feature": "fut_prev_gap_pct",
-        "shap": 0.1936
+        "feature": "pcr_chg",
+        "shap": 0.2165
       },
       {
-        "feature": "wall_put_dist_pct",
-        "shap": 0.1654
+        "feature": "delta_oi_skew",
+        "shap": 0.1825
       },
       {
-        "feature": "mom10",
-        "shap": -0.1547
+        "feature": "wall_call_dist_pct",
+        "shap": -0.1602
+      },
+      {
+        "feature": "pcr_t1",
+        "shap": 0.152
       }
     ]
   }

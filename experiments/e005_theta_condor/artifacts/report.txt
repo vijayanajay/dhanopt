@@ -1,9 +1,9 @@
 E005 PRICE-ANCHORED THETA-AWARE CONDOR REPLAY (real endpoint closes, 5-min paths)
 ==============================================================================
-n=1321 wr=0.467 net=288,581 avg=218.5 pf=2.05 maxDD=-14,608
+n=1321 wr=0.518 net=469,637 avg=355.5 pf=2.38 maxDD=-6,676
 exits={'TARGET': 651, 'EOD': 614, 'STOP': 56}
-Thu-expiry era (->2025-08): n=1073 net=145,995 | expiry-day n=229 net=216,835 wr=0.878
+Thu-expiry era (->2025-08): n=1073 net=327,050 | expiry-day n=229 net=327,461 wr=0.904
 Tue-expiry era (2025-09->): n=248 net=142,586 | expiry-day n=52 net=146,457 wr=1.000
-rule-selected condor days: n=438 net=121,852 wr=0.482
+rule-selected condor days: n=438 net=179,844 wr=0.537
 
 Compare: e001 open->close +731,746 wr .475 | e004 fixed-IV (INVALID) -547,744 wr .041
