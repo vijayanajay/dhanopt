@@ -451,6 +451,21 @@ To solve the 60–90 second manual execution delay, `basket_builder.py` produces
 
 ---
 
+## 9A. ML Research Sandbox (`experiments/`) — Hard Isolation Policy
+
+The `experiments/` directory hosts machine-learning research (LightGBM, SHAP, meta-labeling) aimed at building an **ensemble of decision models** whose goal is to *make better decisions most of the time* — explicitly **not** to minimize trading activity. Fewer losses at roughly the same number of trades is the success metric.
+
+Non-negotiable constraints:
+1. **Read-only originals.** Nothing under `experiments/` may modify `core/`, `backtest/`, `config.py`, `run_engine.py`, `trade.py`, or `data/`. Experiments *consume* the engine's modules; they never patch them.
+2. **One folder per experiment:** `experiments/e00x_<name>/`, each self-contained (code + README + artifacts). Shared helpers live in `experiments/common/`.
+3. **Mandatory Verdicts.** Each experiment README ends with a `## Verdict` section stating what works and what does not, with numbers. An experiment without a written verdict is incomplete.
+4. **Sandboxed dependencies.** ML packages are experiment-only; `run_engine.py` and `trade.py` must run without them.
+5. **Promotion is explicit.** Findings graduate into `core/` only via a reviewed, user-approved diff after the experiment's acceptance gates (see `experiment.md`) pass.
+
+The detailed research protocol, leakage rules, walk-forward design, and acceptance gates live in [experiment.md](file:///d:/Code/dhanopt/experiment.md).
+
+---
+
 ## 10. Verification & Acceptance Criteria
 
 1. **On-Demand Determinism:** Invoking `run_engine.py` with identical market data timestamps must yield the exact same signals, strategy scores, and audit conclusions every time.

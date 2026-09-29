@@ -59,10 +59,10 @@ class TimeOfEntryPerformance:
     regime_name: str
     optimal_days: str
     trades: int
-    win_rate: float
-    profit_factor: float
-    avg_net_ev: float
-    status: str          # "OPTIMAL", "SECONDARY", "HIGH_RISK_AVOID"
+    win_rate: Optional[float]
+    profit_factor: Optional[float]
+    avg_net_ev: Optional[float]
+    status: str          # "OPTIMAL", "SECONDARY", "HIGH_RISK_AVOID", "UNMEASURED"
     recommendation: str
 
 
@@ -119,9 +119,9 @@ class BacktestSummary:
                     "regime": t.regime_name,
                     "days": t.optimal_days,
                     "trades": t.trades,
-                    "win_rate": f"{t.win_rate * 100:.1f}%",
-                    "profit_factor": t.profit_factor,
-                    "avg_net_ev": f"+₹{t.avg_net_ev:,.2f}" if t.avg_net_ev > 0 else f"-₹{abs(t.avg_net_ev):,.2f}",
+                    "win_rate": f"{t.win_rate * 100:.1f}%" if t.win_rate is not None else "N/A",
+                    "profit_factor": round(t.profit_factor, 2) if t.profit_factor is not None else "N/A",
+                    "avg_net_ev": (f"+₹{t.avg_net_ev:,.2f}" if t.avg_net_ev > 0 else f"-₹{abs(t.avg_net_ev):,.2f}") if t.avg_net_ev is not None else "N/A",
                     "status": t.status,
                 }
                 for t in self.time_of_entry_results
@@ -212,16 +212,12 @@ def compute_weekday_empirical_edge(real_trades: List[Dict[str, Any]]) -> Dict[st
 
 
 def get_time_of_entry_performance(real_trades: Optional[List[Dict[str, Any]]] = None) -> List[TimeOfEntryPerformance]:
-    """Returns empirical 5-year results indexed by operational weekday entry windows.
-    
-    Ties timing window performance directly to empirical Bhavcopy session statistics
-    for that weekday, while clearly marking noise/square-off periods as operational vetos.
-    """
-    wk_edge = compute_weekday_empirical_edge(real_trades) if real_trades else {}
-    
-    def _wk_val(day: str, field: str, default: Any) -> Any:
-        return wk_edge.get(day, {}).get(field, default)
+    """Returns timing window status separating policy vetos from unmeasured intraday windows.
 
+    Daily EOD Bhavcopy cannot validate intraday execution windows (needs 5-min tick data).
+    Only operational risk vetos (Opening Range formation and Pre-Square-off gamma) are active policies.
+    Intraday execution windows remain UNMEASURED until 5-min data feeds are integrated.
+    """
     return [
         TimeOfEntryPerformance(
             time_window="09:15 - 09:45",
@@ -238,56 +234,56 @@ def get_time_of_entry_performance(real_trades: Optional[List[Dict[str, Any]]] = 
             time_window="09:35 - 10:15",
             regime_name="Thursday Expiry Morning Range Fade",
             optimal_days="Thursday",
-            trades=_wk_val("Thursday", "trades", 280),
-            win_rate=_wk_val("Thursday", "win_rate", 0.793),
-            profit_factor=_wk_val("Thursday", "profit_factor", 15.0),
-            avg_net_ev=_wk_val("Thursday", "net_ev", 3091.89),
-            status="OPTIMAL",
-            recommendation="PRIME: High-decay expiry setup with low path noise",
+            trades=0,
+            win_rate=None,
+            profit_factor=None,
+            avg_net_ev=None,
+            status="UNMEASURED",
+            recommendation="UNMEASURED: Daily Bhavcopy cannot validate intraday windows; requires 5-min tick data.",
         ),
         TimeOfEntryPerformance(
             time_window="09:45 - 10:30",
             regime_name="Tuesday Opening Directional Momentum",
             optimal_days="Tuesday",
-            trades=_wk_val("Tuesday", "trades", 280),
-            win_rate=_wk_val("Tuesday", "win_rate", 0.700),
-            profit_factor=_wk_val("Tuesday", "profit_factor", 12.0),
-            avg_net_ev=_wk_val("Tuesday", "net_ev", 1519.58),
-            status="OPTIMAL",
-            recommendation="HIGHEST EDGE: Clean directional drift of the week",
+            trades=0,
+            win_rate=None,
+            profit_factor=None,
+            avg_net_ev=None,
+            status="UNMEASURED",
+            recommendation="UNMEASURED: Daily Bhavcopy cannot validate intraday windows; requires 5-min tick data.",
         ),
         TimeOfEntryPerformance(
             time_window="10:00 - 10:45",
             regime_name="Monday Post-Gap Stabilization",
             optimal_days="Monday",
-            trades=_wk_val("Monday", "trades", 280),
-            win_rate=_wk_val("Monday", "win_rate", 0.718),
-            profit_factor=_wk_val("Monday", "profit_factor", 11.0),
-            avg_net_ev=_wk_val("Monday", "net_ev", 1205.79),
-            status="OPTIMAL",
-            recommendation="OPTIMAL: Post-weekend gap digestion complete; trend stable",
+            trades=0,
+            win_rate=None,
+            profit_factor=None,
+            avg_net_ev=None,
+            status="UNMEASURED",
+            recommendation="UNMEASURED: Daily Bhavcopy cannot validate intraday windows; requires 5-min tick data.",
         ),
         TimeOfEntryPerformance(
             time_window="10:00 - 11:00",
             regime_name="Wednesday Pre-Expiry Theta Initiation",
             optimal_days="Wednesday",
-            trades=_wk_val("Wednesday", "trades", 277),
-            win_rate=_wk_val("Wednesday", "win_rate", 0.733),
-            profit_factor=_wk_val("Wednesday", "profit_factor", 13.0),
-            avg_net_ev=_wk_val("Wednesday", "net_ev", 1450.77),
-            status="OPTIMAL",
-            recommendation="OPTIMAL: Rapid premium decay initiation on credit spreads",
+            trades=0,
+            win_rate=None,
+            profit_factor=None,
+            avg_net_ev=None,
+            status="UNMEASURED",
+            recommendation="UNMEASURED: Daily Bhavcopy cannot validate intraday windows; requires 5-min tick data.",
         ),
         TimeOfEntryPerformance(
             time_window="10:15 - 11:00",
             regime_name="Friday Weekly Contract Structure Build",
             optimal_days="Friday",
-            trades=_wk_val("Friday", "trades", 272),
-            win_rate=_wk_val("Friday", "win_rate", 0.629),
-            profit_factor=_wk_val("Friday", "profit_factor", 8.0),
-            avg_net_ev=_wk_val("Friday", "net_ev", 972.39),
-            status="SECONDARY",
-            recommendation="ACCEPTABLE: Moderate edge on new weekly contract formations",
+            trades=0,
+            win_rate=None,
+            profit_factor=None,
+            avg_net_ev=None,
+            status="UNMEASURED",
+            recommendation="UNMEASURED: Daily Bhavcopy cannot validate intraday windows; requires 5-min tick data.",
         ),
         TimeOfEntryPerformance(
             time_window="11:15 - 12:45",
@@ -304,34 +300,34 @@ def get_time_of_entry_performance(real_trades: Optional[List[Dict[str, Any]]] = 
             time_window="12:45 - 13:30",
             regime_name="European Open Institutional Inflow",
             optimal_days="Tuesday",
-            trades=_wk_val("Tuesday", "trades", 280),
-            win_rate=_wk_val("Tuesday", "win_rate", 0.700),
-            profit_factor=_wk_val("Tuesday", "profit_factor", 12.0),
-            avg_net_ev=_wk_val("Tuesday", "net_ev", 1519.58),
-            status="SECONDARY",
-            recommendation="SECONDARY: Clean momentum re-test as London markets open",
+            trades=0,
+            win_rate=None,
+            profit_factor=None,
+            avg_net_ev=None,
+            status="UNMEASURED",
+            recommendation="UNMEASURED: Daily Bhavcopy cannot validate intraday windows; requires 5-min tick data.",
         ),
         TimeOfEntryPerformance(
             time_window="13:15 - 14:00",
             regime_name="Afternoon Trend & Expiry Gamma Wave",
             optimal_days="Thursday, Monday",
-            trades=_wk_val("Thursday", "trades", 280),
-            win_rate=_wk_val("Thursday", "win_rate", 0.793),
-            profit_factor=_wk_val("Thursday", "profit_factor", 15.0),
-            avg_net_ev=_wk_val("Thursday", "net_ev", 3091.89),
-            status="OPTIMAL",
-            recommendation="PRIME: High gamma acceleration; quick directional target hits",
+            trades=0,
+            win_rate=None,
+            profit_factor=None,
+            avg_net_ev=None,
+            status="UNMEASURED",
+            recommendation="UNMEASURED: Daily Bhavcopy cannot validate intraday windows; requires 5-min tick data.",
         ),
         TimeOfEntryPerformance(
             time_window="13:30 - 14:15",
             regime_name="Wednesday Late Theta Harvesting",
             optimal_days="Wednesday",
-            trades=_wk_val("Wednesday", "trades", 277),
-            win_rate=_wk_val("Wednesday", "win_rate", 0.733),
-            profit_factor=_wk_val("Wednesday", "profit_factor", 13.0),
-            avg_net_ev=_wk_val("Wednesday", "net_ev", 1450.77),
-            status="SECONDARY",
-            recommendation="SECONDARY: Afternoon decay before closing re-balancing",
+            trades=0,
+            win_rate=None,
+            profit_factor=None,
+            avg_net_ev=None,
+            status="UNMEASURED",
+            recommendation="UNMEASURED: Daily Bhavcopy cannot validate intraday windows; requires 5-min tick data.",
         ),
         TimeOfEntryPerformance(
             time_window="14:45 - 15:30",
@@ -388,9 +384,17 @@ class WalkForwardEngine:
         self.historical_dir = Path(historical_dir) if historical_dir else config.HISTORICAL_DATA_DIR
         self.params_path = Path(calibrated_params_path) if calibrated_params_path else config.CALIBRATED_PARAMS_PATH
         self.params_path.parent.mkdir(parents=True, exist_ok=True)
+        self._prev_fut_row: Optional[Any] = None
 
-    def simulate_session_from_parquet(self, file_path: Path) -> Optional[Dict[str, Any]]:
-        """Simulate real strategy execution from actual NSE FO Bhavcopy Parquet partition."""
+    def simulate_session_from_parquet(
+        self, file_path: Path, prev_fut_row: Optional[Any] = None
+    ) -> Optional[Dict[str, Any]]:
+        """Simulate real strategy execution from actual NSE FO Bhavcopy Parquet partition.
+
+        Leak-free decision rule:
+        Uses t-1 session return to choose archetype, executes at day t open, exits at day t close.
+        Uses exact NSE era lot size for NIFTY (75, 50, or 25).
+        """
         import pandas as pd
         try:
             df = pd.read_parquet(file_path)
@@ -412,7 +416,23 @@ class WalkForwardEngine:
             return None
 
         trade_date = str(fut_row["trade_date"])
-        day_pct = (f_close - f_open) / f_open * 100.0
+
+        # Determine t-1 session context
+        p_row = prev_fut_row if prev_fut_row is not None else self._prev_fut_row
+        self._prev_fut_row = fut_row  # update rolling state for next session
+
+        # ponytail: strict leak-free measurement: decision at 09:15 cannot observe day t close.
+        # If t-1 context is absent (e.g. first day in history), fail-closed: do not trade.
+        if p_row is None:
+            return None
+
+        p_open = float(p_row["open"])
+        p_close = float(p_row["close"])
+        if p_open <= 0 or p_close <= 0:
+            return None
+
+        # ponytail: naive momentum continuation heuristic (sig_pct >= +0.25% on t-1); upgrade path uses multi-feature regime classifier
+        signal_pct = (p_close - p_open) / p_open * 100.0
 
         options = nifty[nifty["instrument"].isin(["OPTIDX", "IDO"])]
         if options.empty:
@@ -432,7 +452,11 @@ class WalkForwardEngine:
         chain = options[options["expiry"] == nearest_exp]
         atm_strike = round(f_open / 50.0) * 50.0
 
-        if day_pct >= 0.25:
+        # Exact era lot size (75, 50, or 25) based on circular enforcement
+        lot_size = config.get_nifty_lot_size(trade_date)
+
+        # ponytail: daily bars proxy intraday execution with open->close; upgrade path requires 5-min history for path-dependent SL/TP
+        if signal_pct >= 0.25:
             long_ce = chain[(chain["option_type"] == "CE") & (chain["strike"] == atm_strike)]
             short_ce = chain[(chain["option_type"] == "CE") & (chain["strike"] == atm_strike + 150)]
             if not long_ce.empty and not short_ce.empty:
@@ -441,10 +465,10 @@ class WalkForwardEngine:
                 if l_open > s_open and l_open > 0 and s_open > 0:
                     entry_debit = l_open - s_open
                     exit_val = l_close - s_close
-                    gross_pnl = (exit_val - entry_debit) * 75
+                    gross_pnl = (exit_val - entry_debit) * lot_size
                     legs = [
-                        OptionLeg(strike=atm_strike, option_type="CE", action="BUY", entry_price=l_open),
-                        OptionLeg(strike=atm_strike + 150, option_type="CE", action="SELL", entry_price=s_open),
+                        OptionLeg(strike=atm_strike, option_type="CE", action="BUY", entry_price=l_open, lot_size=lot_size),
+                        OptionLeg(strike=atm_strike + 150, option_type="CE", action="SELL", entry_price=s_open, lot_size=lot_size),
                     ]
                     fric = calculate_friction(legs)
                     net_pnl = round(gross_pnl - fric.total_rupees, 2)
@@ -456,7 +480,7 @@ class WalkForwardEngine:
                         "net_pnl": net_pnl,
                         "win": net_pnl > 0,
                     }
-        elif day_pct <= -0.25:
+        elif signal_pct <= -0.25:
             long_pe = chain[(chain["option_type"] == "PE") & (chain["strike"] == atm_strike)]
             short_pe = chain[(chain["option_type"] == "PE") & (chain["strike"] == atm_strike - 150)]
             if not long_pe.empty and not short_pe.empty:
@@ -465,10 +489,10 @@ class WalkForwardEngine:
                 if l_open > s_open and l_open > 0 and s_open > 0:
                     entry_debit = l_open - s_open
                     exit_val = l_close - s_close
-                    gross_pnl = (exit_val - entry_debit) * 75
+                    gross_pnl = (exit_val - entry_debit) * lot_size
                     legs = [
-                        OptionLeg(strike=atm_strike, option_type="PE", action="BUY", entry_price=l_open),
-                        OptionLeg(strike=atm_strike - 150, option_type="PE", action="SELL", entry_price=s_open),
+                        OptionLeg(strike=atm_strike, option_type="PE", action="BUY", entry_price=l_open, lot_size=lot_size),
+                        OptionLeg(strike=atm_strike - 150, option_type="PE", action="SELL", entry_price=s_open, lot_size=lot_size),
                     ]
                     fric = calculate_friction(legs)
                     net_pnl = round(gross_pnl - fric.total_rupees, 2)
@@ -494,12 +518,12 @@ class WalkForwardEngine:
                     c_open = (float(s_pe.iloc[0]["open"]) - float(b_pe.iloc[0]["open"])) + (float(s_ce.iloc[0]["open"]) - float(b_ce.iloc[0]["open"]))
                     c_close = (float(s_pe.iloc[0]["close"]) - float(b_pe.iloc[0]["close"])) + (float(s_ce.iloc[0]["close"]) - float(b_ce.iloc[0]["close"]))
                     if c_open > 0:
-                        gross_pnl = (c_open - c_close) * 75
+                        gross_pnl = (c_open - c_close) * lot_size
                         legs = [
-                            OptionLeg(strike=put_wall - 150, option_type="PE", action="BUY", entry_price=float(b_pe.iloc[0]["open"])),
-                            OptionLeg(strike=call_wall + 150, option_type="CE", action="BUY", entry_price=float(b_ce.iloc[0]["open"])),
-                            OptionLeg(strike=put_wall, option_type="PE", action="SELL", entry_price=float(s_pe.iloc[0]["open"])),
-                            OptionLeg(strike=call_wall, option_type="CE", action="SELL", entry_price=float(s_ce.iloc[0]["open"])),
+                            OptionLeg(strike=put_wall - 150, option_type="PE", action="BUY", entry_price=float(b_pe.iloc[0]["open"]), lot_size=lot_size),
+                            OptionLeg(strike=call_wall + 150, option_type="CE", action="BUY", entry_price=float(b_ce.iloc[0]["open"]), lot_size=lot_size),
+                            OptionLeg(strike=put_wall, option_type="PE", action="SELL", entry_price=float(s_pe.iloc[0]["open"]), lot_size=lot_size),
+                            OptionLeg(strike=call_wall, option_type="CE", action="SELL", entry_price=float(s_ce.iloc[0]["open"]), lot_size=lot_size),
                         ]
                         fric = calculate_friction(legs)
                         net_pnl = round(gross_pnl - fric.total_rupees, 2)
@@ -517,6 +541,7 @@ class WalkForwardEngine:
         """Scans all downloaded Parquet files and generates trade results from real NSE contracts."""
         files = sorted(self.historical_dir.glob("**/*.parquet"))
         results = []
+        self._prev_fut_row = None
         for f in files:
             trade = self.simulate_session_from_parquet(f)
             if trade:

@@ -13,7 +13,7 @@ from core.auditors.rule_gatekeeper import TradeProposal
 from core.feeds.base import OptionChainSnapshot, OptionContract
 from core.friction.zerodha import OptionLeg, calculate_friction
 from core.signals import MarketSignals
-from core.strategies.base import BaseStrategy, get_calibrated_strategy_edge
+from core.strategies.base import BaseStrategy, get_calibrated_data, get_calibrated_strategy_edge
 
 
 class CreditSpreadStrategy(BaseStrategy):
@@ -126,7 +126,13 @@ class CreditSpreadStrategy(BaseStrategy):
         # P(win) ~ 1.0 - (stop_multiplier * short_delta)
         delta_p_win = max(0.50, min(0.85, 1.0 - (1.40 * abs(short_contract.delta))))
         edge = get_calibrated_strategy_edge("Credit Spread")
-        win_rate = float(edge.get("win_rate", round(delta_p_win, 3)))
+        cal_data = get_calibrated_data()
+        if not cal_data:
+            win_rate = 0.0  # Fail-closed: missing calibration file -> TIER 0
+        elif edge and "win_rate" in edge:
+            win_rate = float(edge["win_rate"])
+        else:
+            win_rate = round(delta_p_win, 3)
         gross_ev, net_ev, payoff = self.calculate_ev(
             win_rate=win_rate,
             target_profit=target_profit_rupees,

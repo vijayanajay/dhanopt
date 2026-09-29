@@ -8,9 +8,9 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass
-from datetime import datetime, time
+from datetime import date, datetime, time
 from pathlib import Path
-from typing import Tuple
+from typing import Optional, Tuple, Union
 
 from dotenv import load_dotenv
 
@@ -21,6 +21,7 @@ load_dotenv()
 BASE_DIR: Path = Path(__file__).resolve().parent
 DATA_DIR: Path = BASE_DIR / "data"
 HISTORICAL_DATA_DIR: Path = DATA_DIR / "historical"
+INTRADAY_DATA_DIR: Path = DATA_DIR / "intraday"   # 5-min NIFTY candles: data/intraday/interval=5/year=YYYY/month=MM/
 TRADE_JOURNAL_PATH: Path = DATA_DIR / "trade_journal.sqlite"
 CALIBRATED_PARAMS_PATH: Path = DATA_DIR / "calibrated_params.json"
 
@@ -50,6 +51,32 @@ TIER_2_MAX_RISK: float = 2_500.0
 # --- Nifty 50 Contract Specifications ---
 NIFTY_SYMBOL: str = "NIFTY"
 NIFTY_LOT_SIZE: int = 75
+
+
+def get_nifty_lot_size(trade_date: Optional[Union[str, date, datetime]] = None) -> int:
+    """Returns exact NSE NIFTY lot size based on circular enforcement dates.
+
+    Historical Lot Eras:
+    - Pre-July 2021: 75 (before July 2021 expiry)
+    - July 2021 to April 25, 2024: 50 (NSE Circular 25/2021)
+    - April 26, 2024 to Nov 19, 2024: 25 (NSE Circular 45/2024)
+    - Nov 20, 2024 to present: 75 (SEBI index derivatives circular)
+    """
+    if not trade_date:
+        return NIFTY_LOT_SIZE
+    try:
+        from core.feeds.bhavcopy import parse_date
+        d_str = parse_date(trade_date).isoformat()
+    except Exception:
+        d_str = str(trade_date)[:10]
+
+    if d_str >= "2024-11-20":
+        return 75
+    elif d_str >= "2024-04-26":
+        return 25
+    elif d_str >= "2021-07-01":
+        return 50
+    return 75
 STRIKE_INTERVAL: int = 50
 STRIKE_WINDOW: int = 300                 # +/- 300 points from ATM
 NIFTY_SECURITY_ID: int = 13              # DhanHQ underlying security ID for Nifty 50

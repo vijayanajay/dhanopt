@@ -12,6 +12,7 @@ Verifies:
 
 import unittest
 from datetime import datetime
+from unittest.mock import patch
 
 from core.auditors.rule_gatekeeper import RuleGatekeeper
 from core.feeds.base import OptionChainSnapshot, OptionContract
@@ -207,7 +208,8 @@ class TestStrategies(unittest.TestCase):
     def setUp(self):
         self.chain = _build_mock_chain(spot=25050.0)
 
-    def test_debit_spread_bull_call(self):
+    @patch("core.strategies.debit_spread.get_calibrated_strategy_edge", return_value={"win_rate": 0.65, "profit_factor": 2.2})
+    def test_debit_spread_bull_call(self, mock_edge):
         strat = DebitSpreadStrategy()
         signals = _build_trending_signals(is_bullish=True)
         
@@ -308,7 +310,8 @@ class TestStrategies(unittest.TestCase):
         self.assertEqual(proposal.legs[3].action, "SELL")
         self.assertTrue(proposal.is_credit)
 
-    def test_comparative_audit_engine_trend_flow(self):
+    @patch("core.strategies.debit_spread.get_calibrated_strategy_edge", return_value={"win_rate": 0.65, "profit_factor": 2.2})
+    def test_comparative_audit_engine_trend_flow(self, mock_edge):
         engine = ComparativeAuditEngine()
         trend_signals = _build_trending_signals(is_bullish=True)
 

@@ -16,7 +16,7 @@ from core.auditors.rule_gatekeeper import TradeProposal
 from core.feeds.base import OptionChainSnapshot, OptionContract
 from core.friction.zerodha import OptionLeg, calculate_friction
 from core.signals import MarketSignals
-from core.strategies.base import BaseStrategy, get_calibrated_strategy_edge
+from core.strategies.base import BaseStrategy, get_calibrated_data, get_calibrated_strategy_edge
 
 
 class IronCondorStrategy(BaseStrategy):
@@ -161,7 +161,11 @@ class IronCondorStrategy(BaseStrategy):
         # probability of profit scales as: P_target ~ 1.0 - 0.70 * (|delta_put| + |delta_call|)
         wing_delta_sum = abs(short_pe.delta) + abs(short_ce.delta)
         target_p_win = max(0.40, min(0.85, 1.0 - (0.70 * wing_delta_sum)))
-        win_rate = round(target_p_win, 3)
+        cal_data = get_calibrated_data()
+        if not cal_data:
+            win_rate = 0.0  # Fail-closed: missing calibration file -> TIER 0
+        else:
+            win_rate = round(target_p_win, 3)
         gross_ev, net_ev, payoff = self.calculate_ev(
             win_rate=win_rate,
             target_profit=target_profit_rupees,

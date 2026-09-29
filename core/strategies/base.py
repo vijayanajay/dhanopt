@@ -36,36 +36,30 @@ def get_calibrated_data() -> Dict[str, Any]:
     return _CALIBRATED_EDGE_CACHE
 
 
-def get_calibrated_strategy_edge(strategy_name: str) -> Dict[str, Any]:
-    """Retrieves empirical 5-year edge statistics for a given strategy from Bhavcopy backtest."""
+def get_calibrated_strategy_edge(strategy_name: str) -> Optional[Dict[str, Any]]:
+    """Retrieves empirical 5-year edge statistics for a given strategy from Bhavcopy backtest.
+
+    Fail-closed: Returns None if data is missing or strategy not found,
+    signaling the caller to zero-rate the edge and trigger TIER 0 NO TRADE.
+    """
     data = get_calibrated_data()
     strats = data.get("strategy_empirical_edge", {})
     for k, v in strats.items():
         if strategy_name.lower() in k.lower():
             return v
-    # Fallback to aggregate out-of-sample metrics if strategy not explicitly isolated
-    agg = data.get("aggregate_oos_metrics", {})
-    return {
-        "trades": agg.get("total_oos_trades", 450),
-        "win_rate": agg.get("win_rate", 0.70),
-        "profit_factor": agg.get("profit_factor", 2.0),
-        "net_ev": agg.get("expectancy_net_ev", 800.0),
-    }
+    return None
 
 
-def get_calibrated_weekday_edge(weekday: str) -> Dict[str, Any]:
-    """Retrieves empirical 5-year edge statistics for a given weekday from Bhavcopy backtest."""
+def get_calibrated_weekday_edge(weekday: str) -> Optional[Dict[str, Any]]:
+    """Retrieves empirical 5-year edge statistics for a given weekday from Bhavcopy backtest.
+
+    Fail-closed: Returns None if data is missing or weekday not found.
+    """
     data = get_calibrated_data()
     days = data.get("weekday_empirical_edge", {})
     if weekday in days:
         return days[weekday]
-    agg = data.get("aggregate_oos_metrics", {})
-    return {
-        "trades": 280,
-        "win_rate": agg.get("win_rate", 0.70),
-        "profit_factor": agg.get("profit_factor", 2.0),
-        "net_ev": agg.get("expectancy_net_ev", 1000.0),
-    }
+    return None
 
 
 class BaseStrategy(ABC):

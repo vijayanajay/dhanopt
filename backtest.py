@@ -158,21 +158,31 @@ def run_backtest_cli(time_filter: Optional[str] = None) -> int:
             wr_style = "cyan"
             pf_style = "cyan"
             ev_style = "cyan"
+        elif item.status == "UNMEASURED":
+            verdict = Text("UNMEASURED", style="bold yellow")
+            wr_style = "yellow"
+            pf_style = "yellow"
+            ev_style = "yellow"
         else:
             verdict = Text("AVOID", style="bold red")
             wr_style = "bold red"
             pf_style = "bold red"
             ev_style = "bold red"
 
-        ev_str = f"+₹{item.avg_net_ev:,.2f}" if item.avg_net_ev > 0 else f"-₹{abs(item.avg_net_ev):,.2f}"
+        wr_str = f"{item.win_rate * 100:.1f}%" if item.win_rate is not None else "N/A"
+        pf_str = f"{item.profit_factor:.2f}" if item.profit_factor is not None else "N/A"
+        if item.avg_net_ev is not None:
+            ev_str = f"+₹{item.avg_net_ev:,.2f}" if item.avg_net_ev > 0 else f"-₹{abs(item.avg_net_ev):,.2f}"
+        else:
+            ev_str = "N/A"
 
         t1.add_row(
             item.time_window,
             item.regime_name,
             item.optimal_days,
             str(item.trades),
-            Text(f"{item.win_rate * 100:.1f}%", style=wr_style),
-            Text(f"{item.profit_factor:.2f}", style=pf_style),
+            Text(wr_str, style=wr_style),
+            Text(pf_str, style=pf_style),
             Text(ev_str, style=ev_style),
             verdict,
         )

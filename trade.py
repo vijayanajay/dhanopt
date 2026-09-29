@@ -221,11 +221,19 @@ def get_window_empirical_edge(day_name: str, time_str: str) -> Dict[str, Any]:
     edge = get_calibrated_weekday_edge(day_name)
     sched = next((s for s in config.WEEKDAY_SCHEDULES.values() if s.day_name.lower() == day_name.lower()), None)
     regime = sched.description if sched else f"{day_name} Intraday Window"
+    if not edge:
+        return {
+            "trades": 0,
+            "win_rate": 0.0,
+            "profit_factor": 0.0,
+            "net_ev": 0.0,
+            "regime": regime,
+        }
     return {
-        "trades": edge.get("trades", 280),
-        "win_rate": float(edge.get("win_rate", 0.70)),
-        "profit_factor": float(edge.get("profit_factor", 12.0)),
-        "net_ev": float(edge.get("net_ev", 1500.0)),
+        "trades": edge.get("trades", 0),
+        "win_rate": float(edge.get("win_rate", 0.0)),
+        "profit_factor": float(edge.get("profit_factor", 0.0)),
+        "net_ev": float(edge.get("net_ev", 0.0)),
         "regime": regime,
     }
 

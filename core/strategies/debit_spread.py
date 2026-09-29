@@ -123,7 +123,10 @@ class DebitSpreadStrategy(BaseStrategy):
         friction = calculate_friction(legs)
         strat_key = "Bull Call Spread" if is_bullish else "Bear Put Spread"
         edge = get_calibrated_strategy_edge(strat_key)
-        base_wr = float(edge.get("win_rate", 0.70))
+        if not edge or "win_rate" not in edge:
+            base_wr = 0.0  # Fail-closed: triggers RuleGatekeeper EDGE_HURDLE -> TIER 0
+        else:
+            base_wr = float(edge["win_rate"])
         # Full empirical win rate when confirmed by ORB breakout; minor discount if anticipating
         win_rate = base_wr if signals.orb.is_breakout else round(base_wr * 0.95, 3)
         gross_ev, net_ev, payoff = self.calculate_ev(

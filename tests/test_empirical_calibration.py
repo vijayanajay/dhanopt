@@ -14,7 +14,7 @@ import unittest
 from datetime import datetime
 
 import config
-from backtest.engine import WalkForwardEngine, WalkForwardFold
+from backtest.engine import WalkForwardEngine, WalkForwardFold, get_time_of_entry_performance
 from core.strategies.base import get_calibrated_strategy_edge, get_calibrated_weekday_edge
 from core.strategies.credit_spread import CreditSpreadStrategy
 from core.strategies.debit_spread import DebitSpreadStrategy
@@ -118,6 +118,40 @@ class TestEmpiricalCalibration(unittest.TestCase):
         test_fold.oos_win_rate = 0.0
         self.assertEqual(test_fold.oos_trades, 0)
         self.assertEqual(test_fold.oos_win_rate, 0.0)
+
+    def test_lot_size_era_boundaries(self):
+        """Verify NIFTY lot sizes adhere to exact historical NSE/SEBI circular eras."""
+        self.assertEqual(config.get_nifty_lot_size("2021-01-01"), 75)   # Pre-July 2021: 75
+        self.assertEqual(config.get_nifty_lot_size("2021-07-01"), 50)   # July 2021 to April 2024: 50
+        self.assertEqual(config.get_nifty_lot_size("2023-05-15"), 50)
+        self.assertEqual(config.get_nifty_lot_size("2024-05-01"), 25)   # April 2024 to Nov 2024: 25
+        self.assertEqual(config.get_nifty_lot_size("2024-11-20"), 75)   # Post-Nov 20, 2024: 75
+        self.assertEqual(config.get_nifty_lot_size("2026-09-28"), 75)
+
+    def test_fail_closed_when_calibration_missing(self):
+        """Verify missing calibration data returns None and forces strategy to zero win rate (TIER 0)."""
+        edge = get_calibrated_strategy_edge("NonExistentStrategy")
+        self.assertIsNone(edge)
+
+        # DebitSpreadStrategy with missing edge must map to win_rate 0.0 (fail-closed)
+        strat = DebitSpreadStrategy()
+        signals = _build_trending_signals(is_bullish=True)
+        with unittest.mock.patch("core.strategies.debit_spread.get_calibrated_strategy_edge", return_value=None):
+            proposal = strat.build_proposal(signals, self.chain, lots=1)
+            self.assertIsNotNone(proposal)
+            self.assertEqual(proposal.win_rate, 0.0)
+
+    def test_time_of_entry_unmeasured_status(self):
+        """Verify intraday windows are marked UNMEASURED and do not claim synthetic stats from Bhavcopy."""
+        results = get_time_of_entry_performance()
+        unmeasured = [r for r in results if r.status == "UNMEASURED"]
+        self.assertGreaterEqual(len(unmeasured), 8)
+        for r in unmeasured:
+            self.assertIsNone(r.win_rate)
+            self.assertIsNone(r.profit_factor)
+            self.assertIsNone(r.avg_net_ev)
+            self.assertEqual(r.trades, 0)
+            self.assertIn("Daily Bhavcopy cannot validate", r.recommendation)
 
 
 if __name__ == "__main__":
