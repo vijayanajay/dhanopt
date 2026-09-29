@@ -120,3 +120,17 @@ Every trail config beats the documented 50% target by 2.1–2.4× at the same DD
 | q5 (high) | 179 / +15k / +86 / 1.34 | 19 / +45k / +2,371 |
 
 The edge does **not** concentrate in high IV — on non-expiry days the best buckets are low-to-mid IV and the highest-IV quintile earns almost nothing (classic short-vol: high IV means a stressed market). On **expiry days IV is nearly irrelevant** (every bucket profitable) — the 0DTE crush mechanism dominates regime. Sizing implication: do not upsize in high IV on non-expiry days; the defensible concentration is expiry-day-focused (see the expiry-gate result in e002 Add. 5), not IV-timed. Composition caveat (Add. 2) applies to these buckets too.
+
+## Addendum 5 — Breached-wall credit spread vs the condor (`breach_spread.py`)
+
+Kailash's Idea 3 formalized: on dte≤1 days where spot gapped over the prior max-OI wall (249 of 946 sim-able days; 319 valid-structure stand-downs), sell ONLY the breached wall + 150-pt wing (2 legs, defined risk), vs the 4-leg condor on the same days:
+
+| Book (same 249 days) | Net ₹ | WR | Max DD ₹ | Worst day ₹ |
+|---|---:|---:|---:|---:|
+| **breach spread (SL + 100% tgt)** | +734,388 | 98.8% | 6,139 | **−6,139** |
+| 4-leg condor (SL + 100% tgt) | +780,604 | 98.4% | **551** | (unbounded tail) |
+| breach spread (SL only, no cap) | +674,162 | 98.4% | 6,139 | −6,139 |
+
+Call-breach days: 139, +₹444k, 100% WR. Put-breach days: 110, +₹290k, 97.3% WR. Only **2 STOPs in 249 days**; worst-5% day still positive (p5 = +₹678); worst day −₹6,139 = the defined max loss working (150-pt width − credit).
+
+**Reading — the spread is tail insurance, not a PnL upgrade:** the condor earns *more* on these days (+₹781k vs +₹734k at the same target, DD ₹551 vs ₹6,139) because the unbreached wing also pays on crush days. The spread's value is convexity: its worst day is a *known* ~₹7.9k (width − credit), while the condor's gap-through loss past the short strike is bounded only by the far wing (potentially ₹20k+ on a cascade day the first-order model understates). Adopt the spread if the tail matters more than ₹46k/5.7y; keep the condor if the marks and hedges are trusted. Either way: **stop trading 4-leg condors on valid-structure days** (PF 0.78) — on 319 days a year the right trade is no trade.

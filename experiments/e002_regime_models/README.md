@@ -144,3 +144,16 @@ At the same monthly trade budget k (the rule's count), the ML condor book restri
 | **drop-target, expiry-only** | **371** | **+747,983** | **+2,016** | **76.5%** | **20.27** | **2,336 (1.2%)** |
 
 The expiry gate **adds money while more than halving the workload**: +25% net (documented) / +11% (drop-target), −56% trades, −75% drawdown. It also matches the reviewer's capital argument — the book is flat ~80% of days, freeing collateral for the liquid-fund yield play. Caveats: expiry-day-only selection is close to a calendar rule (the ML still chooses *which* expiry days and SKIPS some — the gate is a restriction, not a calendar); Tue-era 100% WR is a 52-day sample; the composition warning (e005 Add. 2 — inverted-wall days carry the edge) applies to every row here. e005 Add. 3 completes the picture: IV regime does not matter on expiry days, so the gate, not IV timing, is the right concentration.
+
+## Addendum 6 — EV-sizing histogram (`ev_sizing.py`): the 2-lot threshold doesn't discriminate
+
+Testing Idea 5 (size 2 lots when calibrated P(win) > 0.70) on the expiry-gated book's 371 trades, under both exit configs:
+
+| Bucket (documented exits) | n | Net ₹ | Avg/trade | WR |
+|---|---:|---:|---:|---:|
+| P > 0.70 | 223 (60% of trades) | +222,998 | +1,000 | 80.3% |
+| P ≤ 0.70 | 148 | +153,979 | +1,040 | 68.2% |
+
+**The P>0.70 threshold is not selective** — 60% of expiry-gated days clear it, and per-trade PnL is flat across buckets (₹1,000 high-P vs ₹1,040 low-P; the P distribution is compressed: 113 of 371 trades sit in p80–90, only 15 below p50). The reviewer's +35–45% uplift estimate holds arithmetically (+59%/+57% net) but is achievable with **flat 2-lot sizing**: tiered +₹600k/DD ₹4,672 vs flat-2 +₹754k at the *same* DD (the worst day was itself a high-P day), so the tier is strictly dominated — Calmar 161 flat vs 128 tiered.
+
+**Sizing conclusion:** P(win) ranks *which days to take* within the gate (that's where it earned its keep), but within the gated set it carries no extra sizing information — the honest sizing ladder is margin-driven (1→2 lots when utilization allows), not P-driven. Same composition caveat as everywhere else; and 2-lot days double the exposure to the tail that breach-spread insurance (e005 Add. 5) exists to bound.
