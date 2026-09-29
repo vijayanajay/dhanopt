@@ -1,63 +1,77 @@
-# Production Handoff — Expiry-Gated Condor Book (Sandbox → Live)
+# Production Handoff — Breached-Wall Book (Sandbox → Live)
 
-**Status: research complete; one validation DONE (marks), one PARTIAL (sample depth) — NOT live-approved.**
-Every number below is 1 lot on a ₹2,00,000 bankroll, no compounding, real Zerodha friction. Evidence: `experiments/collated_results.md`; protocol + changelog: `experiment.md` (v1–v10).
+**Status: research complete; marks validated on one session, composition robustness PARTIAL — NOT live-approved.**
+All numbers 1 lot on ₹2,00,000, no compounding, real Zerodha friction. Evidence: `experiments/collated_results.md`, `experiments/e005_theta_condor/README.md` (Add. 1–5), `experiment.md` (v1–v13).
 
-## 1. What the sandbox established
+## 1. The book changed shape — it is now "breach-only"
 
-| Finding | Evidence |
-|---|---|
-| Directional spreads are net-negative under two independent pricings — permanently retire them | e001 (−₹653k), e004 (bull −₹314k, bear −₹147k) |
-| The edge is expiry-day (0DTE) short-vol on the condor-shaped book; it survives honest intraday exits | e005 (+₹288,581 documented exits, PF 2.05; SL fires on only 4.2% of days) |
-| The documented +50% profit target is the single biggest PnL leak (−₹438k); **pick target = 100% of credit** (+₹760,856, PF 3.76, DD ₹3,888) | e005 target sweep, exit sweep |
-| **Expiry-gating (dte ≤ 1) adds money while cutting trades 56% and DD to 1.2%** (+₹377k documented / +₹748k no-cap at 75–77% WR, 371 trades) | e002 Add. 5 |
-| ML selection (dte features, EV ranking) beats the naive rule at every operating point; IV regime is irrelevant on expiry days | e002 dte variant, expiry gate, e005 iv_regimes |
-| Decay-trailing exit (75–80% of credit after 14:00/14:30) is a good gamma-dodge overlay but trails the plain 100% target by ~₹75k in-sim | e005 exit sweep |
-| ⚠ Composition: valid-structure condors LOSE (−₹55k, PF 0.78); 107.6% of the edge sits on inverted-wall days (prior-OI wall above/below a gapped spot; PF 91.8) | e005 inverted-wall audit |
+The sandbox's final finding supersedes every earlier config: **the vanilla condor does not work on valid-structure days** (−₹55k, PF 0.78 over 964 days) and **107.6% of the frozen edge sits on inverted-wall days** — days where spot has gapped past the prior-day max-OI wall and the wall's inflated premium crushes on expiry (mechanism price-validated on the 2026-09-25 session: Dhan 5-min candle opens == bhavcopy opens exactly on all 6 legs).
 
-## 2. Mark validation — DONE, honest marks confirmed (e005 `marks_validation.py`)
+So the production book trades **only** on dte ≤ 1 days with a breached wall, and **stands down entirely on valid-structure days** (~319 days a year — no trade is the correct trade there). Two acceptable executions, same 249-day backtest window (full 2021-01 → 2026-09):
 
-Dhan serves 5-min OHLC+OI for NSE_FNO options; validated the latest frozen session (2026-09-25, expiry 2026-09-29 — the only contracts still listed in the current scrip master):
+### Decision box: spread vs condor on breach days
 
-- **Candle opens == bhavcopy opens EXACTLY on all 6 legs** (428.70 / 14.95 / 215.85 / 6.90 / 336.90 / 27.95).
-- Closes match to last-trade vs settlement timing (max diff ₹0.90 on a 323-print).
-- Scrip-mapping hazard found on the way: FINNIFTY shares NIFTY strikes — map by exact `SEM_TRADING_SYMBOL == 'NIFTY'`, never by strike alone.
-- Mechanism explained: the "inverted" walls are prior-OI walls above a spot that **crashed between 09-22 and 09-25** (futures open 23,302 on 09-25). The short wall put's crash-inflated premium crushing on expiry is a real post-crash short-vol effect — **stale-mark contamination is excluded for this session.**
+| | **Breach spread (2 legs)** | **4-leg condor on breach days** |
+|---|---:|---:|
+| Net (SL + 100% target) | +₹734,388 | +₹780,604 |
+| WR / PF | 98.8% / 62.6 | 98.4% / — |
+| Max DD | ₹6,139 | **₹551** |
+| Worst day | **−₹6,139 = defined max loss** (width − credit) | **unbounded** (gap-through past short strike, bounded only by far wing) |
+| STOPs in 249 days | 2 | 56 across the full condor book |
+| Margin/lot | ≈ max loss ≈ **₹8–10k** (defined-risk spread margin; verify with broker calc) | ₹40–50k |
+| Friction | 2 legs (≈ half the condor's) | 4 legs |
 
-**Residual limitation:** this validates one session (the only one whose contracts survive delisting). The mechanism (crash-inflated premium crush) is coherent and price-consistent, but it is ONE observation. See §4.
+**Recommendation: breach spread.** It gives up ₹46k/5.7y to the condor but converts the reviewer's named tail (cascade through the short strike, SL slippage blowing through) into a *known, pre-paid* ~₹7.9k worst case, halves friction, and cuts margin ~5× — which moves every capital stage forward. Choose the condor variant only if intraday hedge liquidity is proven at size.
 
-## 3. The production config (proposed)
+Notable: this book is **fully mechanical** — dte ≤ 1 + wall-breach test → trade. No ML required (98.8% WR leaves little for a selector to add; P(win) ranking added nothing within the gated set — see e002 Add. 6). The LightGBM/logistic stack remains valuable only for the *unrestricted* condor variant and as monitoring.
 
-| Parameter | Value | Basis |
-|---|---|---|
-| Book | Iron condor only (put wall / call wall + 150-pt wings), max-OI walls, nearest expiry | e001 leg-for-leg identity; e005 |
-| Day gate | **dte ≤ 1 only** (375 of 920 OOS days); no trades otherwise | e002 Add. 5 |
-| Selector | ML P(win) per expiry day — logistic on dte feature set (fold-honest calibration), EV-ranked | e002 Add. 3/4 |
-| Entry | 09:15–09:20, leg opens observable; 1 lot | e005 identity |
-| Profit exit | **close at +100% of entry credit** (never 50%); optional decay-trail overlay (80% after 14:30) | e005 sweep + exit sweep |
-| Stop | 1.4× credit (empirically fires on ~4% of days) | e005 |
-| Hard EOD | 15:20 square-off (conservative vs the 15:25 replay bar) | engine mandate |
-| Risk caps | Existing engine limits unchanged: ₹2,500 daily / ₹10,000 monthly | config.py |
+## 2. Backtest evidence (full window, 249 trades)
+
+| Metric | Value |
+|---|---:|
+| Net | +₹734,388 (SL + 100% target) |
+| Per trade / per year (≈44 trades) | ₹2,949 / ≈₹1,29,000 (≈64%/yr on ₹2L) |
+| WR / PF / max DD | 98.8% / 62.6 / ₹6,139 (3.1%) |
+| Worst day | −₹6,139 (2025-08-07, put breach, SL) |
+| Worst-5% day | **still positive** (+₹678) |
+| Call breach vs put breach | 139 days +₹444k (100% WR) / 110 days +₹290k (97.3% WR) |
+
+Side stats and worst-10 list: `experiments/e005_theta_condor/artifacts/breach_spread.json`.
+
+## 3. Slippage cliff (measured, `slippage_cliff.py`)
+
+Charging k× the modeled 1.5 pts/leg (core formula: pts × qty × legs, linear):
+
+| k× | pts/leg | Net ₹ | PF | Max DD |
+|---:|---:|---:|---:|---:|
+| 1 | 1.5 | +734,388 | 62.6 | 6,139 |
+| 5 | 7.5 | +602,448 | 41.2 | 7,039 |
+| 8 | 12.0 | +503,493 | 25.9 | 7,841 |
+| 12 | 18.0 | +371,553 | 11.4 | **10,335** (monthly cap breached) |
+| 16 | 24.0 | +239,613 | 4.58 | 15,065 |
+| 20 | 30.0 | +107,673 | 1.92 | 34,721 |
+
+**Breakeven at 23.3× = 34.9 pts/leg** — per-trade avg net ₹2,949 vs ₹132 of 1× slippage. The 2-leg structure absorbs extreme deterioration before losing money; the binding constraint at scale is the *monthly loss cap* (breached at ~12×) before net turns negative. Caveats: linear slippage model, so lot-invariant by construction — non-linear book-walking impact at 50+ lots is real and unmeasured (needs LOB data); the 0DTE ITM short leg is the leg to watch.
 
 ## 4. Required validations before live (in order)
 
-1. **Composition robustness (the big one).** Only the latest expiry week could be mark-validated. Extend validation backward: Dhan historical candle depth for *expired* option contracts is the open question — probe 1 week, 1 month, 1 year back (same probe script, older sessions). If expired contracts are not served, the fallback is validating 3–5 more live sessions as they expire (cheap: ~2 weeks of calendar).
-2. **Paper-trade the gate.** Run the expiry-gated book on paper (or 1 lot live-minimum) for ≥4 consecutive expiry weeks; compare realized fills vs e005's assumptions (09:15 entry, +100% target, SL).
-3. **Lot-size / schedule audit in core** (flagged since research began): `config.NIFTY_LOT_SIZE` is 75, actual era is 65 since 2025-12-30; `WEEKDAY_SCHEDULES` still carries Thursday-expiry logic. Fix before anything reads them live.
+1. **Composition robustness.** Marks validated on ONE session (the only still-listed expiry week). Extend: probe Dhan historical candle depth for *expired* contracts; if absent, validate 3–5 live sessions as they expire (~2–6 weeks of calendar). The crash-crush mechanism is coherent and price-consistent, but the sample is one observation.
+2. **Paper-trade the gate.** ≥4 consecutive expiry weeks: realized fills vs the 09:15 entry / +100% target / 1.4× SL assumptions; log slippage per leg against the 12× DD boundary from §3.
+3. **Core config audit** (flagged since research began): `config.NIFTY_LOT_SIZE` is 75, actual era 65 since 2025-12-30; `WEEKDAY_SCHEDULES` still Thursday-expiry. Fix before anything reads them live.
 
-## 5. Staged capital plan (after §4 gates pass)
+## 5. Staged capital plan (after §4 gates pass; spread margin assumption)
 
 | Stage | Bankroll | Book | Trigger to advance |
 |---|---:|---|---|
-| 0 | ₹2.0L | 1 lot, expiry-gated, paper→live shadow | 4 clean expiry weeks (fills + slippage within 2× model) |
-| 1 | ₹2.0L | 1 lot live, all rules active | 8 expiry weeks, realized Calmar ≥ half of sim |
-| 2 | ₹4.0L | 2 lots on high-conviction days only (EV-ranked top half) | margin headroom verified (₹40–50k/lot; keep ≤50% utilization) |
-| 3 | ₹6.0L+ | 3 lots max; **stop scaling regardless of results** | 0DTE short-vol capacity at 3 lots is unproven; slippage on ITM legs is the binding constraint |
+| 0 | ₹2.0L | 1 lot breach spread, paper→live shadow | 4 clean expiry weeks (fills + slippage within 2× model) |
+| 1 | ₹2.0L | 1 lot live | 8 expiry weeks; realized Calmar ≥ half of sim |
+| 2 | ₹2.0–4.0L | 2–3 lots (spread margin ≈ ₹10k/lot → utilization still <50%) | margin verified with broker calculator; slippage tracking ≤ 5× model |
+| 3 | Stop scaling at 3 lots | — | 0DTE capacity at size unproven; revisit only with LOB evidence |
 
-Collateral yield (independent, start immediately): pledge idle cash (₹1.5L at stage 0–1) into overnight funds/liquid ETFs → ~₹10–13k/yr risk-free; the book is flat ~80% of days, so this does not collide with margin needs.
+Collateral yield (start immediately, independent of the book): pledge idle cash into overnight funds/liquid ETFs → ~₹10–13k/yr risk-free; margin is blocked only on trade days (~1–2/week), so the yield accrues nearly undisturbed.
 
 ## 6. Known ceilings (carried into live expectations)
 
-- Sim PnLs are 1-lot, no compounding; realized Calmar will be lower than the panel's best-of (selection inflation across ~10 read-outs of the same window).
-- Theta path is first-order (no intraday vol response) — spike losses are understated; the trail overlay and the 1.4× SL are the mitigations.
-- One underlying, one regime family (crash-adjacent expiry crush). Multi-index rotation (BANKNIFTY/FINNIFTY/SENSEX) is a *separate* future experiment, not part of this handoff.
+- Breach-spread backtest is full-window on frozen daily marks; the +100% target and 1.4× SL are post-hoc choices (sweep-selected) — the pre-registered holdout (next 3 expiry months, config frozen) is the honest Calmar test.
+- Theta path is first-order (no intraday vol response): spike losses understated; the defined-risk width and the 1.4× SL are the mitigations.
+- One underlying, one mechanism (post-gap expiry crush). Multi-index rotation (BANKNIFTY/FINNIFTY/SENSEX — note BANKNIFTY weeklies were abolished Nov 2024; verify each index's current calendar) is a separate future experiment, only after the wall-breach edge is proven per index.
