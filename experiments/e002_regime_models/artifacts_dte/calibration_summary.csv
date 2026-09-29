@@ -1,0 +1,4 @@
+archetype,n,base_rate,lgbm_brier,lgbm_acc,logistic_brier,logistic_acc,persistence_brier,persistence_acc
+Bull Call Spread,918,0.28,0.2145,0.688,0.2059,0.703,0.2302,0.696
+Bear Put Spread,917,0.455,0.2633,0.521,0.2542,0.546,0.3095,0.525
+Iron Condor,847,0.509,0.2014,0.694,0.1763,0.714,0.2811,0.549

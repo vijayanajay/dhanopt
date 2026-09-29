@@ -1,0 +1,43 @@
+{
+  "stop_pnl": -718.9,
+  "baseline_ev": {
+    "n": 919,
+    "net_total": 583124.0,
+    "avg_net": 634.5,
+    "win_rate": 0.504,
+    "pf": 2.79,
+    "max_dd": 28873.0
+  },
+  "policies": {
+    "stress_10": {
+      "n": 919,
+      "net_total": 458519.0,
+      "avg_net": 498.9,
+      "win_rate": 0.46,
+      "pf": 2.26,
+      "max_dd": 28567.0,
+      "max_dd_pct": 14.3,
+      "frac": 0.1
+    },
+    "stress_25": {
+      "n": 919,
+      "net_total": 309162.0,
+      "avg_net": 336.4,
+      "win_rate": 0.396,
+      "pf": 1.73,
+      "max_dd": 29909.0,
+      "max_dd_pct": 15.0,
+      "frac": 0.25
+    },
+    "stress_40": {
+      "n": 919,
+      "net_total": 168428.0,
+      "avg_net": 183.3,
+      "win_rate": 0.337,
+      "pf": 1.35,
+      "max_dd": 60939.0,
+      "max_dd_pct": 30.5,
+      "frac": 0.4
+    }
+  }
+}

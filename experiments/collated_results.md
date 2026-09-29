@@ -20,6 +20,7 @@ All sims: ₹2,00,000 bankroll (config.TOTAL_CAPITAL), 1 lot era-correct (25→7
 | e001 rule-selected (naive t-1 rule, full span) | 2021-01→2026-09 (5.7 y) | ₹2.0L, 1 lot, ≤₹2.5k risk/trade | +87,440 | 15.3k | 7.6% | 67,526 | 33.8% |
 | e002 baseline (same rule, OOS slice) | 2023-01→2026-09 (3.75 y) | ₹2.0L, 1 lot, ≤₹2.5k risk/trade | +108,306 | 28.9k | 14.4% | 67,526 | 33.8% |
 | **e002 ML-LGBM selector** | 2023-01→2026-09 (3.75 y) | ₹2.0L, 1 lot, ≤₹2.5k risk/trade | **+446,344** | **119.0k** | **59.5%** | **28,543** | **14.3%** |
+| e002 ML-logistic + days-to-expiry (Add. 3) | 2023-01→2026-09 (3.75 y) | ₹2.0L, 1 lot, ≤₹2.5k risk/trade | **+653,520** | **174.3k** | **87.1%** | **18,746** | **9.4%** |
 | e002 EV ranking (P × payoff, same n=919) | 2023-01→2026-09 (3.75 y) | ₹2.0L, 1 lot, ≤₹2.5k risk/trade | +583,124 | 155.5k | 77.7% | 28,873 | 14.4% |
 | e002 condor-only, ML days (n=306) | 2023-01→2026-09 (3.75 y) | ₹2.0L, 1 lot, ≤₹2.5k risk/trade | +404,703 | 107.9k | 54.0% | 6,439 | 3.2% |
 | e002 ML-logistic selector | 2023-01→2026-09 (3.75 y) | ₹2.0L, 1 lot, ≤₹2.5k risk/trade | +376,794 | 100.5k | 50.2% | 31,025 | 15.5% |
@@ -29,11 +30,13 @@ All sims: ₹2,00,000 bankroll (config.TOTAL_CAPITAL), 1 lot era-correct (25→7
 | e004 path exits: bear spread (all days) | 2021-01→2026-09 (5.7 y) | ₹2.0L, 1 lot, ≤₹2.5k risk/trade | −146,502 | −25.7k | −12.9% | 160,690 | 80.3% |
 | e004 path exits: condor ⚠ artifact | 2021-01→2026-09 (5.7 y) | ₹2.0L, 1 lot, ≤₹2.5k risk/trade | −547,744* | −96.1k | −48.0% | 547,810 | 273.9% |
 
-Trade counts (matched within each experiment): e001 n=1,386; e002 baseline 920 / ML 919; e003 n=897 (τ=0.40 keeps 494); e004 all-archetype daily replay, no selection.
+Trade counts (matched within each experiment): e001 n=1,386; e002 baseline 920 / ML 919 (dte variant n=919); e003 n=897 (τ=0.40 keeps 494); e004 all-archetype daily replay, no selection.
 
 \* e004 condor row is **invalid as PnL**: fixed-IV Black-Scholes repricing removes intraday theta decay, the condor's entire income — EOD-only days (no stop interference) flip sign vs e001 with −0.25 correlation. Spread rows are valid and confirm e001. The condor question needs theta-aware pricing; e002's condor edge stands until then.
 
-**Bottom line:** the only confirmed edges are (a) e002-style day/archetype selection at matched count (+₹446k, or +₹583k with EV ranking — both capped by the condor-label optimism e004 exposed) and (b) NOT trading the directional spreads, now confirmed under two independent pricings. The condor's true intraday profile is the one open question — everything else is measured.
+Stop-stress on the EV book (e004's measured 1.4× SL rate, 25% of condor trades stopped at −₹719 mean): net +₹583k → +₹309k, **DD unchanged 14.4% → 15.0%** (per-trade cap); book breaks only at 40% stopped (DD 30.5%).
+
+**Bottom line:** the only confirmed edges are (a) e002-style selection — best with days-to-expiry (logistic+dte: +₹653k, 87%/yr, 9.4% DD, the only policy clearing the 55% WR hurdle) or EV ranking (+₹583k, survives e004's measured stop rate with DD intact) — and (b) NOT trading the directional spreads, confirmed under two independent pricings. The condor's true intraday profile is the one open question — everything else is measured.
 
 ---
 Recomputed from artifacts 2026-09-29: e001 `artifacts/labels_daily.csv` (max DD from rule-selected daily equity), e002 `artifacts/gating_sim.json` + `gating_variants.json` (self-checked against gating_sim.json), e003 `artifacts/policy_comparison.json`, e004 `artifacts/intraday_replay.csv` (max DD from daily-replayed equity). ₹ levels are not comparable across lot eras (25→75→65); treat cross-era rupees as approximate.

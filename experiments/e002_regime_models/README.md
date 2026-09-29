@@ -94,3 +94,26 @@ Run on the frozen OOS predictions (no retraining). Self-check: the P(win) policy
 - **Condor-only gets 91% of the net with a fifth of the drawdown.** The two directional books bleed −₹60k combined inside the full ML book; dropping them costs 9% of net, cuts trades to a third (919 → 306), and max DD from 14.3% → 3.2%. Per-trade quality 486 → ₹1,323.
 - **EV + condor-only combined is a no-op by construction** (last row is bit-identical to condor-only ML): within a single archetype the payoff multiplier is a positive constant, so P×payoff ranks identically to P. EV ranking is a *cross-book* reallocation lever — the two upgrades answer the same allocation question from two sides and do not stack. Choose one: EV ranking if you keep all three books, condor-only if you want minimal surface.
 - **Caveat unchanged:** condor open→close numbers are the optimistic end (no intraday stop-out in the proxy) until e004 runs. PF 9.45 on n=306 is a slice of that same proxy — treat the *relative* comparison as robust and the absolute rupees as provisional.
+
+## Addendum 3 — Days-to-expiry replaces `dow` (`walkforward_dte.py` → `artifacts_dte/`), and e004-informed stop stress (`stress_test.py`)
+
+**dte variant: the SHAP addendum's recommendation pays.** Identical frozen protocol (folds, embargo, LGBM params, gating); only `dow` out, `dte` + `is_expiry` in (expiry calendar is public schedule info, leak-free). OOS calibration improves on **every** archetype for both model families — condor most of all:
+
+| Model | Metric | dow (frozen) | dte variant |
+|---|---|---:|---:|
+| LGBM | condor Brier | 0.2342 | **0.2014** |
+| Logistic | condor Brier | 0.2589 | **0.1763** |
+| LGBM | bull / bear Brier | 0.2158 / 0.2644 | 0.2145 / 0.2633 |
+
+Gating (matched count, vs frozen run): baseline identical (protocol check ✓). **ml_logistic+dte is the best policy measured in the sandbox: +₹653,520, PF 2.46, WR 55.1%, max DD ₹18,746 (9.4%)** — first policy to clear config's 55% WR hurdle. LGBM+dte: +₹439,906 at lower DD (26,786), with the condor book *better* on fewer trades (n 439→409, net +507k→+602k) — dte carries real day-selection signal, not just calendar identity. Adopt the dte feature set; prefer the logistic model or the EV-ranking upgrade on top.
+
+**Stop stress (e004's measured 1.4× credit SL: fired on 25% of condor days, mean stopped-trade net −₹719):** replacing a random 25% of the EV book's condor trades (n=765) with e004's realized stop outcome:
+
+| Stopped share | Net ₹ | WR | PF | Max DD (DD%) |
+|---|---:|---:|---:|---:|
+| 0% (baseline EV) | +583,124 | 50.4% | 2.79 | 28,873 (14.4%) |
+| 10% | +458,519 | 46.0% | 2.26 | 28,567 (14.3%) |
+| **25% (e004's rate)** | **+309,162** | 39.6% | 1.73 | **29,909 (15.0%)** |
+| 40% | +168,428 | 33.7% | 1.35 | 60,939 (30.5%) |
+
+At the *measured* stop rate the book survives: net nearly halves but **drawdown is unchanged** — the SL is a per-trade cap, so stops convert tail days into single capped losses. The book only breaks at 1.6× the measured rate (DD 30.5%). Ceiling: magnitudes are e004's mean stop applied by random draw, not path-matched to the same days (random sampling also understates vol-clustered stop correlation) — `stress_test.py` ponytail note.
