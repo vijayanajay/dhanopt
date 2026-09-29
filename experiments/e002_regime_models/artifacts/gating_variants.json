@@ -1,0 +1,69 @@
+{
+  "payoff_multipliers": {
+    "Bull Call Spread": 0.881,
+    "Bear Put Spread": 1.028,
+    "Iron Condor": 2.207
+  },
+  "policies": {
+    "ml_pwin_repro": {
+      "n": 919,
+      "net_total": 446344.0,
+      "avg_net": 485.7,
+      "win_rate": 0.518,
+      "pf": 2.01,
+      "max_dd": 28543.0,
+      "max_dd_pct": 14.3,
+      "n_Bull Call Spread": 115,
+      "net_Bull Call Spread": -34307.0,
+      "n_Bear Put Spread": 365,
+      "net_Bear Put Spread": -26418.0,
+      "n_Iron Condor": 439,
+      "net_Iron Condor": 507069.0
+    },
+    "ml_ev": {
+      "n": 919,
+      "net_total": 583124.0,
+      "avg_net": 634.5,
+      "win_rate": 0.504,
+      "pf": 2.79,
+      "max_dd": 28873.0,
+      "max_dd_pct": 14.4,
+      "n_Bull Call Spread": 25,
+      "net_Bull Call Spread": -14926.0,
+      "n_Bear Put Spread": 129,
+      "net_Bear Put Spread": -50676.0,
+      "n_Iron Condor": 765,
+      "net_Iron Condor": 648726.0
+    },
+    "condor_rule": {
+      "n": 306,
+      "net_total": 273871.0,
+      "avg_net": 895.0,
+      "win_rate": 0.507,
+      "pf": 5.2,
+      "max_dd": 5729.0,
+      "max_dd_pct": 2.9,
+      "n_Bull Call Spread": 0,
+      "net_Bull Call Spread": 0.0,
+      "n_Bear Put Spread": 0,
+      "net_Bear Put Spread": 0.0,
+      "n_Iron Condor": 306,
+      "net_Iron Condor": 273871.0
+    },
+    "condor_ml": {
+      "n": 306,
+      "net_total": 404703.0,
+      "avg_net": 1322.6,
+      "win_rate": 0.647,
+      "pf": 9.45,
+      "max_dd": 6439.0,
+      "max_dd_pct": 3.2,
+      "n_Bull Call Spread": 0,
+      "net_Bull Call Spread": 0.0,
+      "n_Bear Put Spread": 0,
+      "net_Bear Put Spread": 0.0,
+      "n_Iron Condor": 306,
+      "net_Iron Condor": 404703.0
+    }
+  }
+}

@@ -4,7 +4,7 @@
 
 **Status: simulator complete and validated; full run blocked on data backfill.**
 
-- Needs `data/intraday/` partitions: `python download_intraday.py --start 2026-09-01 --end 2026-09-26` (DhanHQ 5-min history has limited depth — check how far back it goes before planning anything long-horizon).
+- Needs `data/intraday/` partitions. **Depth probe (2026-09-29): Dhan serves 5-min NIFTY back to at least 2021-01-04** (75 bars/day verified at 2021/2022/2023/2024 probes), so a full-window backfill matching e001 (~1,415 trading days) is feasible. One week already cached (2026-09-21 → 09-25); run `python download_intraday.py --start 2021-01-04 --end 2026-09-25` for the full horizon.
 - Then: `python -m experiments.e004_intraday_replay.replay_intraday` → `artifacts/intraday_replay.csv`.
 
 ## Verdict

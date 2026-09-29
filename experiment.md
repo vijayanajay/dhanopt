@@ -3,6 +3,18 @@
 **Status:** Design — implementation lives entirely under `experiments/`; no core file changes.
 **Question this answers:** Can simple ML (LightGBM + SHAP) improve *when to trade* and *which strategy to trade* so that we grow capital, cut losses, and keep roughly the same number of trades?
 **Ground rule:** ML estimates probabilities. Deterministic rules decide. The `RuleGatekeeper` stays untouched.
+**Goal (restated):** Find an **ensemble of models** that makes the right decision most of the time — **not** never-trade / trade-as-little-as-possible. Fewer losses with roughly the same number of trades is success; an engine that says NO every day is a failure mode of this research, not a win.
+
+---
+
+## Sandbox Policy (hard constraint)
+
+1. **Nothing under `experiments/` may modify any file outside `experiments/`.** Originals (`core/`, `backtest/`, `config.py`, `run_engine.py`, `trade.py`, `data/`) are read-only inputs to experiments.
+2. All experiments live in numbered folders `experiments/e00x_<name>/`, one folder per experiment, containing its code, its README, and its artifacts. Shared code (feature builders, replay helpers) lives in `experiments/common/` and is imported — never duplicated.
+3. Every experiment folder **must** contain a `README.md` with a `## Verdict` section stating plainly **what works** (with numbers) and **what does not work** (with numbers). No verdict = experiment not finished. Verdicts are written once, after the frozen protocol has run — not iterated until the numbers look good.
+4. Artifacts (CSVs, models, plots) stay inside the experiment folder under `artifacts/`. Experiments never write into `data/` (that belongs to the core engine) — with the single exception that a future promotion step (e002+) may *propose* a new `calibrated_params.json`, which the user applies manually after review.
+5. Promotion path: an experiment's findings graduate into `core/` only after its acceptance gates pass and the user approves the diff. Until then, the live engine is unaffected by anything in `experiments/`.
+6. New dependencies (lightgbm, shap, scikit-learn) are experiment-only; they must not be required to run `run_engine.py` or `trade.py`.
 
 ---
 
@@ -28,14 +40,15 @@ New module `experiments/replay.py` (imports, never copies, `core.friction.zerodh
    - This is a momentum-continuation rule executable at 09:15 on day t. It may be a *bad* rule — that's fine, it's the honest baseline.
 2. **Replay all 3 archetypes every day** (not one per day): bull spread, bear spread, condor — each with entry at day-t open, exit at day-t close.
    - Known simplification (`ponytail`-style ceiling): daily bars can't simulate intraday SL/target paths. Open→close is the honest proxy; label all results as such. Intraday fidelity requires 5-min history — out of scope for v1.
-3. **Lot-size era table:**
-   | Era | Lot |
-   |---|---|
-   | 2015 → 2024-11-19 | 50 |
-   | 2024-11-20 → present | 75 |
-   | pre-2015 | exclude from ₹ PnL (features only) |
-   Verify boundaries against NSE circulars before trusting absolute rupee figures from any era.
-4. **Output:** one row per (date, archetype): `date, weekday, archetype, gross_pnl, friction, net_pnl, win` — written to `experiments/artifacts/labels_daily.csv`.
+3. **Lot-size era table (verified against NSE circulars FAOP67372 Oct 2024 / FAOP70616 Oct 2025):**
+   | Era | Lot | Source |
+   |---|---|---|
+   | start of data (2021) → 2024-11-19 | 25 | pre-revision contracts |
+   | 2024-11-20 → 2025-12-29 | 75 | FAOP67372: new lot on contracts introduced Nov 20, 2024 |
+   | 2025-12-30 → present | 65 | FAOP70616: new series with Jan-2026 expiry cycle, weekly ≈ Dec 30, 2025 |
+   | pre-2021 | out of scope v1 (lot eras differ further; extend later if needed) |
+   Caveat: within a transition day the *expiring* weekly contract keeps the old lot while new series use the new one; per-day replay uses the new-lot date as the boundary. Absolute ₹ from earlier eras are comparable only after this normalization — and the strategy-selection labels are affected only via friction weights, which is why net-PnL comparisons across eras should also be sanity-checked in **points**, not just rupees.
+4. **Output:** one row per (date, archetype): `date, weekday, archetype, gross_pnl, friction, net_pnl, win` — written to `experiments/e001_leakfree_replay/artifacts/labels_daily.csv`.
 5. **Expectation check:** if this honest replay still shows PF > 3, suspect the replay, not celebrate.
 
 ## Phase 0b — Fail-closed calibration (core fix, small diff)
@@ -109,14 +122,19 @@ Three LightGBM binary classifiers (one per archetype), not a cascade:
 
 ```
 experiments/
-├── replay.py          # Phase 0 leak-free replay (imports core.*, never edits it)
-├── features.py        # Phase 1 t-1 features + leakage self-check
-├── train_regime.py    # Phase 3–4 models, baselines, purged walk-forward
-├── gating_sim.py      # Phase 5 matched-count A/B
-├── explain.py         # Phase 6 SHAP reports
-└── artifacts/         # labels_daily.csv, folds.json, models/, plots/
+├── common/            # shared helpers (parquet loading, era lots) — no experiment logic
+├── e001_leakfree_replay/   # Phase 0: t-1 decision, open→close replay, 3 archetypes, era lots
+│   ├── replay.py
+│   ├── README.md      # Verdict: what works / what doesn't, with numbers
+│   └── artifacts/     # labels_daily.csv, comparison report
+├── e002_regime_models/     # Phases 2–6 (created when e001 verdict lands)
+├── e003_meta_labeling/     # ML on the rule engine's own triggered trades (parallel candidate)
+└── e00N_...                # one folder per experiment, each with README + Verdict
 ```
 
 ## Changelog
 
 - v1 (2026-09-29): initial design. Phase 0 promoted to hard prerequisite after look-ahead bias, lot-size, fail-open, and expiry-regime findings.
+- v2 (2026-09-29): added Sandbox Policy (e00x folders, read-only originals, README Verdict requirement), ensemble goal statement, verified lot-era table (25→75→65) from NSE circulars FAOP67372 / FAOP70616, corrected Phase 0 spec (decision from t-1 close, entry at day-t open, all 3 archetypes every day).
+- v3 (2026-09-29): e002 verdict — ML day/archetype selector at matched trade count: net ₹108k→₹446k, PF 1.20→2.01, DD −58%; all models honestly calibrated; directional spreads remain negative even under ML selection. SHAP addendum: condor edge is an expiry-day (0DTE) effect that migrated Thursday→Tuesday with the 2025-09 expiry change — replace `dow` with days-to-expiry before production. e003 verdict — meta-labeling has no per-trade discrimination (Brier ≈ base rate), dominated by e002's selector; interesting again only with per-trade intraday features. New: `core/feeds/intraday.py` + `download_intraday.py` (5-min candle store, validated, holiday-aware) and `experiments/e004_intraday_replay/` (BS-repriced SL/target/EOD path simulator, validated on synthetic paths; full run blocked on intraday backfill).
+- v4 (2026-09-29): `collated_results.md` (one-page verdicts + cap / ₹/yr / max-DD% table). Gating variants (no retraining, self-checked against committed sim): EV ranking P(win)×payoff lifts net +₹446k→₹583k at same count/DD; condor-only ML book keeps 91% of net at 3.2% DD. Dhan 5-min depth probed: reaches ≥2021-01-04, e004 unblocked. Bug fix: empty Dhan frame (holiday) now raises MissingDataError instead of a misleading ValueError; `gating_variants.py` added.

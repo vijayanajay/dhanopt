@@ -77,3 +77,18 @@ The weekday-dependence check flagged `dow` (OOS mean P(condor win) spans 0.415�
 The condor edge is an **expiry-day (0DTE) premium-crush effect, and it migrated with the expiry when NSE moved it Thursday→Tuesday (2025-09-01)**. So the flag correctly warned "model leans on weekday," but deleting `dow` would delete real signal. The robust fix: replace raw weekday with **days-to-nearest-expiry** (and an is-expiry-day flag) — that survives any future NSE expiry change without relearning, and is the recommended feature change before any production use. Also note the live `WEEKDAY_SCHEDULES` still carries Thursday-expiry logic (14:45 gamma cutoff, "Thursday PRIME") — now attached to the wrong day.
 
 Per-day force data for the 5 most-confident wrong calls per archetype: `shap/force_*.json` (base value + top-8 signed contributions per day, ready for plotting).
+
+## Addendum 2 — Gating variants: condor-only book and EV ranking (`gating_variants.py` → `artifacts/gating_variants.json`)
+
+Run on the frozen OOS predictions (no retraining). Self-check: the P(win) policy reproduces `gating_sim.json` ml_lgbm exactly — asserted in the script before anything else prints.
+
+| Policy | n | Net ₹ | Avg/trade | WR | PF | Max DD ₹ (DD%) |
+|---|---|---:|---:|---:|---:|---:|
+| P(win) ranking (= main e002) | 919 | +446,344 | +486 | 51.8% | 2.01 | 28,543 (14.3%) |
+| **EV = P(win) × payoff** | 919 | **+583,124** | **+634** | 50.4% | **2.79** | 28,873 (14.4%) |
+| Condor only, rule days | 306 | +273,871 | +895 | 50.7% | 5.20 | 5,729 (2.9%) |
+| **Condor only, ML days** | 306 | **+404,703** | **+1,323** | **64.7%** | 9.45 | **6,439 (3.2%)** |
+
+- **EV ranking works, by the expected mechanism.** Payoff multipliers frozen from pre-OOS e001 labels (Bull 0.88 / Bear 1.03 / Condor 2.21). Same 919 trades, same drawdown, +₹137k net — because multiplying by payoff pushes the allocation toward the condor (439 → 765 condor trades; spreads nearly vanish, n=25 bull). This is the one-line ranking-key upgrade the `ponytail` note in `walkforward.py` pointed at; adopt P×payoff over P alone.
+- **Condor-only gets 91% of the net with a fifth of the drawdown.** The two directional books bleed −₹60k combined inside the full ML book; dropping them costs 9% of net, cuts trades to a third (919 → 306), and max DD from 14.3% → 3.2%. Per-trade quality 486 → ₹1,323.
+- **Caveat unchanged:** condor open→close numbers are the optimistic end (no intraday stop-out in the proxy) until e004 runs. PF 9.45 on n=306 is a slice of that same proxy — treat the *relative* comparison as robust and the absolute rupees as provisional.
