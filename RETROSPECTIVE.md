@@ -30,7 +30,7 @@ The structural lesson: **the gates that worked were the ones written as commitme
 | **The shadow runner + leak registry + pre-registration discipline** | The process layer: daily evidence accumulation, structural leak guards, commitment-first gates. |
 | **Negative results as knowledge** | Valid-structure condors are breakeven at best; IV-regime timing adds nothing on expiry days; P(win) doesn't size positions; directional spreads lose. The next search starts from a *pruned* hypothesis space. |
 
-**Expected honest returns today: ₹0 from any strategy, ~₹10–13k/yr from collateral yield on the idle ₹2L** (pledging into overnight funds/liquid ETFs — independent of all research, and the only certified-positive action available).
+**Expected honest returns today: ₹0 from any strategy, ~₹10.6k/yr gross (~₹7.4–10k post-tax by bracket) from collateral yield on the idle ₹2L at Oct-2026 rates** (overnight fund pledged for margin; full mechanics and math in [COLLATERAL_PLAYBOOK.md](COLLATERAL_PLAYBOOK.md) — the ₹10–13k earlier figure was written at repo 6.0–6.5%).
 
 ## 4. What a clean strategy search does differently from day one
 

@@ -223,3 +223,7 @@ data/
 # Project: e008 raw per-session wall JSONs (102 MB) - fully contained in the
 # committed walls_576.tar.gz snapshot; test_artifacts.py verifies they match.
 experiments/e008_wall_flip/artifacts/walls/
+
+# Project: e009 live capture - snapshots grow ~40 MB/month and are runtime data;
+# coverage_ledger.json (small, the kill-1 evidence) IS committed.
+experiments/e009_wall_capture/snapshots/

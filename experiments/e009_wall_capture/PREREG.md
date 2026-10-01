@@ -111,6 +111,14 @@ its build QA — fix the collector before judging the signal.
   ever found alongside fetch/model/backtest code with an earlier mtime than
   its own commit, the pre-registration discipline has been violated — treat
   the experiment as contaminated.
+- 2026-10-01 (later the same day): Phase A collector built (`capture_chains.py`
+  + 8 offline self-checks), after the PREREG and before any signal code. This
+  starts the ≥6-month capture clock the PREREG priced at ~1–2 days of build +
+  observation. Kill 1 (coverage/gap AND) is computed per session into
+  `artifacts/coverage_ledger.json` at capture time; kill 4 (median wall-OI age
+  ≤ 5 min at decision) becomes checkable from the first week of captures; kill
+  2/3 wait out the clock. No signal code exists; Phase B registers in the leak
+  registry before its first number, per the registry's tail comment.
 
 ## 8. Verdict
 

@@ -70,8 +70,13 @@ REGISTRY: list[dict] = [
      "note": "data fetch: per-5-min chains for all 576 dte<=1 sessions"},
     {"module": "experiments/e008_wall_flip/build_signal.py", "info": "day-t", "live": False,
      "note": "intraday flips with t+1 fills (the hard rule) — dead on data observability, not look-ahead"},
+    # e009 — the live capture the family was waiting for; PREREG-frozen before code (v22).
+    {"module": "experiments/e009_wall_capture/capture_chains.py", "info": "none", "live": True,
+     "note": "collector only: full-chain snapshots, no signal, no PnL; evaluation (Phase B) must register"
+             " info day-t / live True with the t+1-fill rule before its first number"},
 ]
 
-# e008 (if built) must register here BEFORE its first PnL number is committed:
-# intraday flips -> info "day-t", live True ONLY with the t+1-fill rule implemented
-# and stated in the module docstring.
+# e009 Phase B (if built) must register here BEFORE its first PnL number is committed:
+# live-chain flips -> info "day-t", live True ONLY with the t+1-fill rule implemented
+# and stated in the module docstring; kill 4 (median wall-OI age <= 5 min at decision)
+# judged on capture.ts, never reconstructed.

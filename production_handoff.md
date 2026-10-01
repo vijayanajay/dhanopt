@@ -72,7 +72,7 @@ Charging k× the modeled 1.5 pts/leg (core formula: pts × qty × legs, linear):
 | 2 | ₹2.0–4.0L | 2–3 lots (spread margin ≈ ₹10k/lot → utilization still <50%) | margin verified with broker calculator; slippage tracking ≤ 5× model |
 | 3 | Stop scaling at 3 lots | — | 0DTE capacity at size unproven; revisit only with LOB evidence |
 
-Collateral yield (start immediately, independent of the book): pledge idle cash into overnight funds/liquid ETFs → ~₹10–13k/yr risk-free; margin is blocked only on trade days (~1–2/week), so the yield accrues nearly undisturbed.
+Collateral yield (start immediately, independent of the book): pledge idle cash into overnight funds/liquid ETFs → ~₹10.6k/yr gross at Oct-2026 rates (₹7.4–10k post-tax by bracket; the ₹10–13k earlier figure assumed repo 6.0–6.5%) — mechanics in [COLLATERAL_PLAYBOOK.md](COLLATERAL_PLAYBOOK.md); margin is blocked only on trade days (~1–2/week), so the yield accrues nearly undisturbed.
 
 ## 6. Known ceilings (carried into live expectations)
 
