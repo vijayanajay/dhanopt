@@ -1,0 +1,28 @@
+{
+ "threshold": 0.55,
+ "n_oos_days": 1164,
+ "n_trades": 265,
+ "trades_per_year_expected": 53.0,
+ "gated_net": -121187.0,
+ "always_on_net": -560168.0,
+ "random_2pm_net": -57982.0,
+ "pf": 0.36,
+ "wr": 0.321,
+ "brier_model": 0.2952,
+ "brier_majority": 0.3186,
+ "per_year_trades": {
+  "2022": 57,
+  "2023": 79,
+  "2024": 46,
+  "2025": 39,
+  "2026": 44
+ },
+ "kill_criteria": {
+  "1_net_gt_0": false,
+  "2_pf_ge_1p5_n_ge_30": false,
+  "3_brier_beats_base": true,
+  "4_beats_baselines": false,
+  "5_capacity_1_per_year": true
+ },
+ "verdict": "FAIL"
+}

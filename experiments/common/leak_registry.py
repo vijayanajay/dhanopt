@@ -74,6 +74,13 @@ REGISTRY: list[dict] = [
     {"module": "experiments/e009_wall_capture/capture_chains.py", "info": "none", "live": True,
      "note": "collector only: full-chain snapshots, no signal, no PnL; evaluation (Phase B) must register"
              " info day-t / live True with the t+1-fill rule before its first number"},
+    # e010 — frozen single-structure gate; PREREG (with pre-run amendment 2) committed before any code.
+    {"module": "experiments/e010_ml_gate/run_gate.py", "info": "t-1", "live": True,
+     "note": "one LightGBM when-gate on e002's shift(1)-pinned features; label = frozen wall-free"
+             " credit spread's own net_pnl (no day-t OI anywhere); fills at the traded day's 09:15 open"},
+    {"module": "experiments/e010_ml_gate/label_spread.py", "info": "t-1", "live": True,
+     "note": "label builder: ATM from the day's own 09:15 open (observable at entry), IV/dte from the"
+             " prior-day partition exactly as e004; no wall input in the structure"},
 ]
 
 # e009 Phase B (if built) must register here BEFORE its first PnL number is committed:
