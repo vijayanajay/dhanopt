@@ -1,0 +1,24 @@
+{
+  "n_frozen_days": 249,
+  "n_certified": 249,
+  "coverage": 1.0,
+  "n_trades": 4,
+  "n_stood_down": 244,
+  "n_nofill": 0,
+  "side_agreement_with_frozen": 0.012,
+  "net": -309.0,
+  "wr": 0.5,
+  "pf": 0.96,
+  "frozen_net_same_days": 940697.0,
+  "bars": {
+    "pf_min": 5.0,
+    "wr_min": 0.85,
+    "net_min_frac": 0.4,
+    "coverage_min_frac": 0.8
+  },
+  "pass_pf": false,
+  "pass_wr": false,
+  "pass_net": false,
+  "pass_coverage": true,
+  "gate0": "FAIL"
+}

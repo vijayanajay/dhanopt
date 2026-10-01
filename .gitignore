@@ -219,3 +219,7 @@ __marimo__/
 
 # Project: raw data cache + duckdb (never commit; deleting the cache is a deliberate act)
 data/
+
+# Project: e008 raw per-session wall JSONs (102 MB) - fully contained in the
+# committed walls_576.tar.gz snapshot; test_artifacts.py verifies they match.
+experiments/e008_wall_flip/artifacts/walls/

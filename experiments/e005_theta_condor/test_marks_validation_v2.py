@@ -67,5 +67,45 @@ class TestEraLotConfig(unittest.TestCase):
         self.assertIn("expiry", sched.description.lower())
 
 
+class TestMarksSweepAggregate(unittest.TestCase):
+    """Full-book sweep verdict pinned from the committed artifact;
+    the traded-pair credit logic pinned as a pure function."""
+
+    @classmethod
+    def setUpClass(cls):
+        from experiments.e005_theta_condor.marks_sweep import _trade_pair_credit
+        cls.pair = staticmethod(_trade_pair_credit)
+        with open(HERE / "artifacts" / "marks_sweep.json") as fp:
+            cls.j = json.load(fp)
+
+    def test_sweep_summary(self):
+        s = self.j["summary"]
+        self.assertEqual(s["n_sessions"], 249)
+        self.assertEqual(s["n_validated"], 246)
+        self.assertEqual(len(s["failures"]), 3)  # put wings outside ATM±10 at open: uncertifiable
+        self.assertEqual(s["n_traded_credit_covered"], 20)
+        self.assertEqual(s["n_credit_within_1pt"], 16)
+        # worst certified pair diff (23.5 pts on ~160 credit) stays under the
+        # 34.6 pts/leg slippage breakeven — the book's credit is not fiction.
+        self.assertEqual(s["max_abs_credit_diff"], 23.5)
+        self.assertLess(s["max_abs_credit_diff"], 34.6)
+        self.assertEqual(s["worst_credit_trades"][0]["date"], "2026-06-23")
+
+    def test_pair_credit_signs_come_from_wall_not_premium(self):
+        # Breach day where the wing out-prices the wall: premium sorting would flip
+        # the signs; the CSV wall strike must not.
+        res = {"legs": [{"leg": "PE17500", "status": "PARTIAL", "dhan_open": 154.3, "bhav_open": 154.3},
+                        {"leg": "PE17350", "status": "PARTIAL", "dhan_open": 160.0, "bhav_open": 160.0}]}
+        got = self.pair(res, 17500.0, "PE")
+        self.assertEqual(got, {"dhan": -5.7, "bhav": -5.7, "diff": 0.0})  # SELL wall - BUY wing
+
+    def test_pair_credit_requires_both_opens_and_both_legs(self):
+        res = {"legs": [{"leg": "PE17500", "status": "PARTIAL", "dhan_open": 154.3, "bhav_open": 154.3},
+                        {"leg": "PE17350", "status": "PARTIAL", "n_bars": 10}]}
+        self.assertIsNone(self.pair(res, 17500.0, "PE"))  # wing has no open mark
+        self.assertIsNone(self.pair(res, 17500.0, "CE"))  # wrong side
+        self.assertIsNone(self.pair(res, None, "PE"))     # no wall on record
+
+
 if __name__ == "__main__":
     unittest.main()

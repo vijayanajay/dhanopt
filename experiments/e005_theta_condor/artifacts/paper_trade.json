@@ -1,0 +1,33 @@
+{
+  "n_days_evaluated": 1410,
+  "signals": {
+    "STANDDOWN": 1234,
+    "DTE_HOLD": 117,
+    "TRADE": 57,
+    "NODATA": 1,
+    "SKIP_CREDIT": 1
+  },
+  "n_trades": 57,
+  "net": -27509.0,
+  "net_stressed": -52137.0,
+  "wr": 0.439,
+  "max_leg_drift_pts": {
+    "mean": 20.36,
+    "p95": 57.78,
+    "max": 132.79
+  },
+  "boundary_pts_per_leg": 18.0,
+  "model_pts_per_leg": 1.5,
+  "worst_drift_day": {
+    "date": "2026-03-02T00:00:00",
+    "pts": 132.79
+  },
+  "within_12x_boundary": false,
+  "within_stage2_trigger": false,
+  "gate_window": {
+    "weeks": 4,
+    "n_trades": 0,
+    "net": 0.0,
+    "trades": []
+  }
+}

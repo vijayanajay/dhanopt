@@ -1,0 +1,2 @@
+date,signal,side,wall,wing,spot_open,dte0,sell_open,buy_open,credit_pts,drift_sell,drift_buy,max_leg_drift,exit_reason,net_pnl,net_pnl_stressed,lot,expiry,put_wall_t1,call_wall_t1
+2026-09-25T00:00:00,STANDDOWN,none,,,23035.0,4,,,,,,,,,,,2026-09-29,22000.0,24000.0

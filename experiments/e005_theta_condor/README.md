@@ -154,3 +154,38 @@ Question: v1 (Add. 4) validated ONE session — the only expiry week whose contr
 **Reading:** on every fully-covered leg, closes match bhavcopy within last-trade/settlement timing (≤3.1 pts), and the one session with full coverage matches **to the paisa on opens** — independently confirming v1 through a different endpoint. **Open-mark caveats are real and bounded:** edge-coverage legs (strike at the ±k window edge at 09:15) differ a few points (worst −21.1 on a ₹50 far-wing), consistent with rolling-API stitching rather than stale bhavcopy marks — flagged, not waved away. Days whose walls sit beyond ATM±10 (wide-wall days like 2022-06-10) are uncoverable on this endpoint. **Depth answer: minute data reaches 2021-01-04, the first FO day of the frozen window** — mark validation can extend to ~40 breach trades' worth of sessions before stage-1 go-live.
 
 Run: `python -m experiments.e005_theta_condor.marks_validation_v2` → `artifacts/marks_validation_v2.json`; self-checks in `test_marks_validation_v2.py`.
+
+## Addendum 7 — Full-book marks sweep (`marks_sweep.py`): the breach book's credits are certified
+
+v2 (Add. 6) validated 5 sampled sessions; the handoff's last data-side gate asked for **every** breach-book session's entry marks. The sweep ran `marks_validation_v2.validate_session` over all 249 breach_spread sessions (2021-01 → 2026-09) through the Expired-Options API — checkpointed, ~33 s/session, ~2.5 h wall-clock, 0 network/token failures. The verdict is taken at the level that matters: the **traded pair's credit** — (SELL wall open − BUY ±150-wing open), 09:15–09:20 Dhan candle opens vs bhavcopy opens, in premium points.
+
+| | |
+|---|---:|
+| Sessions swept | 249/249 |
+| VALIDATED (≥1 covered leg) | 246 |
+| Uncertifiable end-to-end | 3 (2022-06-02, 2023-02-02, 2024-06-06 — all put-breach days whose −150 wing sits outside ATM±10 at 09:15; no open bar exists for it on this endpoint) |
+| Traded pair fully covered at open | 20 of 246 |
+| Pair credit exact (<1 pt) | **16** |
+| Pair credit off 1–24 pts | 4 (worst **+23.5 pts on a ~161-pt credit = +14.6%**, 2026-06-23; −11.6 pts = −7.8% on 2024-09-12) |
+
+**Reading — the book's credits are real, with a bounded caveat.** Every certified diff sits inside the strategy's measured **34.6 pts/leg slippage breakeven** (Add. 5): even the worst session's credit error (+23.5 on a ~161-pt pair) is smaller than the slippage the book already absorbs per leg before PnL breaks. The 20 covered sessions span every lot era (75/50/25/75/65). The four off sessions all carry edge-of-window stitching (their non-traded legs show the same few-point edge effect Add. 6 flagged). The raw per-leg outliers in the sweep (68.8 open on 2024-11-21, 77.7 close on 2026-08-04) sit on **uncertified** pairs — a leg without an open mark — so they are stitching artifacts on non-traded legs, not credit errors. **Residual ceiling: only 20/246 trades' credits are paisa-certifiable** — the ATM±10 sweep window cannot see most wings at 09:15 (spot-relative window vs a 150-pt wing) — so this certifies the *mechanism and mark quality*, not each of the 249 credits individually. Treated as: marks validated; no re-pricing of the book warranted.
+
+Run: `python -m experiments.e005_theta_condor.marks_sweep` → `artifacts/marks_sweep.json` (+ resumable checkpoint); self-checks in `test_marks_validation_v2.py::TestMarksSweepAggregate` — including the wall-strike sign rule: premium sorting mislabels breach-day legs where the wing out-prices the wall.
+
+## Addendum 8 — Paper-trade harness (`paper_trade.py` + `shadow_runner.py`): the t-1-wall gate is NOT the frozen book
+
+The handoff's stage-0/1 gates need instrumentation: a gate computed from **t-1 bhavcopy walls** (the only wall source observable before 09:15), simulated 09:15 fills on the day's real leg opens, per-leg **fill drift** (each leg repriced at BS on its own open-backed IV at the 09:20 spot — the cost of filling 5 min late), and an adverse-fill stressed re-sim. `shadow_runner.py` appends the same evaluation per session to `shadow_log.csv`, idempotent by date. Self-checks: `test_paper_trade.py` (synthetic t-1/day partitions pin the signal ladder, wall/wing extraction, adverse-fill stress, report flags).
+
+**The material finding — run over the full 1,410-session window:**
+
+| | frozen day-t-wall book (`breach_spread.py`) | clean t-1-wall gate (`paper_trade.py --full`) |
+|---|---:|---:|
+| Trades (5.7 yr) | 249 | **57** (33 call / 24 put) |
+| Net | **+₹940,697** | **−₹27,509** (stressed −₹52,137) |
+| WR | 98.8% | 43.9% |
+
+Only **28 days overlap**: the frozen book makes **+₹94,435 on those**, and **+₹846,261 (90% of its net) on days the t-1 gate never sees**. Mechanism: the frozen book's walls come from day-t's *EOD* OI — 6 hours future-relative to the entry — so the "gap over the wall" test partially reads information the live trader cannot have; `replay_theta.prepare_day` carried this convention from e001 and flagged the no-look-ahead variant as a follow-up, which is exactly what this harness is. The t-1 signal is also *late by construction*: walls only update after a session, so next-morning gaps are often already inside stale walls. Negative across every year (2021–2026) — not one regime's artifact.
+
+**Fill drift (pre-live, modeled):** mean 20.4 / p95 57.8 / max 132.8 pts per leg vs the 1.5-pt friction model and the **18-pt 12× DD boundary** (§3) — the ITM short leg after a gap is the cost driver, as `slippage_cliff.py` warned. Real fills, not models, now decide this: the shadow log accumulates from 2026-10-01.
+
+**Consequences (carried to the handoff):** (1) the +₹940,697 headline is **not yet achievable as specified** — e007 must rebuild the book on *opening-OI* walls (feasible: breach-day walls sit within the Expired-Options API's ATM±10 reach on 99.6% of breach days, median |wall−spot| 64 pts) and re-certify before any live order; (2) the frozen day-t-wall numbers remain internally consistent comparisons of exit/target variants, but their level inherits the look-ahead; (3) the pre-registered holdout protocol (handoff §7) makes gate 0 blocking. Marks validation (Add. 6–7) is untouched: it validated the *prices*, and both books anchor to the same opens.

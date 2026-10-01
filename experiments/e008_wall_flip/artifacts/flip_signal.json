@@ -1,0 +1,21 @@
+{
+  "n_sessions_evaluated": 576,
+  "n_flip_events": 638,
+  "flips_per_year": 111.9,
+  "certified_trades_per_year": 1.4,
+  "fillable_share": 0.024,
+  "n_traded": 8,
+  "net": 4737.0,
+  "wr": 0.5,
+  "pf": 2.06,
+  "exits": {
+    "EOD": 7,
+    "TARGET": 1
+  },
+  "kill_criteria": {
+    "1_capacity>=15/yr": false,
+    "2_pf>=1.5_with_n>=10": false,
+    "3_fillable_share>=0.5": false
+  },
+  "verdict": "FAIL"
+}

@@ -159,3 +159,19 @@ Testing Idea 5 (size 2 lots when calibrated P(win) > 0.70) on the expiry-gated b
 **The P>0.70 threshold is not selective** — 69% of expiry-gated days clear it, and per-trade PnL is flat across buckets (₹1,223 high-P vs ₹1,188 low-P; the P distribution is compressed: 123 of 371 trades sit in p80–90, only 51 below p60). The reviewer's +35–45% uplift estimate holds arithmetically (+70%/+68% net), and tiered vs flat-2 now split the objective: tiered +₹764k (DD ₹5,072, Calmar 151) vs flat-2 +₹899k (DD ₹7,401, Calmar 122) — flat-2 adds +₹135k net, the tier cuts DD 31%. Choose by risk appetite.
 
 **Sizing conclusion:** P(win) ranks *which days to take* within the gate (that's where it earned its keep), but within the gated set it carries no extra sizing information — the honest sizing ladder is margin-driven (1→2 lots when utilization allows), not P-driven. Same composition caveat as everywhere else; and 2-lot days double the exposure to the tail that breach-spread insurance (e005 Add. 5) exists to bound.
+
+## Addendum 7 — Leak audit: t-1-wall labels (`audit_labels_t1.py` → `artifacts_t1labels/`) — the ML edge was the label leak
+
+The paper-trade harness (e005 Add. 8) showed the breach book's wall signal reads day-t EOD OI. **e002's FEATURES were never implicated** — `features.py`'s shift(1) discipline is test-pinned (`test_day_t_feature_row_never_sees_day_t`), and this audit re-confirmed it. But the **condor labels** the models predict come from e001's day-t-wall book, so on wall-breach days the label knew the day's wall side. This audit rebuilds ONLY the condor labels on t-1 walls (`paper_trade.csv`, the observable wall source) with e005's identity-validated pricing, and re-runs the frozen walkforward_dte protocol unchanged:
+
+| policy (OOS) | frozen labels (day-t walls) | t-1-wall labels |
+|---|---:|---:|
+| rule baseline | +₹129,746 | **−₹346,338** (WR .429→.312) |
+| ml_lgbm | +₹622,949 | **−₹173,714** (PF 2.28→0.79) |
+| ml_logistic+dte | **+₹793,906** | **−₹140,520** (PF 2.67→0.83, WR .573→.439, DD 18.7k→159k) |
+
+The condor sleeve alone: +₹867,004 on 404 selected days → **−₹30,459 on 44** — the t-1 condor book itself is negative (−₹688,922 at 20.4% WR over 1,273 days), so there is nothing for a selector to find. **Every e002/e003 verdict that rests on condor labels is a measurement of the leak, not of skill**: calibration stays good (the models predict the leaky label faithfully — Brier ≈ 0.20 on both label sets), which is exactly why the leak was invisible to the calibration gates. Bull/bear spreads stay negative under either labeling (their labels were always wall-free) — e001's directional-spread verdict is unaffected. Collated_results' e002/e003 rows and the handoff's ML references now carry this caveat; the exit-aware and expiry-gate addenda inherit it (they gate the same leaky labels). 
+
+Run: `python -m experiments.e002_regime_models.audit_labels_t1` (label rebuild cached in `artifacts_t1labels/condor_labels_t1.csv`; walkforward re-run in-process); self-checks in `test_audit_labels_t1.py`.
+
+**Part 3 — the last unfalsified cell closed (`audit_e001_t1.py`):** e001's open→close condor rebuilt on t-1 walls (e001's exact arithmetic: day-t leg opens/closes, real friction, era lots, credit>0 skip, t-1-momentum rule selection): rule-selected **−₹232,823 at 21.8% WR** (frozen day-t-wall book: +₹152,346); all-days −₹716,141. Every condor-family number in the sandbox — e001, e002, e005, the breach spread — is now provably an artifact of the day-t wall convention. The only survivor in the options family is the measurement machinery itself.
