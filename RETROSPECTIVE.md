@@ -41,10 +41,28 @@ The structural lesson: **the gates that worked were the ones written as commitme
 5. **The t+1-fill hard rule is permanent.** Signal at bar t, fill at bar t+1's observable quote, with the quote's freshness recorded. Every backtest in this sandbox will carry it from now on; drift gets measured, not assumed away.
 6. **One data class per question.** e008 died not of look-ahead but of *observability* — the only data class that can see the signal (sporadic rolling-window bars) cannot carry the fills. Match the data's freshness and completeness to the signal's clock before falling in love with a hypothesis.
 
-## 5. Where the search actually stands
+## 5. The complete record — every experiment, its honest verdict (final, 2026-10-01)
 
-- **Dead:** the condor family in all forms (day-t walls convicted: e001 −₹232,823, e002 −₹140,520, breach spread 4 trades/−₹309 at gate 0); intraday wall flips on this data class (FINAL, full 576-session sweep: 638 flips at 111.9/yr but **15/638 = 2.4% fillable** — all three kill criteria failed; median wall-OI age at decision 75 min).
-- **Closed:** the wall family is exhausted on every observable data class — day-t EOD walls (the leak), t-1 bhavcopy walls, opening-OI walls, intraday fresh flips. The one untested source is a live chain-snapshot feed with per-minute freshness: a production-infrastructure decision, not a different backtest. No further wall backtests are warranted.
-- **Unconditional:** collect the collateral yield; keep the shadow runner logging; keep the suite green.
+| # | Question asked | Frozen result | Honest verdict after audit | Status |
+|---|---|---|---|---|
+| e001 | Rule condor book, leak-free replay | +₹152,346 | **−₹232,823** on t-1 walls — the day-t convention; wall-free spread legs lose (verdict stands) | DEAD |
+| e002 | ML strategy selection (LightGBM/logistic) | ml_logistic+dte **+₹793,906** | **−₹140,520** on t-1 labels — the edge *was* the leak; features themselves clean | DEAD |
+| e003 | Meta-labeling per-trade filter | dominated | Brier ≈ base rate — no per-trade signal exists | MOOT, confirmed by e010 |
+| e004 | 5-min path replay, 3 archetypes | spreads negative | bull −₹314k / bear −₹147k, **wall-free labels — stands untouched** | CLOSED (negative) |
+| e005 | Theta-aware condor + breach book | +₹288k–₹1.09M | day-t walls throughout; family convicted by e007/e001-audit; machinery (pricing, exits, marks) survives | DEAD (machinery survives) |
+| e006 | Compounded live projection | CAGR 51% | compounded a falsified trade list — arithmetic valid, object void | MOOT |
+| e007 | Gate 0: opening-OI walls | — | **4 trades / −₹309 / PF 0.96** — the certification that killed the book | SUCCESS (as a gate) |
+| e008 | Intraday wall-flip (live-fresh signal) | FAIL 3/3 bars | flips exist (111.9/yr), **2.4% fillable**, median wall-OI age 75 min — the data class dies, not the hypothesis | DEAD on observability |
+| e009 | Live chain capture (per-minute freshness) | dormant | collector built to PREREG; clock ready; **no verdict possible for ≥6 months** | INSTRUMENT (running) |
+| e010 | One frozen spread + LightGBM when-gate | FAIL 3/5 bars | gated −₹121k (PF 0.36) but **Brier beats majority** — discrimination without monetization; selection cut the loss 4.6× and landed negative | CLOSED (last strategy cell) |
 
-The sandbox spent its fortnight buying the most expensive-sounding thing in quant research — **a falsified favorite** — and paid in compute instead of capital. That trade is repeatable only if this file stays true.
+Pattern across all ten: **three ways to lose** — the signal was fiction (e001/e002/e005), the signal was real but untradeable on observable data (e008), or the signal was real, tradeable, and still unprofitable because the structure pays less than it costs (e004/e010). No fourth way appeared.
+
+## 6. Where the search stands — nothing experimental is open
+
+- **Dead, with evidence:** every strategy family tested — condors on any wall source, directional spreads, ML selection on any label, ML gating on clean labels, wall-flip timing on every observable data class. The negative space is mapped; a new idea must name which of the three loss modes it escapes.
+- **Running:** e009's capture collector (code done, tests green — starts producing evidence the moment its scheduled task is registered; Phase B evaluation is pre-contracted, not open research).
+- **User actions pending (not research):** (1) register the e009 schtasks task (one command in the e009 README); (2) execute the collateral pledge (15 minutes, [COLLATERAL_PLAYBOOK.md](COLLATERAL_PLAYBOOK.md)). Until done, the account earns savings rates and collects no capture data.
+- **The only certified-positive cash flow:** collateral yield, ~₹885/mo gross at Oct-2026 rates. Expected monthly return of the whole program today: **₹885, alpha component ₹0.**
+
+The sandbox spent its fortnight buying the most expensive-sounding thing in quant research — **a falsified favorite** — and paid in compute instead of capital. It then spent one more day proving the last "but what if" (e010) rather than leaving it to haunt the next search. That trade is repeatable only if this file stays true — and as of this entry, nothing in it is waiting on a result that has not been either recorded or pre-contracted.
