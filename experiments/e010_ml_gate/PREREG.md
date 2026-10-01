@@ -117,6 +117,19 @@ to orders.
 ## 8. Amendments
 
 - 2026-10-01: initial pre-registration. No gate code exists.
+- 2026-10-01 (pre-run correction, no results exist yet): the initial text was
+  internally contradictory — it named the structure a "credit spread" (the
+  owner's explicit request) but inherited e004's BEAR legs, which are BUY ATM
+  put + SELL 150-pt-lower put = a **debit** spread. Resolved toward the
+  owner's request: legs are **SELL ATM put + BUY ATM−150 put (net credit)**;
+  the frozen exit fractions apply to the credit (SL 0.35×credit, target
+  0.70×credit — the same convention e004 applies to abs(outlay), and the same
+  fractions-of-credit convention e005 uses for its credit condor). The caveat
+  that e004's exit fractions were themselves sweep-selected in v6 applies
+  unchanged. Everything else (features, gate, walkforward, kill bars, no-
+  sweep rule) is untouched. Label must be recomputed for the credit legs
+  (e004's artifact holds debit-spread rows only); `simulate_day` is
+  structure-agnostic and reused as-is.
 
 ## 9. Verdict
 
