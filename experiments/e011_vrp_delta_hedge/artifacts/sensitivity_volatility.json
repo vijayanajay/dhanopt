@@ -1,0 +1,68 @@
+[
+  {
+    "name": "Garman-Klass",
+    "estimator": "gk",
+    "window": 5,
+    "trades": 283,
+    "net_pnl": 754625.23,
+    "profit_factor": 4.15,
+    "win_rate": 0.6148,
+    "sharpe": 2.91,
+    "max_drawdown": -44582.63
+  },
+  {
+    "name": "Garman-Klass",
+    "estimator": "gk",
+    "window": 10,
+    "trades": 293,
+    "net_pnl": 743572.25,
+    "profit_factor": 3.99,
+    "win_rate": 0.6109,
+    "sharpe": 2.85,
+    "max_drawdown": -51274.41
+  },
+  {
+    "name": "Garman-Klass",
+    "estimator": "gk",
+    "window": 20,
+    "trades": 280,
+    "net_pnl": 745409.45,
+    "profit_factor": 3.94,
+    "win_rate": 0.6,
+    "sharpe": 2.85,
+    "max_drawdown": -57259.73
+  },
+  {
+    "name": "Parkinson",
+    "estimator": "parkinson",
+    "window": 5,
+    "trades": 286,
+    "net_pnl": 759833.1,
+    "profit_factor": 4.26,
+    "win_rate": 0.6189,
+    "sharpe": 2.94,
+    "max_drawdown": -48129.2
+  },
+  {
+    "name": "Parkinson",
+    "estimator": "parkinson",
+    "window": 10,
+    "trades": 287,
+    "net_pnl": 729487.13,
+    "profit_factor": 3.89,
+    "win_rate": 0.6098,
+    "sharpe": 2.79,
+    "max_drawdown": -61934.3
+  },
+  {
+    "name": "Parkinson",
+    "estimator": "parkinson",
+    "window": 20,
+    "trades": 280,
+    "net_pnl": 763515.33,
+    "profit_factor": 4.15,
+    "win_rate": 0.6179,
+    "sharpe": 2.94,
+    "max_drawdown": -62686.81
+  }
+]

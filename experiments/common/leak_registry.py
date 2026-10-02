@@ -81,6 +81,15 @@ REGISTRY: list[dict] = [
     {"module": "experiments/e010_ml_gate/label_spread.py", "info": "t-1", "live": True,
      "note": "label builder: ATM from the day's own 09:15 open (observable at entry), IV/dte from the"
              " prior-day partition exactly as e004; no wall input in the structure"},
+    # e011 — True Variance Risk Premium (VRP) & Dynamic Delta-Hedging.
+    {"module": "experiments/e011_vrp_delta_hedge/replay_vrp.py", "info": "t-1", "live": True,
+     "note": "gated by t-1 VRP >= 80th percentile; dynamic delta hedges executed strictly at bar t+1 Open"},
+    # e012 — Volatility Skew & Asymmetric Ratio Architecture.
+    {"module": "experiments/e012_skew_ratio/replay_skew.py", "info": "t-1", "live": True,
+     "note": "gated by t-1 25-delta skew >= 90th percentile; 1x2 ratio spread with path exits; killed (PF 0.13, -98.8k)"},
+    # e013 — 0DTE Expiry Microstructure & Pin Dynamics.
+    {"module": "experiments/e013_0dte_pin/pin_replay.py", "info": "day-t", "live": False,
+     "note": "evaluated at 12:30 IST, fills at 12:35 Open; Pin Iron Fly Net +414k / PF 9.41; requires e009 live chain for execution"},
 ]
 
 # e009 Phase B (if built) must register here BEFORE its first PnL number is committed:

@@ -1,0 +1,46 @@
+[
+  {
+    "threshold": 0.1,
+    "avg_hedges_per_day": 13.0,
+    "avg_friction_per_trade": 1086.93,
+    "trades": 293,
+    "net_pnl": 684478.45,
+    "profit_factor": 3.54,
+    "win_rate": 0.5904,
+    "sharpe": 2.64,
+    "max_drawdown": -67545.41
+  },
+  {
+    "threshold": 0.15,
+    "avg_hedges_per_day": 8.0,
+    "avg_friction_per_trade": 912.3,
+    "trades": 293,
+    "net_pnl": 743572.25,
+    "profit_factor": 3.99,
+    "win_rate": 0.6109,
+    "sharpe": 2.85,
+    "max_drawdown": -51274.41
+  },
+  {
+    "threshold": 0.2,
+    "avg_hedges_per_day": 5.8,
+    "avg_friction_per_trade": 827.34,
+    "trades": 293,
+    "net_pnl": 762982.94,
+    "profit_factor": 4.22,
+    "win_rate": 0.6348,
+    "sharpe": 2.96,
+    "max_drawdown": -40915.88
+  },
+  {
+    "threshold": 0.25,
+    "avg_hedges_per_day": 4.4,
+    "avg_friction_per_trade": 767.16,
+    "trades": 293,
+    "net_pnl": 763708.78,
+    "profit_factor": 4.11,
+    "win_rate": 0.6348,
+    "sharpe": 2.95,
+    "max_drawdown": -41823.53
+  }
+]
