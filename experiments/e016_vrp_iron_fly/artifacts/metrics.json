@@ -1,0 +1,132 @@
+{
+  "frozen_params": {
+    "width_sigma": 1.0,
+    "width_floor_pts": 150.0,
+    "strike_grid": 50.0,
+    "delta_threshold": 0.15,
+    "slippage_opt_pts": 1.5,
+    "slippage_fut_pts": 0.5,
+    "diagnostic_widths_pts": [
+      100.0,
+      150.0,
+      200.0,
+      250.0,
+      300.0
+    ],
+    "kill_max_dd_inr": 16000.0,
+    "kill_min_ev_inr": 500.0,
+    "kill_min_total_vs_e011": 0.4
+  },
+  "e011_naked_published": {
+    "label": "E011_NAKED_PUBLISHED",
+    "sessions": 293,
+    "total_net_pnl": 743572.25,
+    "net_ev_per_trade": 2537.79,
+    "win_rate": 0.6109,
+    "profit_factor": 3.99,
+    "sharpe_ratio": 2.85,
+    "max_drawdown_inr": -51274.41,
+    "max_drawdown_pct_of_2l": 25.64,
+    "avg_hedges_per_day": 8.03,
+    "avg_friction_per_trade": 912.3
+  },
+  "e016_adaptive_fly": {
+    "label": "E016_ADAPTIVE_FLY",
+    "sessions": 293,
+    "total_net_pnl": -156940.88,
+    "net_ev_per_trade": -535.63,
+    "win_rate": 0.2935,
+    "profit_factor": 0.55,
+    "sharpe_ratio": -1.61,
+    "max_drawdown_inr": -203033.06,
+    "max_drawdown_pct_of_2l": 101.52,
+    "avg_hedges_per_day": 4.55,
+    "avg_friction_per_trade": 1111.62
+  },
+  "width_diagnostics": {
+    "w100_pts": {
+      "label": "FLY_W100",
+      "sessions": 293,
+      "total_net_pnl": -227291.33,
+      "net_ev_per_trade": -775.74,
+      "win_rate": 0.2287,
+      "profit_factor": 0.28,
+      "sharpe_ratio": -3.47,
+      "max_drawdown_inr": -235502.15,
+      "max_drawdown_pct_of_2l": 117.75,
+      "avg_hedges_per_day": 3.06,
+      "avg_friction_per_trade": 1018.27
+    },
+    "w150_pts": {
+      "label": "FLY_W150",
+      "sessions": 293,
+      "total_net_pnl": -165574.53,
+      "net_ev_per_trade": -565.1,
+      "win_rate": 0.2765,
+      "profit_factor": 0.53,
+      "sharpe_ratio": -1.71,
+      "max_drawdown_inr": -210240.15,
+      "max_drawdown_pct_of_2l": 105.12,
+      "avg_hedges_per_day": 4.53,
+      "avg_friction_per_trade": 1109.19
+    },
+    "w200_pts": {
+      "label": "FLY_W200",
+      "sessions": 293,
+      "total_net_pnl": -66789.61,
+      "net_ev_per_trade": -227.95,
+      "win_rate": 0.3413,
+      "profit_factor": 0.81,
+      "sharpe_ratio": -0.54,
+      "max_drawdown_inr": -175716.94,
+      "max_drawdown_pct_of_2l": 87.86,
+      "avg_hedges_per_day": 5.24,
+      "avg_friction_per_trade": 1158.02
+    },
+    "w250_pts": {
+      "label": "FLY_W250",
+      "sessions": 293,
+      "total_net_pnl": 36960.33,
+      "net_ev_per_trade": 126.14,
+      "win_rate": 0.3925,
+      "profit_factor": 1.11,
+      "sharpe_ratio": 0.26,
+      "max_drawdown_inr": -156399.17,
+      "max_drawdown_pct_of_2l": 78.2,
+      "avg_hedges_per_day": 5.77,
+      "avg_friction_per_trade": 1196.73
+    },
+    "w300_pts": {
+      "label": "FLY_W300",
+      "sessions": 293,
+      "total_net_pnl": 137001.15,
+      "net_ev_per_trade": 467.58,
+      "win_rate": 0.4369,
+      "profit_factor": 1.41,
+      "sharpe_ratio": 0.85,
+      "max_drawdown_inr": -136865.6,
+      "max_drawdown_pct_of_2l": 68.43,
+      "avg_hedges_per_day": 6.17,
+      "avg_friction_per_trade": 1223.83
+    }
+  },
+  "gates": {
+    "gate1_max_dd_le_16k": {
+      "bar": 16000.0,
+      "observed": -203033.06,
+      "pass": false
+    },
+    "gate2_ev_ge_500": {
+      "bar": 500.0,
+      "observed": -535.63,
+      "pass": false
+    },
+    "gate3_total_ge_40pct_e011": {
+      "bar": 297428.9,
+      "observed": -156940.88,
+      "ratio_vs_e011": -0.2111,
+      "pass": false
+    }
+  },
+  "all_gates_pass": false
+}
