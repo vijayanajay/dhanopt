@@ -1,0 +1,195 @@
+{
+  "frozen_params": {
+    "option_half_spread_pts": 1.5,
+    "tick_size": 0.05,
+    "volume_multiple": 3.0,
+    "adverse_threshold_pct": 0.002,
+    "entry_window_bars": 6,
+    "exit_post_bar": 68,
+    "exit_window_bars": [
+      69,
+      70,
+      71
+    ],
+    "forced_exit_bar": 71,
+    "e013_entry_bar": 40,
+    "e011_entry_bar": 1,
+    "pin_wing_offset_pts": 150.0,
+    "vrp_threshold": 0.15,
+    "taker_slippage_opt_pts": 1.5,
+    "taker_slippage_fut_pts": 0.5,
+    "maker_gate_fill_rate": 0.5,
+    "maker_gate_aggregate_ratio": 0.6,
+    "years": 5.7
+  },
+  "sessions": {
+    "e013_pin_signaled": 193,
+    "e011_vrp_signaled": 293,
+    "e013_skipped_for_missing_candles": 0,
+    "e011_skipped_for_missing_candles": 0
+  },
+  "e013_pin_iron_fly": {
+    "TAKER": {
+      "sessions_signaled": 193,
+      "sessions_filled": 193,
+      "fill_rate": 1.0,
+      "total_net_pnl": 414721.04,
+      "net_ev_per_trade": 2148.81,
+      "annual_net_pnl": 72758.08,
+      "win_rate": 0.8394,
+      "profit_factor": 9.41,
+      "max_drawdown_inr": -11940.2,
+      "sharpe_ratio": 5.52,
+      "avg_friction_per_trade": 551.38,
+      "adverse_events": 0,
+      "adverse_penalty_rupees": 0.0,
+      "legs_filled_total": 772
+    },
+    "MAKER": {
+      "sessions_signaled": 193,
+      "sessions_filled": 111,
+      "fill_rate": 0.5751,
+      "total_net_pnl": 113030.69,
+      "net_ev_per_trade": 1018.29,
+      "annual_net_pnl": 19829.95,
+      "win_rate": 0.8198,
+      "profit_factor": 4.23,
+      "max_drawdown_inr": -10622.39,
+      "sharpe_ratio": 2.57,
+      "avg_friction_per_trade": 202.26,
+      "adverse_events": 392,
+      "adverse_penalty_rupees": 69621.43,
+      "legs_filled_total": 675,
+      "entry_leg_fill_stats": {
+        "attempts": 675,
+        "passive_fills": 675,
+        "passive_rate": 1.0
+      },
+      "exit_leg_fill_stats": {
+        "attempts": 444,
+        "passive_fills": 243,
+        "passive_rate": 0.5473
+      }
+    },
+    "HYBRID": {
+      "sessions_signaled": 193,
+      "sessions_filled": 193,
+      "fill_rate": 1.0,
+      "total_net_pnl": 128650.82,
+      "net_ev_per_trade": 666.58,
+      "annual_net_pnl": 22570.32,
+      "win_rate": 0.7358,
+      "profit_factor": 2.67,
+      "max_drawdown_inr": -8979.17,
+      "sharpe_ratio": 2.26,
+      "avg_friction_per_trade": 243.3,
+      "adverse_events": 657,
+      "adverse_penalty_rupees": 113353.96,
+      "legs_filled_total": 772,
+      "entry_leg_fill_stats": {
+        "attempts": 772,
+        "passive_fills": 675,
+        "passive_rate": 0.8744
+      },
+      "exit_leg_fill_stats": {
+        "attempts": 772,
+        "passive_fills": 418,
+        "passive_rate": 0.5415
+      }
+    },
+    "fill_selection_effect": {
+      "taker_ev_on_maker_filled_subset": 2161.27,
+      "taker_ev_on_all_sessions": 2148.81,
+      "delta": 12.46,
+      "subset_sessions": 111
+    },
+    "gates": {
+      "gate1_fill_rate": {
+        "bar": 0.5,
+        "observed": 0.5751,
+        "pass": true
+      },
+      "gate2_per_trade_quality": {
+        "maker_ev": 1018.29,
+        "taker_ev": 2148.81,
+        "pass": false
+      },
+      "gate3_aggregate_survival": {
+        "bar_ratio": 0.6,
+        "maker_total": 113030.69,
+        "taker_total": 414721.04,
+        "ratio": 0.2725,
+        "pass": false
+      }
+    }
+  },
+  "e011_vrp_straddle": {
+    "TAKER": {
+      "sessions_signaled": 293,
+      "sessions_filled": 293,
+      "fill_rate": 1.0,
+      "total_net_pnl": 743572.25,
+      "net_ev_per_trade": 2537.79,
+      "annual_net_pnl": 130451.27,
+      "win_rate": 0.6109,
+      "profit_factor": 3.99,
+      "max_drawdown_inr": -51274.41,
+      "sharpe_ratio": 2.85,
+      "avg_friction_per_trade": 912.3,
+      "adverse_events": 0,
+      "adverse_penalty_rupees": 0.0,
+      "legs_filled_total": 586
+    },
+    "MAKER": {
+      "sessions_signaled": 293,
+      "sessions_filled": 174,
+      "fill_rate": 0.5939,
+      "total_net_pnl": 166887.14,
+      "net_ev_per_trade": 959.12,
+      "annual_net_pnl": 29278.45,
+      "win_rate": 0.5575,
+      "profit_factor": 1.92,
+      "max_drawdown_inr": -41325.68,
+      "sharpe_ratio": 1.08,
+      "avg_friction_per_trade": 558.05,
+      "adverse_events": 326,
+      "adverse_penalty_rupees": 49745.18,
+      "legs_filled_total": 456,
+      "entry_leg_fill_stats": {
+        "attempts": 456,
+        "passive_fills": 456,
+        "passive_rate": 1.0
+      },
+      "exit_leg_fill_stats": {
+        "attempts": 348,
+        "passive_fills": 293,
+        "passive_rate": 0.842
+      }
+    },
+    "fill_selection_effect": {
+      "taker_ev_on_maker_filled_subset": 1370.83,
+      "taker_ev_on_all_sessions": 2537.79,
+      "delta": -1166.96,
+      "subset_sessions": 174
+    },
+    "gates": {
+      "gate1_fill_rate": {
+        "bar": 0.5,
+        "observed": 0.5939,
+        "pass": true
+      },
+      "gate2_per_trade_quality": {
+        "maker_ev": 959.12,
+        "taker_ev": 2537.79,
+        "pass": false
+      },
+      "gate3_aggregate_survival": {
+        "bar_ratio": 0.6,
+        "maker_total": 166887.14,
+        "taker_total": 743572.25,
+        "ratio": 0.2244,
+        "pass": false
+      }
+    }
+  }
+}
