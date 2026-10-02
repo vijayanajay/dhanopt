@@ -1,0 +1,94 @@
+{
+  "frozen": {
+    "size_fraction": 0.5,
+    "regime_percentile": 0.75,
+    "regime_window": 60,
+    "regime_min_periods": 30,
+    "cluster_k": 2,
+    "stop_cooldown": 2,
+    "fixed_fractions": [
+      1.0,
+      0.75,
+      0.5,
+      0.4,
+      0.3,
+      0.25
+    ],
+    "stop_ks": [
+      2,
+      3
+    ],
+    "kill_max_dd_inr": 16000.0,
+    "kill_min_ev_inr": 1200.0,
+    "kill_min_total_frac": 0.5,
+    "e011_total_net": 743572.25,
+    "years": 5.7,
+    "capital": 200000.0
+  },
+  "base": {
+    "label": "E011 base f=1.0",
+    "sessions": 293,
+    "taken_sessions": 293,
+    "total_net_pnl": 743572.25,
+    "net_ev_per_trade": 2537.79,
+    "win_rate": 0.6109,
+    "profit_factor": 3.99,
+    "sharpe_ratio": 2.85,
+    "max_drawdown_inr": -51274.41,
+    "max_drawdown_pct_of_2l": 25.64,
+    "annual_net_pnl": 130451.27,
+    "avg_size_fraction": 1.0
+  },
+  "primary": {
+    "label": "combined (regime OR cluster)",
+    "sessions": 293,
+    "taken_sessions": 293,
+    "total_net_pnl": 592806.01,
+    "net_ev_per_trade": 2023.23,
+    "win_rate": 0.5973,
+    "profit_factor": 3.82,
+    "sharpe_ratio": 2.61,
+    "max_drawdown_inr": -50859.07,
+    "max_drawdown_pct_of_2l": 25.43,
+    "annual_net_pnl": 104001.05,
+    "avg_size_fraction": 0.797
+  },
+  "primary_gates": {
+    "gate1_max_dd_le_16k": false,
+    "gate2_ev_ge_1200": true,
+    "gate3_total_ge_50pct_e011": true,
+    "verdict": "FAIL"
+  },
+  "diagnostics": {
+    "regime": {
+      "label": "regime-only",
+      "sessions": 293,
+      "taken_sessions": 293,
+      "total_net_pnl": 610305.85,
+      "net_ev_per_trade": 2082.96,
+      "win_rate": 0.6041,
+      "profit_factor": 3.76,
+      "sharpe_ratio": 2.65,
+      "max_drawdown_inr": -49270.33,
+      "max_drawdown_pct_of_2l": 24.64,
+      "annual_net_pnl": 107071.2,
+      "avg_size_fraction": 0.865
+    },
+    "cluster": {
+      "label": "cluster-only",
+      "sessions": 293,
+      "taken_sessions": 293,
+      "total_net_pnl": 724663.6,
+      "net_ev_per_trade": 2473.25,
+      "win_rate": 0.6041,
+      "profit_factor": 4.17,
+      "sharpe_ratio": 2.82,
+      "max_drawdown_inr": -52912.3,
+      "max_drawdown_pct_of_2l": 26.46,
+      "annual_net_pnl": 127133.96,
+      "avg_size_fraction": 0.903
+    }
+  },
+  "n_elevated_sessions": 79,
+  "n_cluster_half_sessions": 40
+}
