@@ -1,0 +1,159 @@
+{
+  "verdict": "FAIL",
+  "failed_criteria": [
+    2,
+    3,
+    6
+  ],
+  "gates": [
+    {
+      "n": 1,
+      "name": "Universe",
+      "bar": ">= 100 symbols on >= 90% of rebalance dates",
+      "observed": "median 1553, min 1200 liquid names",
+      "pass": true
+    },
+    {
+      "n": 2,
+      "name": "Capacity",
+      "bar": ">= 60 rebalances per leg",
+      "observed": "monthly 54, daily 1123",
+      "pass": false
+    },
+    {
+      "n": 3,
+      "name": "Edge (monthly, primary)",
+      "bar": "net CAGR > 15% AND Sharpe >= 0.8 AND max DD <= 30%",
+      "observed": "CAGR 0.0314, Sharpe 0.34, DD -0.5538",
+      "pass": false
+    },
+    {
+      "n": 4,
+      "name": "Edge (daily, descriptive)",
+      "bar": "reported, not gated",
+      "observed": "CAGR 0.1201, Sharpe 0.87, DD -0.5165",
+      "pass": true
+    },
+    {
+      "n": 5,
+      "name": "Friction resilience (monthly)",
+      "bar": "net positive at 2.0x cost",
+      "observed": "2x-cost CAGR 0.0067",
+      "pass": true
+    },
+    {
+      "n": 6,
+      "name": "No illusion (PRIMARY)",
+      "bar": "monthly Sharpe exceeds same-universe equal-weight by >= 0.2",
+      "observed": "excess Sharpe -0.81 (momentum 0.34 vs EW 1.15)",
+      "pass": false
+    }
+  ],
+  "results": {
+    "corporate_actions": {
+      "corporate_actions_adjusted": 453,
+      "symbols_affected": 397,
+      "top_affected": {
+        "SHAREINDIA": 6,
+        "AARTISURF": 4,
+        "SIKKO-RE": 4,
+        "ESSEN-RE3": 3,
+        "KAMOPAINTS": 3,
+        "ROTO": 3,
+        "VBL": 3,
+        "AGIIL": 2,
+        "AXISILVER": 2,
+        "BASML": 2
+      }
+    },
+    "panel": {
+      "sessions": 1420,
+      "symbols": 6475,
+      "start": "2022-03-11",
+      "end": "2026-09-30"
+    },
+    "cost_model": {
+      "stt": "0.1% on BOTH buy and sell (delivery, post-Oct-2024)",
+      "exchange": "0.00297% NSE equity",
+      "sebi": "0.00001% (Rs 10/cr)",
+      "stamp_duty": "0.003% on BUY only",
+      "gst": "18% on (brokerage + exchange + sebi)",
+      "brokerage": "flat Rs 20 per order",
+      "slippage": "15 bps per side"
+    },
+    "legs": {
+      "cross_monthly": {
+        "rebalances": 54,
+        "periods": 1123,
+        "years": 4.46,
+        "total_return": 0.1478,
+        "cagr": 0.0314,
+        "sharpe": 0.34,
+        "max_dd": -0.5538,
+        "hit_rate": 0.5672,
+        "total_cost_inr": 28812.0,
+        "avg_cost_per_rebal": 534.0,
+        "zero_cost": {
+          "cagr": 0.0564,
+          "sharpe": 0.34,
+          "max_dd": -0.54,
+          "total_return": 0.277
+        },
+        "at_2x_cost": {
+          "cagr": 0.0067,
+          "sharpe": 0.34,
+          "max_dd": -0.5673
+        },
+        "benchmark_equal_weight": {
+          "periods": 1123,
+          "years": 4.46,
+          "cagr": 0.2129,
+          "sharpe": 1.15,
+          "max_dd": -0.2422
+        },
+        "excess_sharpe_vs_benchmark": -0.81
+      },
+      "cross_daily": {
+        "rebalances": 1123,
+        "periods": 1123,
+        "years": 4.46,
+        "total_return": 0.6578,
+        "cagr": 0.1201,
+        "sharpe": 0.87,
+        "max_dd": -0.5165,
+        "hit_rate": 0.5583,
+        "total_cost_inr": 148029.0,
+        "avg_cost_per_rebal": 132.0,
+        "zero_cost": {
+          "cagr": 0.2709,
+          "sharpe": 0.87,
+          "max_dd": -0.4379,
+          "total_return": 1.9108
+        },
+        "at_2x_cost": {
+          "cagr": -0.0412,
+          "sharpe": 0.87,
+          "max_dd": -0.6074
+        },
+        "benchmark_equal_weight": {
+          "periods": 1123,
+          "years": 4.46,
+          "cagr": 0.213,
+          "sharpe": 1.15,
+          "max_dd": -0.2411
+        },
+        "excess_sharpe_vs_benchmark": -0.28
+      },
+      "etf_monthly": {
+        "symbol": "NIFTYBEES",
+        "sessions_in_market": 998,
+        "years": 3.96,
+        "total_return": 0.3345,
+        "cagr": 0.0756,
+        "sharpe": 0.63,
+        "max_dd": -0.1687,
+        "total_cost_inr": 6261.0
+      }
+    }
+  }
+}

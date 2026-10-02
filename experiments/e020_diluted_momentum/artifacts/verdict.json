@@ -1,0 +1,135 @@
+{
+  "verdict": "FAIL",
+  "failed_criteria": [
+    5,
+    6
+  ],
+  "gates": [
+    {
+      "n": 1,
+      "name": "Capacity",
+      "bar": ">= 45 monthly rebalances",
+      "observed": "54",
+      "pass": true
+    },
+    {
+      "n": 2,
+      "name": "Breadth",
+      "bar": ">= 100 names on >= 90% of rebalance dates",
+      "observed": "median 135, min 104, 100% of days >= 100",
+      "pass": true
+    },
+    {
+      "n": 3,
+      "name": "Edge",
+      "bar": "net CAGR > 0 AND Sharpe >= 0.8",
+      "observed": "CAGR 0.2479, Sharpe 1.19",
+      "pass": true
+    },
+    {
+      "n": 4,
+      "name": "Risk",
+      "bar": "max DD <= 35%",
+      "observed": "-0.3272",
+      "pass": true
+    },
+    {
+      "n": 5,
+      "name": "No illusion (PRIMARY)",
+      "bar": "Sharpe exceeds same-universe equal-weight by >= 0.15",
+      "observed": "excess 0.04 (1.19 vs EW 1.15)",
+      "pass": false
+    },
+    {
+      "n": 6,
+      "name": "Death rate",
+      "bar": "top-bucket death <= 1.5x universe",
+      "observed": "1.87x (0.0081 vs 0.0043)",
+      "pass": false
+    },
+    {
+      "n": 7,
+      "name": "Friction",
+      "bar": "net CAGR positive at 2.0x cost",
+      "observed": "2x-cost CAGR 0.2223",
+      "pass": true
+    }
+  ],
+  "results": {
+    "panel": {
+      "sessions": 1420,
+      "start": "2022-03-11",
+      "end": "2026-09-30"
+    },
+    "legs": {
+      "diluted_monthly": {
+        "rebalances": 54,
+        "periods": 1123,
+        "years": 4.46,
+        "median_holdings": 135,
+        "min_holdings": 104,
+        "total_return": 1.6831,
+        "cagr": 0.2479,
+        "sharpe": 1.19,
+        "max_dd": -0.3272,
+        "hit_rate": 0.6011,
+        "total_cost_inr": 29964.0,
+        "avg_cost_per_rebal": 555.0,
+        "adv_cap_binding_positions": 0,
+        "adv_cap_median_headroom": 366.5,
+        "zero_cost": {
+          "cagr": 0.2738,
+          "sharpe": 1.19,
+          "max_dd": -0.323
+        },
+        "at_2x_cost": {
+          "cagr": 0.2223,
+          "sharpe": 1.19,
+          "max_dd": -0.3315
+        },
+        "benchmark_equal_weight": {
+          "periods": 1123,
+          "years": 4.46,
+          "cagr": 0.2129,
+          "sharpe": 1.15,
+          "max_dd": -0.2422
+        },
+        "excess_sharpe_vs_benchmark": 0.04,
+        "holdings_frac": 0.087
+      },
+      "control_top20_monthly": {
+        "rebalances": 54,
+        "periods": 1123,
+        "years": 4.46,
+        "median_holdings": 20,
+        "min_holdings": 20,
+        "total_return": 0.1478,
+        "cagr": 0.0314,
+        "sharpe": 0.34,
+        "max_dd": -0.5538,
+        "hit_rate": 0.5672,
+        "total_cost_inr": 28812.0,
+        "avg_cost_per_rebal": 534.0,
+        "adv_cap_binding_positions": 0,
+        "adv_cap_median_headroom": null,
+        "excess_sharpe_vs_benchmark": -0.81
+      },
+      "death_rates": {
+        "universe_death_rate": 0.0043,
+        "top_bucket_death_rate": 0.0081,
+        "ratio": 1.87,
+        "n_universe": 70350,
+        "n_top": 7009
+      },
+      "long_short_diagnostic": {
+        "periods": 1122,
+        "years": 4.45,
+        "cagr": 0.037,
+        "sharpe": 0.58,
+        "max_dd": -0.1512,
+        "total_cost_inr": 61579.0,
+        "note": "diagnostic only, NET of the same cost stack \u2014 shorting Indian equities is not available at retail scale, so this measures the anomaly, not a trade"
+      }
+    }
+  }
+}

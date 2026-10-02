@@ -2,24 +2,54 @@
 **Architectural Blueprint & Execution Roadmap (Kailash Nadh Perspective)**  
 *Target Environment:* Windows (pwsh) / Linux (bash) | Python 3.11+ | Single Source of Truth  
 *Base Capital:* ₹2,00,000 (Account Bankroll) | Current Regulatory Era: **65 Lot Size** (NSE FAOP70616)  
-*Status:* Active Master Plan (Replaces Discredited BRD v2.1 Directional Models)
+*Status:* Active Master Plan (Replaces Discredited BRD v2.1 Directional Models) — **revised 2026-10-02**
+
+> **Current honest position.** Expected monthly return of this entire program: **₹885**, every rupee of it collateral yield. **Alpha: ₹0.** One strategy candidate survives twenty experiments (e013, 0DTE pin harvest), and it has never been observed filling on live data. Every other rupee of PnL this repo has ever printed is now void or refuted. Full record: [RETROSPECTIVE.md](file:///d:/Code/dhanopt/RETROSPECTIVE.md).
 
 ---
 
 ## 1. Executive Summary & Foundational Reality
 
-Every options strategy previously celebrated in this sandbox ([e001](file:///d:/Code/dhanopt/experiments/e001_leakfree_replay) to [e006](file:///d:/Code/dhanopt/experiments/e006_compound_sim)) collapsed under rigorous audit:
+Every options strategy previously celebrated in this sandbox ([e001](file:///d:/Code/dhanopt/experiments/e001_leakfree_replay) to [e010](file:///d:/Code/dhanopt/experiments/e010_ml_gate)) collapsed under rigorous audit:
 1. **The Day-t Look-Ahead Leak:** Strategies relied on max-OI walls computed from **15:30 EOD option chains**, an information leak of 6 hours. When tested against real opening OI ([e007](file:///d:/Code/dhanopt/experiments/e007_open_oi)), edge collapsed from +₹940,697 to **−₹309 (4 trades, PF 0.96)**.
 2. **Directional Spreads Bleed:** Naive momentum continuation ([e004](file:///d:/Code/dhanopt/experiments/e004_intraday_replay)) lost −₹314k (bull) and −₹147k (bear) under realistic intraday paths.
 3. **ML Without Monetary Edge:** ML models ([e010](file:///d:/Code/dhanopt/experiments/e010_ml_gate)) achieved real statistical discrimination (Brier 0.295 < 0.318), yet lost −₹121k because the underlying spread structure possessed negative expectancy after Zerodha friction and bid-ask drag.
 
-### What the "Top 1%" Do Differently
-Institutional prop desks (Graviton, NK Securities, Quadeye, Tower, Jane Street) do not gamble on 5-minute directional momentum or static 1.4× stop-loss Iron Condors. They monetize three structural phenomena:
-1. **The Variance Risk Premium (VRP):** Implied Volatility (IV) is systematically higher than Realized Volatility (RV) over multi-year horizons due to risk aversion and institutional hedging demand. They harvest this through **delta-neutral straddles/strangles dynamically hedged with futures**, not static premium stop-losses.
-2. **Volatility Surface & Skew Asymmetry:** Exploiting dislocations between Put Skew (elevated by retail crashophobia) and Call Skew via ratio structures and relative value.
-3. **0DTE Gamma Inventory & Pinning:** Exploiting market maker delta-hedging flows near expiry (Tuesday/Thursday) to capture mean-reversion around structural strikes or ride liquidity stop-runs.
+And on 2026-10-02, a second, deeper conviction:
+4. **The Contract-Identity Defect ([e011](file:///d:/Code/dhanopt/experiments/e011_vrp_delta_hedge) and everything built on it):** the VRP signal inverted the ATM straddle of the expiry nearest to *t-1* and then shifted by one row. The contract tradable on *t* is the expiry nearest to *t*. The published **+₹7,43,572.25 (Sharpe 2.85, PF 3.99)** is void: the inverted "IV" was a bisection artifact (mean 0.476, max 1.929, 35 sessions above 1.00), and the entry gate fired **2.55× more often on roll days** — the strategy was trading its own instrumentation error. **e011, e015, e016 and e017 are void.** The fix and the re-test are §Phase 2 below.
 
-This action plan defines the exact steps to build, test, and validate these institutional edges using **only the data currently resident on disk or accessible via existing endpoints**, eliminating all guesswork and unstated assumptions.
+### What the "Top 1%" Do Differently
+Institutional prop desks (Graviton, NK Securities, Quadeye, Tower, Jane Street) do not gamble on 5-minute directional momentum or static 1.4× stop-loss Iron Condors. They monetize three structural phenomena. **This repo has now measured all three, plus the one popular alternative, and the scoreboard is the point of this plan:**
+
+| Structural phenomenon | Mechanism | This repo's verdict |
+|---|---|---|
+| **1. Variance Risk Premium** | IV systematically above RV over multi-year horizons (risk aversion, institutional hedging demand); harvested delta-neutral, not by stop-outs | **Tested twice. VOID then DEAD.** e011's result was a contract-identity artifact; e018 re-tested Option 1 on the corrected signal and lost **−₹61,306** (EV −₹435, PF 0.82, DD 48.4%). The premium is real (mean IV−RV 0.048); the *structure* cannot pay its own friction. |
+| **2. Volatility Surface & Skew Asymmetry** | Monetize OTM-put overpricing (retail crashophobia) via ratio / relative-value structures | **KILLED.** e012: **−₹98,802, PF 0.13, 15 consecutive losses.** 4-leg friction turned +₹33/trade gross into −₹859/trade net. |
+| **3. 0DTE Gamma Inventory & Pinning** | Market-maker delta hedging around structural strikes near expiry | **THE ONE SURVIVOR.** e013 pin harvest: **+₹4,14,721, PF 9.41, Max DD ₹11,940 (5.97%)** — the only book in twenty experiments inside the 8% drawdown ceiling. Unverified on live fills. |
+| *(4. Cash-equity momentum — the popular alternative to options)* | Cross-sectional 12-1 momentum on free EOD data, "no friction decay" | **DEAD, twice, and honestly.** e019 falsified the premise (daily beat monthly 3.8×; costs ~3% of capital) and lost to its own equal-weight benchmark by **0.81 Sharpe**. e020 diluted to the top decile: 24.8% CAGR — and **+0.04 Sharpe** of excess. The return was beta. |
+
+This action plan defines the exact steps to build, test, and validate what remains, using **only the data resident on disk or reachable from existing endpoints**, eliminating all guesswork and unstated assumptions.
+
+### 1.1 The Void & Dead Ledger (2026-10-02)
+
+The single most important table in this document. **No figure in the "claimed" column may be used in any model, sizing table, or pitch.**
+
+| Exp. | Claimed | Audited | Status | One-line reason |
+|---|---|---|---|---|
+| e001–e007 | up to +₹9.41L | −₹232,823 / −₹140,520 / −₹309 | VOID (wall leak) | Walls = day-t EOD OI; the signal was the leak. |
+| e010 | ML gate, −₹1.21L | −₹1.21L | DEAD (confirmed) | Real discrimination, negative-expectancy structure. |
+| **e011** | **+₹7,43,572, Sharpe 2.85** | **0** | **VOID** | Contract identity: t's contract priced with t−1's expiry and tenor. |
+| e012 | — | −₹98,802, PF 0.13 | DEAD | Skew ratio spread; friction exceeds edge. |
+| e013 | +₹4,14,721, PF 9.41 | +₹4,14,721, PF 9.41 | **SURVIVING CANDIDATE** | Clean by construction (dte≤1 replays only); fills unverified. |
+| e014 | Maker TCA | Maker −53%/−62% vs taker | CLOSED (negative) | E013 legs stand; E011 arms void with the book. |
+| **e015** | +₹11,58,293, Sharpe 4.14 | **0** | **VOID** | Combined book inherits e011's void leg. |
+| **e016** | Iron-fly wings, −₹1,56,941 | **0** | **VOID** | Wings test on the mispriced signal. |
+| **e017** | Regime sizing, "needs ₹6.4L" | **0** | **VOID** | Risk budget computed on the void book. |
+| **e018** | — | **−₹61,306, EV −₹435, PF 0.82, DD 48.4%** | **DEAD** (fix survives) | Correct contract identity, 0 violations — and no edge. |
+| **e019** | — | monthly 3.1% / 0.34; benchmark 21.3% / 1.15 | **DEAD** | Excess Sharpe **−0.81**; friction-decay premise falsified. |
+| **e020** | — | 24.8% CAGR / 1.19 Sharpe | **DEAD** | Excess Sharpe **+0.04** — the return is beta. |
+
+**Carried forward:** the contract-identity engine, the hold-to-expiry mark path, the arithmetic-impossibility audit, the free cash price store, point-in-time liquidity, corporate-action back-adjustment, the anti-beta gate, the death-rate diagnostic, and the control-reproduces-predecessor pattern.
 
 ---
 
@@ -34,15 +64,22 @@ dhanopt/
 │   │   ├── year=2021/ ... year=2026/   # Contract-level: open, high, low, close, volume, oi, strike, expiry
 │   ├── intraday/
 │   │   └── interval=5/                 # 5-minute NIFTY 50 spot OHLCV (1,410+ sessions, 2021–2026)
+│   ├── cash/                           # FREE NSE daily CASH bhavcopy (added 2026-10-02, e019)
+│   │   └── <date>.parquet              # 1,420 sessions × 6,475 symbols, 215 MB, survivorship-safe
 │   └── calibrated_params.json          # (Frozen; fail-closed calibration rules)
 ├── experiments/
 │   ├── e008_wall_flip/artifacts/
 │   │   ├── walls_576.tar.gz            # 576 sessions of 5-min option chains (OI, quotes) for dte <= 1
 │   │   └── walls/<date>.json           # Minute-level chain dumps
+│   ├── e018_vrp_weekly/                # Contract-identity-correct VRP engine + verdict (signal DEAD)
+│   ├── e019_momentum/                  # Cash-momentum engine + dual-URL bhavcopy downloader (DEAD)
+│   ├── e020_diluted_momentum/          # Diluted follow-up, reuses e019's engine (DEAD)
 │   └── common/
 │       ├── lots.py                     # Historical lot sizes: 75 -> 50 -> 25 -> 75 -> 65
-│       └── leak_registry.py            # Information-set tracking (t-1 vs day-t)
+│       └── leak_registry.py            # Information-set tracking (t-1 vs day-t) + e011 conviction
 ```
+
+`data/cash/` is the newest and most reusable asset in the repo: free, complete, point-in-time, and enough for any cross-sectional equity study. Its downloader ([download_cash.py](file:///d:/Code/dhanopt/experiments/e019_momentum/download_cash.py)) is idempotent and probes both NSE archive URL schemes across the Aug-2024 cutover.
 
 ---
 
@@ -50,11 +87,13 @@ dhanopt/
 
 ```mermaid
 flowchart TD
-    P1[Phase 1: Capital & Collateral Optimization] --> P2[Phase 2: True VRP Engine & Delta-Neutral Replay]
-    P2 --> P3[Phase 3: Volatility Skew & Ratio Architecture]
-    P3 --> P4[Phase 4: 0DTE Expiry Microstructure & Pin Dynamics]
-    P4 --> P5[Phase 5: Execution Microstructure & Limit Order TCA]
-    P5 --> P6[Phase 6: Shadow Paper-Trade & Production Gatekeeper]
+    P1[Phase 1: Capital & Collateral Optimization — DONE] --> P2[Phase 2: True VRP — VOID e011]
+    P2 --> P2B[Phase 2b: Contract-Correct VRP (e018) — DEAD]
+    P1 --> P2C[Phase 2c: Cash Momentum (e019/e020) — DEAD]
+    P2B --> P3[Phase 3: Volatility Skew & Ratio — KILLED e012]
+    P3 --> P4[Phase 4: 0DTE Pin Dynamics — ONLY SURVIVOR e013]
+    P4 --> P5[Phase 5: Execution Microstructure — GATE FAILED e014]
+    P5 --> P6[Phase 6: Shadow Execution & Production Gatekeeper]
 ```
 
 ---
@@ -62,6 +101,7 @@ flowchart TD
 ### Phase 1: Zero-Risk Baseline — Capital & Collateral Yield [COMPLETED ✅]
 *Objective:* Guarantee an immediate, market-independent baseline yield on the ₹2,00,000 bankroll before taking any derivatives risk. Stop earning 3.0% in bank savings.
 *Status:* **COMPLETED.** Engine implemented in [core/collateral.py](file:///d:/Code/dhanopt/core/collateral.py); verified in [tests/test_collateral.py](file:///d:/Code/dhanopt/tests/test_collateral.py).
+*Why it matters more than it did:* with every strategy void or dead, this is the **only certified-positive flow in the program** — ~₹10.6k/yr gross at Oct-2026 rates (₹885/mo). The user action below is the highest-expected-value item outstanding in this plan.
 
 #### 1.1 Capital Allocation & Haircut Math
 Under SEBI collateral circulars, Liquid and Overnight mutual funds pledged via depository (CDSL/NSDL) count toward the **50% cash-equivalent margin** requirement with a standardized broker haircut (~10%).
@@ -81,6 +121,8 @@ Under post-2023 debt mutual fund taxation (taxed at slab rate, indexation elimin
 * **5% Tax Bracket:** Net **₹9,633 / year** (~₹802.75/month) $\implies$ **+₹3,933/year net risk-free alpha** over bank savings.
 * **Gross Alpha Spread vs Bank Savings:** **+₹4,140/year** (+2.07% blended spread) guaranteed without market risk.
 
+*Rate caveat:* written at repo 6.0–6.5%. The current Oct-2026 mark is **~₹10.6k/yr gross, ~₹7.4–10k post-tax by bracket** — see [COLLATERAL_PLAYBOOK.md](file:///d:/Code/dhanopt/COLLATERAL_PLAYBOOK.md) for the full mechanics.
+
 #### 1.3 Execution Headroom Verification (1-Lot Nifty ATM Straddle, Era 65)
 * **Estimated Required Margin for 1 Short Straddle:** **₹1,24,852** (evaluated at Nifty Spot 24,500, Era Lot 65, 7.84% margin rate).
 * **Available Usable Margin:** **₹1,82,000** (₹1,62,000 pledged collateral + ₹20,000 cash buffer).
@@ -97,131 +139,122 @@ Select any low-cost, institutional direct growth overnight fund (AUM > ₹10,000
 - [x] Implement programmatic collateral allocation & margin validation ([core/collateral.py](file:///d:/Code/dhanopt/core/collateral.py)).
 - [x] Unit test margin verification, straddle estimation & SEBI cash-equivalent rules ([tests/test_collateral.py](file:///d:/Code/dhanopt/tests/test_collateral.py) — 6 passing tests in 0.001s).
 - [x] Executable CLI dashboard (`uv run python -m core.collateral` or `uv run python core/collateral.py`).
-- [x] Integrate `CollateralManager` into Phase 2 VRP replay (`experiments/e011_vrp_delta_hedge/replay_vrp.py`) enforcing fail-closed capital limits.
-- [ ] User Action: Transfer idle funds to broker account & purchase direct growth overnight fund units.
-- [ ] User Action: Initiate broker margin pledge flow via depository (CDSL/NSDL).
+- [x] Fail-closed capital gate wired into the options replay engine ([experiments/e011_vrp_delta_hedge/replay_vrp.py](file:///d:/Code/dhanopt/experiments/e011_vrp_delta_hedge/replay_vrp.py)). *The engine is void; the margin gate it carries is not, and is re-usable by any future replay.*
+- [ ] **User Action (highest priority in this plan):** Transfer idle funds to broker account & purchase direct growth overnight fund units.
+- [ ] **User Action:** Initiate broker margin pledge flow via depository (CDSL/NSDL).
 - [x] Reference complete operational manual in [COLLATERAL_PLAYBOOK.md](file:///d:/Code/dhanopt/COLLATERAL_PLAYBOOK.md).
 
 ---
 
-### Phase 2: True Variance Risk Premium (VRP) & Dynamic Delta-Hedging [COMPLETED ✅]
+### Phase 2: True Variance Risk Premium (VRP) & Dynamic Delta-Hedging [VOID ❌ → RE-TESTED & DEAD ❌]
 *Objective:* Harvest the structural spread between Implied Volatility ($IV$) and Realized Volatility ($RV$) without taking directional market risk.
-*Status:* **COMPLETED.** Engine built in [experiments/e011_vrp_delta_hedge/](file:///d:/Code/dhanopt/experiments/e011_vrp_delta_hedge/).
-*Results:* **Net +₹7,43,572.25**, **Sharpe 2.85**, **Profit Factor 3.99**, **Win Rate 61.1%** across 293 trades (5.7 yrs).
-*Kill Criteria Status:*
-  * Kill 1 (Sharpe $\ge 1.5$): **PASS (2.85)**.
-  * Kill 2 (Max DD $\le 8.0\%$ / ₹16k): **FAIL (₹51,274 / 25.6%)** — Naked straddle whipsaw friction during choppy regime shifts motivates Phase 4 defined wings (Iron Fly).
-  * Kill 3 (Slippage Cliff $\ge 2.5\times$): **PASS (Survives past $5.0\times$ slippage with +₹2.90L net)**.
-  * Kill 2 remediation attempt (E016 Iron Fly wings): **KILLED ❌** — wings *multiplied* drawdown to −₹2.03L (101.5%) and flipped expectancy negative; naked architecture retained pending a regime-sizing pre-registration (§5.5 C).
-  * Kill 2 remediation attempt (E017 regime sizing + risk budget): **KILLED ❌** — half size on elevated-RV/loss-clusters moves DD only 25.6% → 25.4%; **no fixed fraction of 1 lot reaches the 8% ceiling** (min −₹40.5k at f≈0.52 — the DD floor is the ₹20/order friction treadmill). Only skip-rules move it (k=3 cluster stop: 17.4% DD at +₹14.5k vs base, still > 8%). Detail: §5.5 D.
+*Status:* **The e011 result is VOID. The hypothesis was then re-tested honestly in [e018](file:///d:/Code/dhanopt/experiments/e018_vrp_weekly/) on the corrected signal and is DEAD. This phase produced the most valuable artifact in the repo — the contract-identity fix — and no tradeable edge.**
 
-#### 2.1 The Core Quantitative Edge
-* **Why previous condors failed:** Static stop-losses (e.g. 1.4× credit SL) guarantee buying at the peak of implied volatility during intraday whipsaws. Real prop desks do not stop out of volatility; they **delta-hedge**.
-* **The Mathematical Relationship:**
-  The expected PnL of a delta-hedged option position is governed by:
-  $$\mathbb{E}[\text{PnL}] \approx \frac{1}{2} \int_0^T S_t^2 \Gamma_t \left( \sigma_{\text{implied}}^2 - \sigma_{\text{realized}}^2 \right) dt - \text{Friction}$$
-  Where $\Gamma_t$ is the portfolio gamma and $S_t$ is the underlying spot price. If $\sigma_{\text{implied}} > \sigma_{\text{realized}}$, net PnL is mathematically positive if delta is neutralized.
+#### 2.1 The Conviction (2026-10-02) — what e011 actually measured
+`extract_eod_straddle` takes the expiry nearest to **t-1**, inverts its ATM straddle, and `compute_volatility_dataset` shifts by one row. The shift is correct; the *instrument* is not. The contract tradable on **t** is the expiry nearest to **t**. When t-1 was an expiry day they differ, and the pinned straddle was inverted with a tenor roughly one-fifth of its real life. Measured on all 293 e011 signal sessions:
 
-#### 2.2 Volatility Forecasting & VRP Filter
-Using the historical 5-minute spot store (`data/intraday/interval=5/`):
-1. **Realized Volatility ($RV$) Estimators:**
-   Compute Parkinson and Garman-Klass intraday volatility over trailing 5, 10, and 20 sessions:
-   $$\sigma_{GK}^2 = \frac{1}{n} \sum_{i=1}^n \left[ 0.5 \left(\ln \frac{H_i}{L_i}\right)^2 - (2\ln 2 - 1) \left(\ln \frac{C_i}{O_i}\right)^2 \right]$$
-2. **Implied Volatility ($IV_{\text{ATM}}$):**
-   Invert Black-Scholes from the $t-1$ EOD ATM straddle price from `data/historical/`.
-3. **The VRP Entry Signal:**
-   $$\text{VRP}_t = IV_{\text{ATM}, t-1} - \sigma_{GK, 10d}(t-1)$$
-   Only enter short volatility when $\text{VRP}_t \ge \text{Percentile}_{80}(\text{trailing } 60\text{ days})$ and $\text{VRP}_t > 0$.
+| | e011 (void) | contract-identity-correct |
+|---|---:|---:|
+| mean signal IV | 0.476 | **0.163** |
+| max signal IV | 1.929 | **0.473** |
+| sessions IV > 1.00 | 35 | **0** |
+| sessions IV ≥ 0.60 | 68 | **0** |
+| mean tenor credited | 0.95 days | **4.71 days** |
+| roll-day enrichment in the signal | **2.55×** | **1.00×** (none) |
 
-#### 2.3 Intraday Delta-Neutral Replay Architecture
-Build `experiments/e011_vrp_delta_hedge/`:
-* **Entry:** At 09:20 IST on Day $t$, sell 1 lot of ATM Call + 1 lot of ATM Put (ATM Straddle) for the nearest expiry.
-* **Delta Neutralization Mechanism:**
-  Track portfolio delta $\Delta_{\text{net}} = \Delta_{\text{CE}} + \Delta_{\text{PE}} + \Delta_{\text{Futures}}$ at every 5-minute bar.
-  * *Threshold Rebalancing:* When $|\Delta_{\text{net}}| \ge 0.15$ (i.e. $\approx 10$ Nifty points of directional exposure for 65 lot size), execute a synthetic Nifty Futures hedge at bar $t+1$ Open to reset $\Delta_{\text{net}} \to 0$. Same-bar execution is strictly prohibited.
-  * *Exit:* 15:15 IST square-off across all option and hedge positions.
-* **Friction Inclusion:**
-  * Option legs: ₹20/order brokerage + 0.1% STT on sell turnover + 1.5 pts slippage.
-  * Futures hedge: ₹20/order brokerage + 0.02% STT on sell turnover + 0.5 pts slippage.
-  * Regulatory fees: Exchange turnover (0.0505%), SEBI turnover (₹10/Cr), Stamp duty (0.003%), GST (18%).
+**The gate selected on the bug.** Roll sessions are 21% of trading days but 54% of e011's signals. The book was not trading a volatility regime; it was trading the days its own inversion broke. Every sensitivity table in the old §2.4–2.8 (volatility window sweep, delta-rebalance sweep, slippage cliff to 5×) is a sweep of a bug, and all of it is struck from the record.
 
-#### 2.4 Pre-Registered Kill Criteria for Phase 2
-| Metric | Threshold Bar | Observed | Status |
-|---|---|---:|---|
-| Annualized Sharpe Ratio | $\text{Sharpe} \ge 1.5$ (net of all friction) | **2.85** | ✅ **PASS (Strong)** |
-| Maximum Peak-to-Trough DD | $\le 8.0\%$ of ₹2,00,000 (₹16,000) | **₹51,274 (25.6%)** | ❌ **FAIL** |
-| Slippage Cliff | Retains positive expectancy at $\ge 2.5\times$ modeled slippage | **+₹5,73,824 (2.5×)** | ✅ **PASS (Resilient)** |
+**Propagation:** e015 (book combination), e016 (iron-fly wings) and e017 (regime sizing + risk budget) each froze e011's artifacts and reasoned carefully on top of them. All three are void. The conviction is written into [experiments/common/leak_registry.py](file:///d:/Code/dhanopt/experiments/common/leak_registry.py) so it cannot be inherited a fourth time. **e013 is clean** — it replays only genuine `dte ≤ 1` sessions, so contract identity holds by construction.
 
-#### 2.5 Detailed Empirical Performance Summary (2021–2026, 5.7 Years)
+#### 2.2 The Re-Test — E018, Contract-Identity VRP [KILLED ❌]
+*Pre-registered* at [experiments/e018_vrp_weekly/PREREG.md](file:///d:/Code/dhanopt/experiments/e018_vrp_weekly/PREREG.md), frozen before any code: a **weekly 3–7 DTE wide defined-risk condor held to expiry**, built off the t-1 bhavcopy store, with all marks taken from real bhavcopy closes. This is Option 1 tested on its own terms.
+
+| # | Gate | Bar | Observed | Status |
+|---|---|---|---|---|
+| 1 | Capacity | ≥ 30 trades | **141** (24.7/yr) | ✅ PASS |
+| 2 | Edge | EV ≥ +₹400 and PF ≥ 1.5 | **EV −₹435, PF 0.82** | ❌ FAIL |
+| 3 | Drawdown | ≤ 15% of ₹2L (₹30,000) | **−₹96,835 (48.4%)** | ❌ FAIL |
+| 4 | Contract identity | 0 mismatches | **0 across 141 trades** | ✅ PASS |
+| 5 | Friction resilience | net > 0 at 2.0× slippage | **−₹92,306; breakeven 0.51 pts/leg** | ❌ FAIL |
+| 6 | No roundness | WR ≤ 85% | **63.8%** | ✅ PASS |
+
 ```
-Total Trading Sessions:     1,410 days (2021-01 to 2026-09)
-Signals Triggered:          293 sessions (51.4 trades / year)
-Win Rate:                   61.09% (179 wins / 114 losses)
-Total Gross PnL:            +₹10,10,876.98 (pre-friction mark-to-market)
-Total Zerodha Friction:     ₹2,67,304.73 (avg ₹912.30 / trade across 293 sessions)
-Total Net PnL:              +₹7,43,572.25
-Sum of Net Winning Trades:  +₹9,91,937.00
-Sum of Net Losing Trades:   -₹2,48,364.75
-Average Net / Trade:        +₹2,537.79
-Annual Net Run-Rate:        +₹1,30,451 / year (~65.2% on ₹2L capital)
-Profit Factor:              3.99 (Net Winning Trades ₹9,91,937 / Net Losing Trades ₹2,48,365)
-Annualized Sharpe Ratio:    2.85
-Max Peak-to-Trough DD:      -₹51,274.41 (-25.64% of ₹2L bankroll)
+Total net PnL   -61,306      Sharpe (-0.38)     Avg friction  ₹861/trade
+Win rate         63.8%       Profit factor 0.82 Max DD  -96,835 (48.4%)
+Wins   n=90  mean +3,022   |   Losses n=51  mean -6,535
 ```
 
-#### 2.6 Sensitivity Matrix: Volatility Estimator Window Comparison
-Testing across 5-day, 10-day, and 20-day rolling windows for both Garman-Klass ($\sigma_{GK}$) and Parkinson ($\sigma_P$) estimators confirms that the edge is mathematically robust and not an artifact of window overfitting:
+**Mechanism (measured): the credit is smaller than the transaction.** Mean entry credit is **75 pts** on a mean lot of 55 — about ₹4,100 gross — against **₹861/trade** of friction (₹160 brokerage + STT + exchange + GST + 8 × 1.5 pts slippage, ₹660 of it slippage alone). The book needs a **0.51-pt half-spread just to break even**; real NSE weekly spreads on 3–7 DTE wings run several points wide. This is the same floor e017 hit from the other side — ₹83,166 of flat per-order fees that no position size could cross — found again from a *shorter* holding period. Wide wings capped the tail but truncated recovery (51 losers average −₹6,535 against 90 winners at +₹3,022), the same trade-off e016 documented.
 
-| Volatility Estimator | Window | Trades | Total Net PnL (₹) | Profit Factor | Win Rate | Sharpe Ratio | Max Drawdown (₹) |
-|---|:---:|---:|---:|:---:|:---:|:---:|---:|
-| **Garman-Klass ($\sigma_{GK}$)** | 5-day | 283 | **+7,54,625.23** | **4.15** | 61.5% | **2.92** | -44,582.63 |
-| **Garman-Klass ($\sigma_{GK}$)** | 10-day (Base) | 293 | **+7,43,572.25** | 3.99 | 61.1% | 2.86 | -51,274.41 |
-| **Garman-Klass ($\sigma_{GK}$)** | 20-day | 280 | **+7,45,409.45** | 3.94 | 60.0% | 2.85 | -57,259.73 |
-| **Parkinson ($\sigma_P$)** | 5-day | 286 | **+7,59,833.10** | **4.26** | 61.9% | **2.94** | -48,129.20 |
-| **Parkinson ($\sigma_P$)** | 10-day | 287 | **+7,29,487.13** | 3.89 | 61.0% | 2.79 | -61,934.30 |
-| **Parkinson ($\sigma_P$)** | 20-day | 280 | **+7,63,515.33** | 4.15 | 61.8% | 2.94 | -62,686.81 |
+**The verdict is honest in both directions:** the contract-identity bug is fixed, and the edge does not survive the fix. The corrected signal shows a real, stable IV−RV spread (mean 0.048, p80 hurdle 0.075) — it dies as a *structure*, not as a phenomenon. A future attempt needs a higher credit-to-fee ratio: longer holds (2–4 weeks, where credit is a larger multiple of the same flat fees), or index/futures vol products with per-contract rather than per-leg costs.
 
-#### 2.7 Sensitivity Matrix: Delta Rebalancing Threshold Sweep
-Sweeping the delta rebalance trigger $|\Delta_{\text{net}}| \ge \text{Threshold}$ illuminates the tradeoff between delta risk and execution friction:
+**Two bugs the sanity bars caught mid-run** (both documented in the e018 README, both now pinned by tests):
+* **Stale expiry-day marks — ₹104,000 of phantom loss.** The bhavcopy `close` on expiry day is a *last-trade* price, measured at 0.30 on options that expire at 0.00, and on 34 of 141 trades it implied an exit debit larger than a condor's arithmetic maximum. At expiry, time value is exactly zero, so the mark is **intrinsic against the futures close**. Marking correctly moved the book −₹165,194 → −₹61,306. Net changed; verdict did not. `test_exit_marks_respect_condor_arithmetic_max` now fails if this returns.
+* **Contract identity in the replay** — the mirror of e011's bug. `target_expiry` is deliberately *not* shifted, because which expiry is front on day t is a public-calendar fact knowable at t-1. `_identity_ok` re-derives it from the trade date's own partition on every trade, and that is gate 4.
 
-| Rebalance Threshold | Avg Hedges / Day | Avg Friction / Trade (₹) | Total Net PnL (₹) | Profit Factor | Win Rate | Sharpe | Max Drawdown (₹) |
-|:---:|:---:|---:|---:|:---:|:---:|:---:|---:|
-| **0.10** (Tight) | 13.0 | ₹1,086.90 | +6,84,478.45 | 3.54 | 59.0% | 2.64 | -67,545.41 |
-| **0.15** (Baseline) | 8.0 | ₹912.30 | +7,43,572.25 | 3.99 | 61.1% | 2.86 | -51,274.41 |
-| **0.20** (Optimal) | 5.8 | ₹827.30 | **+7,62,982.94** | **4.22** | **63.5%** | **2.96** | **-40,915.88** |
-| **0.25** (Loose) | 4.4 | ₹767.20 | +7,63,708.78 | 4.11 | 63.5% | 2.95 | -41,823.53 |
+#### 2.3 Phase 2 Deliverables — what survives, what dies
+* [x] ~~Published e011 result (+₹7,43,572)~~ — **VOID.** The artifacts remain on disk as the exhibit for the conviction; no number in them may be used.
+* [x] ~~Volatility estimator / BS inversion engine~~ — **superseded.** The correct engine is [e018 volatility_fixed.py](file:///d:/Code/dhanopt/experiments/e018_vrp_weekly/volatility_fixed.py): front expiry resolved from the trade date's own partition, straddle read from t-1, clean IV distribution, roll-day enrichment eliminated, 1,410 sessions in ~3 minutes. **Keep this file; discard the signal it feeds.**
+* [x] ~~Delta-hedging replay with t+1 fills~~ — machinery valid, object void. Same disposition as the collateral gate in §1.5.
+* [x] ~~Sensitivity matrix / slippage cliff~~ — **struck.** These are sensitivity sweeps of a bug; a sensitivity table on an unvalidated signal is a table of how the bug responds to knobs.
+* [x] **Contract-identity fix + 17 tests** ([test_e018.py](file:///d:/Code/dhanopt/experiments/e018_vrp_weekly/test_e018.py)) — roll rejection, front-expiry selection, per-trade re-derivation, IV plausibility, t-1 no-lookahead, condor arithmetic bounds, era-correct lots, fail-closed legs, DTE band. **This is the deliverable.**
+* [x] **Hold-to-expiry mark path** — entry at day-t EOD close, settle at the expiry date's EOD close, marked on real bhavcopy prices with no Black-Scholes reconstruction anywhere. No PnL depends on a model's opinion of a price.
+* [x] **Arithmetic-impossibility audit** — a condor's maximum loss is closed-form; any backtest violating it has a pricing bug. Cheap, general, should be a house test (now §5.9).
+* [x] Registered in [experiments/common/leak_registry.py](file:///d:/Code/dhanopt/experiments/common/leak_registry.py) with the e011 conviction and both e018 rows.
 
-*Insight:* Tight rebalancing (0.10) over-trades, incurring ₹1,087 in friction and whipsawing on noise. A slightly wider threshold (0.20) lets micro-fluctuations mean-revert without paying bid-ask spread and STT on futures, cutting drawdown by ₹10,358.
+---
 
-#### 2.8 Slippage Cliff Stress Test ([slippage_cliff.py](file:///d:/Code/dhanopt/experiments/e011_vrp_delta_hedge/slippage_cliff.py))
-Subjecting the baseline strategy to extreme slippage multipliers:
+### Phase 2c: Cash-Equity Momentum on Free EOD Data [DEAD ❌ — E019 & E020]
+*Objective:* Replace options PnL with cross-sectional 12-1 momentum on free NSE daily cash data — the standard "friction doesn't bite in cash equities" argument.
+*Status:* **Both cells dead.** The engine is exemplary and carries forward; the strategy is refuted twice, and the premise behind it is measurably false.
+*Note:* this is not a numbered roadmap phase — it is the branch taken when the brainstorm asked what else the free data on disk could do. It is recorded here because it is the only test of the fourth hypothesis in §1.
 
-| Slippage Multiplier | Effective Option Slippage | Effective Futures Slippage | Total Net PnL (₹) | Profit Factor | Sharpe Ratio | Max Drawdown (₹) |
-|:---:|:---:|:---:|---:|:---:|:---:|---:|
-| **1.0× (Baseline)** | 1.5 pts / leg | 0.5 pts / leg | **+7,43,572.25** | **3.99** | **2.85** | -51,274.41 |
-| **1.5×** | 2.25 pts / leg | 0.75 pts / leg | **+6,86,989.37** | 3.52 | 2.64 | -65,271.77 |
-| **2.0×** | 3.00 pts / leg | 1.00 pts / leg | **+6,30,406.49** | 3.12 | 2.42 | -89,878.56 |
-| **2.5× (Kill Bar)** | 3.75 pts / leg | 1.25 pts / leg | **+5,73,823.62** | 2.77 | 2.21 | -121,384.84 |
-| **3.0×** | 4.50 pts / leg | 1.50 pts / leg | **+5,17,240.74** | 2.46 | 1.99 | -152,983.94 |
-| **4.0×** | 6.00 pts / leg | 2.00 pts / leg | **+4,04,074.99** | 1.98 | 1.56 | -216,182.12 |
-| **5.0× (Severe)** | 7.50 pts / leg | 2.50 pts / leg | **+2,90,909.24** | 1.61 | 1.12 | -281,559.61 |
+#### 2c.1 E019 — the premise is false
+*Pre-registered* at [PREREG.md](file:///d:/Code/dhanopt/experiments/e019_momentum/PREREG.md) before a single download.
 
-*Verdict:* Survives well past $5.0\times$ slippage (+₹2.91L net), easily clearing Kill Criterion 3.
+| Leg | Net CAGR | Sharpe | Max DD | Costs paid |
+|---|---:|---:|---:|---:|
+| Cross-sectional, monthly | 3.14% | 0.34 | −55.4% | ₹28,812 |
+| Cross-sectional, daily | 12.01% | 0.87 | −51.7% | ₹148,029 |
+| **Equal-weight benchmark (no signal)** | **21.29%** | **1.15** | **−24.2%** | — |
+| NIFTYBEES time-series | 7.56% | 0.63 | −16.9% | ₹6,261 |
 
-#### 2.9 Kailash Nadh Post-Mortem: Why Kill Criterion 2 Failed & The Architectural Solution
-1. **The Edge is Real:** Unlike directional momentum spreads ([e004](file:///d:/Code/dhanopt/experiments/e004_intraday_replay), which lost −₹314k) or naive ML gating ([e010](file:///d:/Code/dhanopt/experiments/e010_ml_gate), which lost −₹121k), the Variance Risk Premium is mathematically sound. Even after paying ₹2,67,305 in Zerodha friction (avg ₹912.30/trade across 293 sessions), the strategy netted +₹7,43,572.
-2. **The Whipsaw Mechanism:** On choppy, high-volatility trend days (e.g. 2022-01-21, 2021-07-09), threshold delta-hedging executed 22 to 36 futures orders in a single session. The strategy incurred over ₹2,000 in friction and got chopped repeatedly as spot reversed, causing single-day losses of −₹7,000 to −₹9,000.
-3. **The ₹2L Capital Reality:** On a ₹2,00,000 bankroll, a consecutive cluster of choppy sessions produced a ₹51,274 drawdown (25.64%), breaching the strict institutional 8.0% (₹16,000) ceiling.
-4. **The Direct Architectural Solution:** Naked straddles carry uncapped tail risk on choppy trend days. In **Phase 4 (0DTE Pin Harvest Iron Fly)**, adding defined-risk wings clamped maximum peak-to-trough drawdown to **₹11,940 (5.97% < 8.0%)**, solving the drawdown problem while retaining a 9.41 Profit Factor.
+**Option 2's premise is falsified by its own run.** "Free EOD data has genuine predictive power *without friction decay*" — the friction half is false: **daily rebalancing beat monthly by 3.8×**, the exact opposite of the prediction, and monthly costs were ₹28,812 over 4.5 years on a ₹2L book ≈ **3% of capital**. They could not bind. The reason to leave options for cash equities is *not* that friction decays the edge.
 
-#### 2.10 Phase 2 Execution Checklist & Code Deliverables
-- [x] Implemented Garman-Klass ($\sigma_{GK}$), Parkinson ($\sigma_P$), and Black-Scholes IV inversion engine with strictly shifted $t-1$ metrics ([experiments/e011_vrp_delta_hedge/volatility.py](file:///d:/Code/dhanopt/experiments/e011_vrp_delta_hedge/volatility.py)).
-- [x] Implemented dynamic delta-hedging replay engine with strict $t+1$ bar Open execution, era-correct regulatory lots (75 $\to$ 50 $\to$ 25 $\to$ 75 $\to$ 65), Phase 1 collateral gate integration, and post-Oct 2024 Zerodha fee schedules ([experiments/e011_vrp_delta_hedge/replay_vrp.py](file:///d:/Code/dhanopt/experiments/e011_vrp_delta_hedge/replay_vrp.py)).
-- [x] Parameterized sensitivity matrix sweeps across 6 volatility estimator configurations and 4 delta rebalance thresholds ([experiments/e011_vrp_delta_hedge/sensitivity.py](file:///d:/Code/dhanopt/experiments/e011_vrp_delta_hedge/sensitivity.py)).
-- [x] Implemented slippage cliff stress tester validating resilience past $5.0\times$ slippage ([experiments/e011_vrp_delta_hedge/slippage_cliff.py](file:///d:/Code/dhanopt/experiments/e011_vrp_delta_hedge/slippage_cliff.py)).
-- [x] Comprehensive unit test suite covering BS straddle inversion, Put-Call parity, $t+1$ hedge fill rule, strict $t-1$ shift, GK/Parkinson math, threshold behavior, Phase 1 collateral gate enforcement, and pre-registered kill criteria ([experiments/e011_vrp_delta_hedge/test_e011.py](file:///d:/Code/dhanopt/experiments/e011_vrp_delta_hedge/test_e011.py) — 8 passing tests in 2.27s).
-- [x] Registered in [experiments/common/leak_registry.py](file:///d:/Code/dhanopt/experiments/common/leak_registry.py) under the $t-1$ information frontier.
-- [x] Generated and preserved all 6 empirical artifacts: `volatility_daily.parquet`, `vrp_daily.csv`, `metrics.json`, `slippage_cliff.json`, `sensitivity_volatility.json`, `sensitivity_threshold.json`.
+And momentum does not survive being traded: excess Sharpe versus the same-universe equal-weight portfolio was **−0.81**. Gate 6 (beat the benchmark by ≥ 0.2 Sharpe) is the primary gate and it exists because a long-only book in a bull market earns 21% CAGR from beta alone.
+
+Two measured mechanisms, both worth keeping:
+* **Momentum is real in the cross-section.** Pooled over 71,080 name-periods, rank vs next-21-day return: bottom decile +0.58%, top decile **+3.24%** — a genuine +2.66% spread.
+* **…and the winners die.** Top-20 holdings stop trading within 21 days **3.4× more often** than the universe (1.51% vs 0.44%). Any study computing forward returns only over names still printing drops exactly those losers. That is why the raw decile spread looks so good and the book does not.
+
+*Honest gate failure:* the pre-declared ≥60 monthly rebalances bar was missed at 54, because 12-1 momentum needs 252+21 sessions of warm-up. **The bar was not moved** — e020 later set its own bar from the measured warm-up and disclosed it.
+
+#### 2c.2 E020 — dilution fixes everything except alpha
+*Pre-registered* at [PREREG.md](file:///d:/Code/dhanopt/experiments/e020_diluted_momentum/PREREG.md); long top **decile** (~135 names) instead of top-20, same store, same point-in-time universe, same t-1 fill rule, same cost model.
+
+| Configuration | CAGR | Sharpe | Max DD | Excess Sharpe vs EW |
+|---|---:|---:|---:|---:|
+| Top-20 (E019 control) | 3.1% | 0.34 | −55.4% | **−0.81** |
+| **Top decile, ~135 names (E020)** | **24.8%** | **1.19** | **−32.7%** | **+0.04** |
+| Equal-weight benchmark | 21.3% | 1.15 | −24.2% | — |
+| Long-short *diagnostic* (net, ungated) | 3.7% | 0.58 | −14.0% | — |
+
+**Verdict: FAIL on 2 of 7 gates — the two that mattered.** Gates 1–4 and 7 pass: 54 rebalances, 135 names on 100% of days, CAGR 24.8%, Sharpe 1.19, DD −32.7%, positive at 2× cost. Then:
+
+* **Gate 5 (anti-beta) fails at +0.04 Sharpe of excess.** The return is beta. Dilution moved net CAGR 3.1% → 24.8% and cut the drawdown 23 points, and **not one point of it was skill** — a reader shown only the CAGR column would call this a success. It is not one.
+* **Gate 6 (death rate) fails at 1.87×** (0.81% vs 0.43% universe) against a 1.5× bar. Dilution halved the excess death rate (3.4× → 1.87×) but momentum still selects fragile names. This is a property of the *signal*, not the portfolio; no weighting scheme fixes it.
+
+**The control is the most important line in the table.** Re-running e019's exact configuration inside e020 reproduced **excess Sharpe −0.81 to the decimal**. An engine that cannot reproduce its predecessor is not measuring momentum; this one can, so the rest of the numbers deserve trust. This is now §5.10.
+
+*The one live cell:* the pre-declared long-top-decile / short-bottom-decile diagnostic earns **3.7% net, Sharpe 0.58** — a real momentum spread, and not a book a retail account can hold at scale without a borrow arrangement this repo cannot model honestly. Further long-only work on this cross-section is spent: the beta decomposition says it.
+
+#### 2c.3 Deliverables that carry forward
+- [x] **Free cash price store** — 1,420 sessions × 6,475 symbols, 215 MB, idempotent dual-URL downloader, survivorship-safe by construction (union of all trading symbols; no index-membership list applied backwards). Reusable for any cross-sectional equity study.
+- [x] **Corporate-action back-adjustment** — 453 events across 397 symbols, back-adjusted at clean 1:1/1:2/1:3/1:4 ratios. RELIANCE's 1:1 bonus reads as a **−49.8% crash** in raw bhavcopy (a momentum screen drops the name exactly when it might qualify — a bias *against* the large caps that lead the factor) and becomes +0.98%.
+- [x] **Point-in-time liquidity** — trailing-252 median turnover ending t-1, computed once instead of 1,100 times.
+- [x] **The anti-beta gate** — the only reason either experiment produced a decision instead of a celebration. Now §5.8.
+- [x] **The death-rate diagnostic** — a property of the signal that no standard backtest reports. Now §5.9.
+- [x] **Negative result, reusable:** Indian cash-equity momentum turnover costs do *not* bind at 21-session rebalance.
 
 ---
 
@@ -229,6 +262,7 @@ Subjecting the baseline strategy to extreme slippage multipliers:
 *Objective:* Monetize the structural overpricing of OTM puts (crashophobia) through self-financing ratio spreads rather than directional buying/selling.
 *Status:* **COMPLETED & KILLED.** Engine built in [experiments/e012_skew_ratio/](file:///d:/Code/dhanopt/experiments/e012_skew_ratio/).
 *Results:* **Net −₹98,801.92**, **Profit Factor 0.13**, **Win Rate 14.78%**, **15 consecutive losses** across 115 trades (2021–2026).
+*Note:* these labels are **wall-free**, so neither leak touches this verdict. It stands as measured.
 *Kill Criteria Status:*
   * Kill 1 (Profit Factor $\ge 1.80$): **DECISIVE FAIL (0.13)**.
   * Kill 2 (Win Rate $\ge 70\%$, $\le 3$ consec losses): **DECISIVE FAIL (14.8%, 15 consec losses)**.
@@ -259,22 +293,24 @@ Build `experiments/e012_skew_ratio/`:
 
 #### 3.3 Pre-Registered Kill Criteria for Phase 3
 | Metric | Threshold Bar | Observed | Status |
-|---|---|---:|---|
+|---|---|---:|---:|
 | Profit Factor | $PF \ge 1.80$ over 2021–2026 walk-forward | **0.13** | ❌ **FAIL** |
 | Win Rate | $\ge 70\%$ on valid signal sessions ($\le 3$ consec losses) | **14.8% (15 max losses)** | ❌ **FAIL** |
 | Total Trades | $\ge 25$ occurrences per year | **20.2 / yr** | ❌ **FAIL** |
 
 ---
 
-### Phase 4: 0DTE Expiry Microstructure & Pin Dynamics [COMPLETED / VALIDATED CANDIDATE 🎯]
+### Phase 4: 0DTE Expiry Microstructure & Pin Dynamics [COMPLETED / VALIDATED CANDIDATE 🎯 — THE ONLY SURVIVOR]
 *Objective:* Exploit market maker delta inventory and structural hedging behavior during 0DTE sessions (Tuesday/Thursday).
-*Status:* **COMPLETED.** Engine built in [experiments/e013_0dte_pin/](file:///d:/Code/dhanopt/experiments/e013_0dte_pin/).
+*Status:* **COMPLETED and the only strategy claim in this plan that survives both convictions.** Engine built in [experiments/e013_0dte_pin/](file:///d:/Code/dhanopt/experiments/e013_0dte_pin/).
+*Why it survives:* the replay selects only genuine `dte ≤ 1` sessions, so the contract being traded and the contract being priced are the same object by construction. It never depended on a wall convention (the original leak) and never on a shifted tenor (the second). Its walls are informational context for a *regime* classification, not the trade trigger.
 *Results:*
-  * **Pin Harvest (Iron Butterfly, $\text{Ratio} \le 0.65$):** **Net +₹4,14,721.03**, **Net EV +₹2,148.81 / trade** (crushes the +₹600 bar by 3.5×!), **Win Rate 83.94%**, **Profit Factor 9.41**, **Max DD ₹11,940 (5.97% < 8.0%)**, **Sharpe 5.52** across 193 sessions (33.9 trades/yr).
+  * **Pin Harvest (Iron Butterfly, $\text{Ratio} \le 0.65$):** **Net +₹4,14,721.03**, **Net EV +₹2,148.81 / trade**, **Win Rate 83.94%**, **Profit Factor 9.41**, **Max DD ₹11,940 (5.97% < 8.0%)**, **Sharpe 5.52** across 193 sessions (33.9 trades/yr).
   * **Gamma Breakout ($\text{Ratio} \ge 1.20$):** **Net −₹46,269.29**, **Net EV −₹564.26**, **Profit Factor 0.58**, **Win Rate 31.7%** (direction dead).
 *Kill Criteria Status:*
   * Kill 1 (Net EV $\ge +₹600$): **PASS (Pin Iron Fly: +₹2,148.81 / trade)**.
   * Kill 2 (Fill Feasibility $\ge 80\%$): **DATA CEILING on e008 artifacts (0.0% observable due to ATM omission in `fetch_walls.py`)** $\implies$ Validates that live execution requires [e009](file:///d:/Code/dhanopt/experiments/e009_wall_capture) full-chain live capture.
+*Standing caveats (do not drop these):* 83.94% WR is at the roundness bar — §5.4 applies; and **no live fill has ever been observed for this book.** It is a candidate, not a deployment.
 
 #### 4.1 Market Microstructure Reality
 On weekly expiry days, open interest creates massive gamma sensitivity for option sellers.
@@ -295,7 +331,7 @@ Consume `experiments/e008_wall_flip/artifacts/walls_576.tar.gz` and the 5-minute
 
 #### 4.3 Pre-Registered Kill Criteria for Phase 4
 | Metric | Threshold Bar | Observed | Status |
-|---|---|---:|---|
+|---|---|---:|---:|
 | Post-12:30 Expectancy (Pin Fly) | Net EV $\ge +₹600$ per lot | **+₹2,148.81 / trade** | ✅ **PASS (Strong)** |
 | Post-12:30 Expectancy (Breakout) | Net EV $\ge +₹600$ per lot | **−₹564.26 / trade** | ❌ **FAIL (Killed)** |
 | Fill Feasibility (in e008 data) | $\ge 80\%$ legs observable | **0.0% (ATM omitted)** | ⚠ **REQUIRES E009 LIVE DATA** |
@@ -305,93 +341,89 @@ Consume `experiments/e008_wall_flip/artifacts/walls_576.tar.gz` and the 5-minute
 ### Phase 5: Execution Microstructure & Limit Order TCA [COMPLETED / GATE FAILED ❌]
 *Objective:* Eliminate the "Taker Penalty" that systematically destroys retail multi-leg options trading.
 *Status:* **COMPLETED & GATE FAILED.** Engine built in [core/execution/maker.py](file:///d:/Code/dhanopt/core/execution/maker.py); TCA run in [experiments/e014_maker_tca/](file:///d:/Code/dhanopt/experiments/e014_maker_tca/).
-*Results:* Passive-only (maker, all-or-none) execution **fails Gates 2 & 3 on both validated strategies**: E013 Pin Fly maker EV +₹1,018/trade vs +₹2,149 taker (aggregate ratio 27.3% < 60%); E011 VRP Straddle maker EV +₹959/trade vs +₹2,538 taker (ratio 22.4%). Basket fill-rate gate passed (57.5% / 59.4% ≥ 50%). **Decision: taker entry retained; passive execution relegated to exits and Phase 6 measurement.**
+*Results:* Passive-only (maker, all-or-none) execution **fails Gates 2 & 3 on the surviving book**: E013 Pin Fly maker EV +₹1,018/trade vs +₹2,149 taker (aggregate ratio **27.3% < 60%**). Basket fill-rate gate passed (57.5% ≥ 50%). **Decision: taker entry retained; passive execution relegated to exits and Phase 6 measurement.**
+*Scope correction (2026-10-02):* the e011 arm of this TCA (+₹2,538/trade taker, +₹959 maker, 174/293 filled) is **void with its book** and is struck from the record. The verdict below rests on the e013 arm, where both books agreed in direction anyway.
 
 #### 5.1 The Friction Trap (Why Retail Loses 25%+ to Intermediaries)
 In a 4-leg Iron Condor or 2-leg spread:
 * Crossing the spread (market order / aggressive taker): Paying $\approx 1.5$ to $2.0$ points per leg $\implies 6.0$ to $8.0$ index points ($₹390$ to $₹520$ per lot) lost on entry and exit combined.
-* Taxes (STT 0.1% on sell side post-Oct 2024, GST 18%, Exchange fees): $\approx ₹120$ per lot.
-* Total initial deficit: **$\approx ₹500$ to $₹640$ per lot before the trade even moves.**
+* Taxes (STT 0.1% on sell side post-Oct-2024, GST 18%, Exchange fees): $\approx ₹120$ per lot.
+* Total initial deficit: **$\approx ₹500$ to ₹640$ per lot before the trade even moves.**
 
 #### 5.2 The Maker Execution Engine
 Build `core/execution/maker.py`:
 1. **Passive Limit Placement:**
    * Calculate Mid-Price: $\text{Price}_{\text{mid}} = \frac{\text{Bid} + \text{Ask}}{2}$.
-   * Place limit orders at $\text{Bid} + 1\text{ tick}$ (for buy) or $\text{Ask} - 1\text{ tick}$ (for sell).
+   * Place limit orders at $\text{Bid} + 1\ \text{tick}$ (for buy) or $\text{Ask} - 1\ \text{tick}$ (for sell).
 2. **Queue & Fill Simulator (for Backtesting):**
    * An order is assumed filled *only* if subsequent trade prints occur at prices strictly through the limit price, OR if total volume traded at that price exceeds $3\times$ our order size.
 3. **Adverse Selection Penalty:**
    * Any fill that occurs immediately before an adverse 5-minute move of $> 0.20\%$ is logged as adverse selection and penalized in the backtest.
 
 #### 5.3 E014 TCA Results: Maker vs Taker (Pre-Registered, [PREREG](file:///d:/Code/dhanopt/experiments/e014_maker_tca/PREREG.md))
-Both validated strategies were re-replayed under identical timing in three arms — TAKER (reproduces published E011/E013 accounting exactly, verified per-session), MAKER (all-or-none passive basket, NO TRADE if any leg misses its 30-min entry window), HYBRID (E013 only: passive entry, taker chase after window). Option mids are Black-Scholes on the 5-min spot store with session IV (half-spread 1.5 pts = the frozen taker slippage; no volume tape on options, so fills require strictly-through prints — pessimistic on fill probability).
+The surviving book was re-replayed under identical timing in three arms — TAKER (reproduces published e013 accounting exactly, verified per-session), MAKER (all-or-none passive basket, NO TRADE if any leg misses its 30-min entry window), HYBRID (passive entry, taker chase after window). Option mids are Black-Scholes on the 5-min spot store with session IV (half-spread 1.5 pts = the frozen taker slippage; no volume tape on options, so fills require strictly-through prints — pessimistic on fill probability).
 
-| Arm | E013 Pin Fly Net EV | E013 Total Net | E011 VRP Net EV | E011 Total Net |
-|---|---:|---:|---:|---:|
-| **TAKER** | **+₹2,148.81** | **+₹4,14,721** | **+₹2,537.79** | **+₹7,43,572** |
-| **MAKER (AON)** | +₹1,018.29 (111/193 filled) | +₹1,13,031 (27.3% of taker) | +₹959.12 (174/293 filled) | +₹1,66,887 (22.4% of taker) |
-| **HYBRID** | +₹666.58 (193/193) | +₹1,28,651 | out of scope (hedge schedule depends on entry timing) | — |
+| Arm | E013 Pin Fly Net EV | E013 Total Net | E013 Fill Rate |
+|---|---:|---:|---:|
+| **TAKER** | **+₹2,148.81** | **+₹4,14,721** | 193/193 |
+| **MAKER (AON)** | +₹1,018.29 | +₹1,13,031 (**27.3%** of taker) | 111/193 |
+| **HYBRID** | +₹666.58 | +₹1,28,651 | 193/193 |
+
+~~E011 VRP arm: taker +₹2,537.79 / +₹7,43,572; maker +₹959.12 / +₹1,66,887 (22.4%).~~ **VOID — struck with the e011 conviction.**
 
 *Decomposition of the −₹1,130/trade maker collapse (E013):*
 1. **Session-level fill selection is NOT the cause:** taker EV on exactly the maker-filled sessions is +₹2,161 vs +₹2,149 overall (+₹12 delta). Calm days fill more often; the surviving subset is not worse.
 2. **Adverse selection is real but secondary:** 71.8% of passive fills were flagged (move ≥ 0.20% against the leg within 5 min) and re-priced at the taker alternative — the queue gives back ~₹2.33L of the ~₹4.0L gross improvement it captures across both books.
-3. **Missed sessions are the killer:** 82 of 193 Pin Fly sessions and 119 of 293 VRP sessions never traded (~₹1.76L and ~₹3.02L forgone taker EV). These are theta-harvesting books: their edge lives on fast days, and on fast days option mids sweep through passive limits instantly (flagged adverse) or never touch them.
+3. **Missed sessions are the killer:** 82 of 193 Pin Fly sessions never traded (~₹1.76L forgone taker EV). These are theta-harvesting books: their edge lives on fast days, and on fast days option mids sweep through passive limits instantly (flagged adverse) or never touch them.
 
-*Verdict:* The option premium moves more than the full modeled spread within one 5-minute bar far too often for a passive bid/ask∓1 tick to get paid to wait. **These are spread-crossing strategies by construction.** The only defensible passive leg is the **exit** (54.7% of E013 exit legs filled passively where urgency is lowest); entry remains taker. A valuable corollary: E011/E013's frozen 1.5 pts/leg taker slippage assumption is *not* optimistic — the maker alternative is strictly worse, so published net-PnL figures stand as upper bounds under execution risk, not fictions.
+*Verdict:* The option premium moves more than the full modeled spread within one 5-minute bar far too often for a passive bid/ask∓1 tick to get paid to wait. **This is a spread-crossing strategy by construction.** The only defensible passive leg is the **exit** (54.7% of exit legs filled passively where urgency is lowest); entry remains taker. Useful corollary for the surviving book: e013's frozen 1.5 pts/leg taker slippage assumption is *not* optimistic — the maker alternative is strictly worse, so its net-PnL figure stands as an upper bound under execution risk, not a fiction.
 
 #### 5.4 Phase 5 Execution Checklist & Code Deliverables
 - [x] Passive limit placement, bar-based queue & fill simulator (strict-through OR touch + 3× volume), adverse-selection penalty ([core/execution/maker.py](file:///d:/Code/dhanopt/core/execution/maker.py); 12 unit tests in [tests/test_maker_execution.py](file:///d:/Code/dhanopt/tests/test_maker_execution.py)).
-- [x] Non-invasive passive-execution seam in the E011 engine (`entry_bar`, `strike_override`, `entry_fill_*`, `exit_fill_*` on `simulate_session`; defaults reproduce published behavior — all 8 E011 tests still pass).
+- [x] Non-invasive passive-execution seam in the replay engine (`entry_bar`, `strike_override`, `entry_fill_*`, `exit_fill_*` on `simulate_session`). *The e011 engine it was wired into is void; the seam itself is engine-agnostic and is what Phase 6 needs.*
 - [x] Pre-registered three-gate protocol frozen before the run, with two pre-run mechanical amendments documented (put-leg sign correctness in the adverse flag; reprice pinned to taker-at-posting) ([experiments/e014_maker_tca/PREREG.md](file:///d:/Code/dhanopt/experiments/e014_maker_tca/PREREG.md)).
-- [x] Three-arm TCA replay across 293 VRP + 193 Pin Fly sessions with per-leg fill logs ([experiments/e014_maker_tca/tca.py](file:///d:/Code/dhanopt/experiments/e014_maker_tca/tca.py)); artifacts: `trades.csv` (1,165 session-arms), `maker_fills.csv` (3,467 leg fills), `metrics.json`.
-- [x] Fidelity integration tests: TAKER arms reproduce published E013 per-session and E011 aggregate PnL exactly (7 tests in [experiments/e014_maker_tca/test_e014.py](file:///d:/Code/dhanopt/experiments/e014_maker_tca/test_e014.py)).
+- [x] Three-arm TCA replay with per-leg fill logs ([experiments/e014_maker_tca/tca.py](file:///d:/Code/dhanopt/experiments/e014_maker_tca/tca.py)); artifacts: `trades.csv`, `maker_fills.csv` (3,467 leg fills), `metrics.json`.
+- [x] Fidelity integration test: the TAKER arm reproduces published e013 per-session PnL exactly.
 - [x] Findings & post-mortem ([experiments/e014_maker_tca/README.md](file:///d:/Code/dhanopt/experiments/e014_maker_tca/README.md)).
 - [ ] Phase 6 scope update: shadow-test the **hybrid exit-only** maker configuration (taker entry, passive exit) — the only maker variant that survived analysis.
 
-#### 5.5 Post-Phase-5 Production Analyses (E015 Book Composition + Spread-Width Sensitivity)
+#### 5.5 Post-Phase-5 Analyses — STATUS: VOID
 
-**A. Book composition — E011 × E013 on one ₹2L account** ([experiments/e015_book_combo/](file:///d:/Code/dhanopt/experiments/e015_book_combo/)):
-* Session overlap: **44 days** vs 40.1 expected if independent; same-day PnL correlation **+0.18** — the two books are nearly independent selectors.
-* Combined book (442 trade-days): **+₹11,58,293**, EV **+₹2,620.57/trade-day**, PF 4.93, Sharpe 4.14, **joint max DD −₹32,076 (16.0%)** vs E011-alone 25.6%. Diversification cuts the tail by ₹19.2k but does **not** reach the 8% ceiling — E011's choppy-regime cluster remains the binding constraint (fix = Phase 4 wings/regime scaling, not diversification).
-* Capital: avg margin use 56.9% of usable on trade days (upper-bound model); **10 of 44 overlap days breach the ₹1,82,000 usable margin under the conservative naked-straddle bound** (all 65-lot era, Dec-2024→Sep-2026). Action: verify iron-fly RMS margin; on confirmed breaches prioritize E013 for the slot (Sharpe 5.52 vs 2.85, DD 5.97% vs 25.6%).
+**A. E015 book composition (E011 × E013) — VOID ❌** ([experiments/e015_book_combo/](file:///d:/Code/dhanopt/experiments/e015_book_combo/))
+One leg of this book is void, so the combined book is void. Struck in full: the +₹11,58,293, the 4.14 Sharpe, the 16.0% joint DD, the EV per trade-day. **One number survives as a capital fact, not a PnL claim:** under a conservative naked-straddle margin bound, 10 of 44 historical overlap days would have breached the ₹1,82,000 usable margin on a combined ₹2L account. *If a single book is ever deployed, that arithmetic does not apply; if two are, it is a hard constraint to check before stacking.*
 
-**B. Spread-width sensitivity — 1.0→3.0 pts/leg**:
-Exact linear reconstruction over the frozen artifacts: `net(p) = gross − [friction_published + (p − 1.5) × 4 × lot]`.
-* Breakeven per-leg spread: **E011 13.0 pts**, **E013 10.7 pts** — the 1.5-pt assumption sits deep inside the safe zone.
-* At 3.0 pts/leg (2× baseline): E011 still **+₹6.47L** (EV +₹2,207, Sharpe 2.49); E013 **+₹3.47L** (EV +₹1,799, PF 6.75, Sharpe 4.68). E013's max DD stays under the ₹16k ceiling until ~4.9 pts/leg.
-* Conclusion: neither book flips negative under 3× execution-quality degradation; the binding risks are session selection and tail regimes, not spread width.
+**B. Spread-width sensitivity — half void.**
+The reconstruction method survives; the e011 column does not.
+* Breakeven per-leg spread: **e011 13.0 pts (VOID)**; **e013 10.7 pts (stands)** — the 1.5-pt assumption sits deep inside the safe zone.
+* At 3.0 pts/leg (2× baseline), e013 remains **+₹3.47L** (EV +₹1,799, PF 6.75, Sharpe 4.68), max DD under the ₹16k ceiling until ~4.9 pts/leg.
+* ~~e011 at 3.0 pts/leg: +₹6.47L, Sharpe 2.49~~ — **struck.**
 
-**C. E016 — VRP-gated Iron Fly (wings on the E011 straddle): KILLED ❌** ([experiments/e016_vrp_iron_fly/](file:///d:/Code/dhanopt/experiments/e016_vrp_iron_fly/)):
-* Frozen rule: symmetric wings at $W = \max(150, 1\sigma_{GK,10d} \sqrt{DTE/365}\, S)$ on the 50-pt grid, every other E011 rule untouched; plus a fixed-width diagnostic table (100–300 pts, not used for selection).
-* Result: **all 3 gates fail** — max DD **−₹2,03,033 (101.5%)** vs the ≤8% bar, EV **−₹535.63/trade**, total **−₹1,56,941**. Win rate collapses 61% → 29%. Every width from 100 to 300 pts fails Gate 1 by ~10×; the naked straddle strictly dominates all winged variants on this signal.
-* Mechanism (measured): E011's income is the option book (+₹9.02L of +₹10.11L gross); 1σ wings surrender ~89 pts/session (over half the straddle credit) while keeping the short-gamma sign. Per-session loss IS capped (₹7.5k < ₹9.2k naked) but the truncated upside cuts the win rate, so the fly bleeds less per bad day yet loses far more often — **wings cap the tail, not the drawdown**. Trend-day losses (2021-07-09, 2022-01-21, 2024-02-02) persist: spot between short strike and wing plus futures whipsaw. Contrast with E013: wings work there because the book is static 2h40m on compressed days with no hedge; E011 is 5h50m of dynamic hedging — holding dynamics, not wing width, decide the economics.
-* Next remediation (pre-register separately): regime-based position sizing (half size in elevated-RV regimes / after loss clusters) or trend-confirmation session stops — the drawdown is cumulative friction + hedge whipsaw, not convexity tail.
-* Engineering: BS helpers consolidated into [core/pricing.py](file:///d:/Code/dhanopt/core/pricing.py) (single source of truth; e011–e014 and tests refactored; all frozen numerics bit-for-bit identical).
+**C. E016 — VRP-gated Iron Fly (wings on the e011 straddle): VOID ❌** ([experiments/e016_vrp_iron_fly/](file:///d:/Code/dhanopt/experiments/e016_vrp_iron_fly/))
+Every gate failed — max DD −₹2,03,033 (101.5%), EV −₹535.63/trade, total −₹1,56,941, WR 61% → 29% — but the input signal was a contract-identity artifact, so **the measurement is struck, not merely negative.** Its one transferable idea survives as a structural observation, and it recurs independently in e018: *wide wings cap the tail, they do not cap the drawdown.* Any future defined-risk version of a volatility book must expect a lower win rate and a worse recovery, and must be gated on expectancy, not on worst-case loss.
 
-**D. E017 — Regime-based position sizing + E011 risk budget: SIZING KILLED ❌; ceiling structurally unreachable at ₹2L/1 lot** ([experiments/e017_regime_sizing/](file:///d:/Code/dhanopt/experiments/e017_regime_sizing/)):
-* Frozen rule: f = 0.5 when σ_GK,10d(t−1) > trailing-60-session 75th percentile OR the last two taken sessions both lost; else 1.0. Exact per-session fractional arithmetic on the frozen artifacts (`net(f) = f·net(1) − (1−f)·flat`, flat = ₹94.40 entry/exit + ₹23.60/hedge order — only ₹20/order fees are size-invariant; hedge counts are per-share-triggered, hence size-invariant; no re-simulation).
-* Result: **Gates 2–3 pass (EV +₹2,023, total +₹5.93L = 79.7% of base), Gate 1 fails** — max DD −₹51,274 → **−₹50,859 (25.4%)** with 118 of 293 sessions halved. Regime-only −₹49,270; cluster-only **−₹52,912 (worse than base)** — half-sizing after 2 losses shaves the recovery wins (marginal wins flip to losses under flat-fee drag).
-* Mechanism (measured): the max DD is a 21-month chop (86 sessions, 2022-11→2024-07) whose −₹45.4k net is **65% flat per-order fees** (905 hedge orders). DD(f) is U-shaped with minimum **−₹40,542 at f≈0.52**; below f≈0.6 sizing *deepens* DD (at f=0.25: −₹47.9k; f=0.06: −₹54.9k > full size) because the variable income shrinks but ₹83,166 of flat fees over the sample does not. **Breakeven fraction does not exist** — no f ∈ [0.05, 1] puts DD under ₹16k. Elevated-RV sessions are above-average winners (halving 79 of them cost ₹1.33L for ₹2k of DD relief).
-* Only *skipping* beats the floor (a skipped session pays no fees): the pre-declared cluster-stop variants — after k consecutive losses, skip the next 2 sessions — give **k=2: DD −₹33,991 (17.0%) at −₹7.3k/yr; k=3: DD −₹34,728 (17.4%) at +₹2.5k/yr, Pareto-dominating the base book** (+₹14.5k PnL, Sharpe 2.98). Pre-declared descriptive variants, not tuned post-hoc; adoption as operating policy requires a new pre-registration and still fails the 8% bar.
-* Risk-budget restatement: E011 at 1 lot needs **₹6,40,930** capital to fit an 8% DD budget (₹4,34,100 with the k=3 stop; ₹4,00,950 for the E015 combined book). On ₹2L the naked delta-hedged straddle's 8% ceiling is unreachable by wings (E016), fractional sizing, or cluster stops — remaining levers: fewer hedge orders (rebalance threshold), hybrid passive exits (E014), E015 pairing, or a larger capital base.
+**D. E017 — Regime sizing + risk budget: VOID ❌** ([experiments/e017_regime_sizing/](file:///d:/Code/dhanopt/experiments/e017_regime_sizing/))
+The sizing arithmetic was valid *on the frozen e011 book* and the mechanism is real and reusable: **the drawdown floor is the flat per-order fee treadmill, not convexity.** ₹83,166 of flat fees over the sample cannot be scaled away by sizing — DD(f) is U-shaped with a minimum at f≈0.52, and below that it gets *worse*. Only *skipping* a session moves the number, because a skipped session pays no fees. But every conclusion is attached to a void book: ~~"no fixed fraction of 1 lot reaches the 8% ceiling"~~ and ~~"e011 needs ₹6,40,930 of capital"~~ are statements about a bug. **What transfers:** any future option book at ₹2L must clear the same flat-fee arithmetic before a sizing study is worth running, and e018 hit the identical wall from a shorter holding period (₹861/trade against 75 pts of credit; breakeven half-spread **0.51 pts/leg**). *The credit-to-fee ratio, not the position size, is the binding constraint.*
 
 ---
 
 ### Phase 6: Shadow Execution & Production Gatekeeper
 *Objective:* Validate strategy execution in real time without capital risk using the live WebSocket/REST capture infrastructure.
+*Revised scope (2026-10-02):* with one candidate book, Phase 6 has exactly two jobs — observe **fills** for e013, and measure **drift** for the models the void/legacy engines produced. It is not waiting on new research.
 
 #### 6.1 Shadow-Trading Protocol (Zero Capital)
 1. **Collector Activation ([e009](file:///d:/Code/dhanopt/experiments/e009_wall_capture)):**
    * Ensure `capture_chains.py` is actively logging 60-second full OPTIDX snapshots via Windows Task Scheduler.
-   * **Capital Concurrency Check (E015):** before any session where both books signal, confirm combined broker RMS margin ≤ usable ₹1.82L. Under the conservative bound, 10 of 44 historical overlap days breached — if confirmed live, E013 takes the slot (higher Sharpe, lower DD).
+   * *Capital concurrency check:* the 10-of-44 overlap breach in §5.5 A only binds if a second book is ever added. For the single e013 candidate, verify its iron-fly RMS margin against ₹1,82,000 usable before the first order.
 2. **Virtual Ledger:**
    * Signals generate virtual paper orders timestamped to the millisecond.
    * Marks are recorded from the next available 60-second snapshot (`top_bid_price` / `top_ask_price`).
+   * **Contract identity is re-derived per signal row** from the trade date's own partition (invariant §5.6). The leak that voided e011 was a *shifted frame naming yesterday's contract*; a shadow runner that does not re-derive identity is where that would come back.
 3. **Pre-Live Acceptance Gate (Gate 0 Protocol):**
    A strategy graduates to live execution with 1 lot only if it meets all three conditions:
    * **Minimum OOS Sample:** $\ge 60$ live-monitored shadow trading sessions.
    * **Realized Drift:** Live execution slippage $\le 1.25\times$ the modeled slippage in backtest.
    * **Zero Breaches:** Maximum daily drawdown limit (₹2,500) never breached.
+   * *(added 2026-10-02)* **Contract identity:** 0 mismatches between the instrument signalled and the instrument quoted, over the same 60 sessions.
 
 ---
 
@@ -399,26 +431,38 @@ Exact linear reconstruction over the frozen artifacts: `net(p) = gross − [fric
 
 | Timeline | Phase | Deliverable | Exit Gate |
 |---|---|---|---|
-| **Day 1 (Immediate)** | **Phase 1** [DONE] | Execute Overnight Fund pledge via broker portal. | Margin confirmed active in terminal; collateral yield accrual begins. |
-| **Weeks 1–2** | **Phase 2** [DONE] | Build `e011_vrp_delta_hedge`: RV vs IV calculation + 5-min delta-neutral simulator. | Backtest report: Net +₹7.43L, Sharpe 2.85, PF 3.99; Max DD ₹51k motivates Phase 4 defined wings. |
-| **Weeks 3–4** | **Phase 3** [KILLED ❌] | Build `e012_skew_ratio`: Parameterize 2021–2026 skew and test 1×2 ratio structures. | Decisively failed all 3 kill bars (PF 0.13, -₹98.8k). Ratio debit bleed confirmed. |
-| **Weeks 5–6** | **Phase 4** [DONE / CANDIDATE 🎯] | Build `e013_0dte_pin`: Replay 576 sessions in `e008` testing 12:30 PM Iron Fly vs Breakout. | Net +₹4.14L, Net EV +₹2,148/trade, PF 9.41, WR 83.9%, Max DD ₹11.9k (5.97%). Candidate for e009 live chain fills. |
-| **Weeks 7–8** | **Phase 5** [DONE / GATE FAILED ❌] | Build `core/execution/maker.py` + e014 three-arm TCA (TAKER / MAKER-AON / HYBRID) on both validated books. | Maker fails Gates 2–3 decisively (EV −53%/−62% vs taker; aggregate 27%/22% < 60%). Taker entry retained; 1.5 pts/leg slippage assumption validated as non-optimistic. Passive exits → Phase 6 shadow. |
-| **Post-Phase 5** | **Analyses E015 + Spread Sweep** [DONE] | Book composition (E011 × E013) + spread-width sensitivity on the frozen books. | Combined DD 16.0% (still >8% — E011 tail binding); 10 overlap-day margin breaches under conservative bound; breakevens 13.0/10.7 pts/leg. Phase 6 must verify fly RMS margin before stacking both books. |
-| **Post-Phase 5** | **E016 Wings Test** [KILLED ❌] | VRP-gated iron fly (adaptive 1σ wings, all other E011 rules frozen). | All 3 gates fail: DD −₹2.03L (101.5%), EV −₹536, total −₹1.57L. Wings cap the tail, not the drawdown. Remediation moves to regime sizing / session stops. |
-| **Post-Phase 5** | **E017 Regime Sizing + Risk Budget** [KILLED ❌] | Half size on elevated-RV (trailing-60 75th pct) or after 2 losses; fixed-fraction + cluster-stop risk budget on the frozen book. | Sizing fails: DD 25.6% → 25.4%, EV +₹2,023 (intact). No fixed fraction reaches ₹16k (min −₹40.5k @ f≈0.52 — flat-fee floor). Only skip-rules move it: k=3 cluster stop → DD 17.4% at +₹14.5k vs base. 8% ceiling needs ₹4.3L+ capital or fewer orders. |
-| **Month 3+** | **Phase 6** | Run Shadow-Trading Engine alongside active [e009](file:///d:/Code/dhanopt/experiments/e009_wall_capture) collector. | 60 consecutive sessions without risk breach before 1-lot live deployment. |
+| **Day 1 (Immediate)** | **Phase 1** [DONE] | Execute Overnight Fund pledge via broker portal. | Margin confirmed active in terminal; collateral yield accrual begins. **The only positive cash flow in the program — do this first.** |
+| **Day 1 (Immediate)** | **e009** [DONE, NOT REGISTERED] | Register the `capture_chains.py` scheduled task. | Task runs; per-minute chain evidence accumulating. Nothing downstream of Phase 6 can start until this does. |
+| **Weeks 1–2** | **Phase 2** [VOID ❌] | ~~Build `e011_vrp_delta_hedge`: RV vs IV + 5-min delta-neutral simulator.~~ | **Voided 2026-10-02 — contract-identity defect. +₹7.43L, Sharpe 2.85 and every sensitivity table built on it are struck.** |
+| **Weeks 1–2 (retest)** | **Phase 2b** [DEAD ❌] | `e018_vrp_weekly`: contract-identity-correct signal, weekly 3–7 DTE condor held to expiry. | FAIL gates 2/3/5: EV −₹435, PF 0.82, DD 48.4%, breakeven 0.51 pts/leg. Gate 4 (contract identity) 0 violations — the fix works, the edge does not. |
+| **Same window** | **Phase 2c** [DEAD ❌] | `e019_momentum` / `e020_diluted_momentum`: free NSE cash store, 12-1 momentum, top-20 and top-decile. | Friction-decay premise falsified (daily beat monthly 3.8×). Excess Sharpe **−0.81** (e019) and **+0.04** (e020) — the e020 return is beta. Control reproduced e019 exactly. |
+| **Weeks 3–4** | **Phase 3** [KILLED ❌] | Build `e012_skew_ratio`: Parameterize 2021–2026 skew and test 1×2 ratio structures. | Decisively failed all 3 kill bars (PF 0.13, −₹98.8k). Ratio debit bleed confirmed. Labels are wall-free; verdict stands. |
+| **Weeks 5–6** | **Phase 4** [DONE / CANDIDATE 🎯] | Build `e013_0dte_pin`: Replay 576 sessions in `e008` testing 12:30 PM Iron Fly vs Breakout. | Net +₹4.14L, EV +₹2,148/trade, PF 9.41, WR 83.9%, Max DD ₹11.9k (5.97%). **Clean under both convictions** — the only surviving strategy claim. Awaiting e009 live chain fills. |
+| **Weeks 7–8** | **Phase 5** [DONE / GATE FAILED ❌] | Build `core/execution/maker.py` + e014 three-arm TCA. | Maker fails Gate 2 on the surviving book (EV +₹1,018 vs +₹2,149; 27.3% < 60%). Taker entry retained; 1.5 pts/leg slippage validated as non-optimistic. Passive exits → Phase 6 shadow. *E011 arm void.* |
+| **Post-Phase 5** | **Analyses E015–E017** [VOID ❌] | Book combination, spread-width sweep, wings test, regime sizing. | **All struck**: one void leg voids the combination; the wings and sizing studies were computed on a mispriced signal. The transferable findings (wings cap the tail not the drawdown; flat fees are the sizing floor; breakeven half-spread 0.51 pts/leg) are recorded in §5.5. |
+| **Month 3+** | **Phase 6** | Run Shadow-Trading Engine alongside the active e009 collector. | 60 consecutive sessions, zero identity mismatches, no risk breach, before 1-lot live deployment of e013. |
+| **After that** | **Nothing open** | — | The negative space is mapped (§1.1). A new idea must name which of the five loss modes in [RETROSPECTIVE.md §6](file:///d:/Code/dhanopt/RETROSPECTIVE.md) it escapes. |
 
 ---
 
 ## 5. Non-Negotiable Engineering Invariants (The Rulebook)
 
 1. **Information Time Horizon ($t-1$ Rule):** Any signal generated on bar $t$ must execute at bar $t+1$ Open. Same-bar execution is banned.
-2. **No Data Snooping:** Hyperparameters (e.g. VRP threshold, rebalancing trigger) must be frozen *before* walk-forward evaluation. No sweep optimization.
+2. **No Data Snooping:** Hyperparameters (e.g. VRP threshold, rebalancing trigger) must be frozen *before* walk-forward evaluation. No sweep optimization. A kill bar that fails, fails. It is never moved after the result is seen — and when a *prior* bar is revealed to have been set on a wrong premise (e019's 60-rebalance bar, unreachable against its own warm-up), the correction is disclosed in the successor's PREREG, not applied silently.
 3. **All Metrics Net of Zerodha Friction:** Never evaluate gross PnL. Every reported rupee must net:
    * Brokerage: ₹20/order leg.
-   * STT: 0.1% on option sell value (post-Oct 2024 SEBI mandate).
+   * STT: 0.1% on option sell value (post-Oct-2024 SEBI mandate).
    * Exchange turnover (0.0505%) + SEBI turnover (₹10/Cr) + Stamp duty (0.003%) + GST (18%).
    * Slippage: Minimum 1.5 points per option leg, 0.5 points per futures hedge.
+   * **Flat per-order fees are not a detail.** They are the sizing floor. Any book whose expectancy is smaller than `orders × ₹20 + taxes` is not a book (§5.5 D; e018's 0.51-pt breakeven half-spread).
 4. **Lot Size Compliance:** Every backtest must query `experiments/common/lots.py` to use the regulatory lot size active on `trade_date` (75, 50, 25, 75, or current 65).
 5. **Fail-Closed Architecture:** If options chain data, volatility estimators, or quote freshness are missing, the system outputs `NO TRADE`. It never interpolates synthetic winning defaults.
+6. **Contract Identity (v2, 2026-10-02 — the invariant that voided e011):** The instrument priced on day $t$ **is** the instrument that exists on day $t$. A `shift(1)` is a claim about *when*, not *what*, and a shifted frame can hand you yesterday's expiry, strike or tenor.
+   * Any signal row must be able to name its contract from the **trade date's own partition** — the front expiry is read out of day $t$'s data, the straddle out of day $t-1$'s.
+   * Identity is re-derived and asserted **per trade**, not once at load. Any mismatch fails the run.
+   * **Corollary — publish the signal's distribution before its PnL.** A mean IV of 0.476 with a max of 1.93 is a bug report, not a result. Implied volatility above 1.0, or a tenor that shortens rather than leads, is a hard stop.
+7. **The Leak Registry is Constitutional:** No module produces a PnL number without a declared information set (`t-1` / `day-t` / `none`) and a live-replicability flag in [experiments/common/leak_registry.py](file:///d:/Code/dhanopt/experiments/common/leak_registry.py); `day-t ⇒ not live` is enforced by test. A PnL number without a registry row is itself a test failure. **A conviction is also a registry row** — e011's defect is written there so it cannot be inherited a third time.
+8. **Benchmark First; Gate on Excess:** Every long-only equity book is reported against a **same-universe equal-weight benchmark** over the same days with the same costs, and the bar is on **excess Sharpe**, not on CAGR level. A long-only book in a bull market earns 21% CAGR at 1.15 Sharpe from beta alone; a momentum book that "returns 24.8%" while the universe returns 21.3% at 1.15 has returned nothing.
+9. **Impossibility Audits and Failure Diagnostics:** Any structure with a closed-form maximum loss (condor, fly, spread) is checked against it **per trade** — a violation is a pricing bug, not a tail event. Any book held over a horizon is reported with the **death rate** of its holdings versus the universe, because names that stop trading are silently dropped by every naive forward-return study. Both are gates in e018/e020 and both are cheap.
+10. **Controls Beat Diagnostics:** A follow-up engine **must re-run its predecessor's exact configuration and land on the same number to the decimal** before any of its new numbers are believed. e020 reproducing e019's −0.81 excess Sharpe is the standard. Fifty PnL metrics produce nothing; one control that reproduces a predecessor produces a decision.
+11. **Suspicion Scales with Roundness:** Win rates above 85%, profit factors above 5, and drawdowns that are suspiciously shallow are treated as presumptively broken until the information-set audit clears them. Real books have ugly tails.

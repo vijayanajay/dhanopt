@@ -1,0 +1,109 @@
+{
+  "verdict": "FAIL",
+  "failed_criteria": [
+    2,
+    3,
+    5
+  ],
+  "gates": [
+    {
+      "n": 1,
+      "name": "Capacity",
+      "bar": ">= 30 trades",
+      "observed": "141 trades (24.7/yr)",
+      "pass": true
+    },
+    {
+      "n": 2,
+      "name": "Edge",
+      "bar": "net EV/trade >= +400 AND PF >= 1.5, n >= 30",
+      "observed": "EV -434.8, PF 0.82, n=141",
+      "pass": false
+    },
+    {
+      "n": 3,
+      "name": "Drawdown",
+      "bar": "<= 15% of 2,00,000 (30,000)",
+      "observed": "-96,835 (48.42%)",
+      "pass": false
+    },
+    {
+      "n": 4,
+      "name": "Contract identity",
+      "bar": "0 mismatched expiries",
+      "observed": "0 violations across 141 trades",
+      "pass": true
+    },
+    {
+      "n": 5,
+      "name": "Friction resilience",
+      "bar": "net > 0 at 2.0x slippage",
+      "observed": "-92,306 at 2.0x; breakeven half-spread 0.51 pts",
+      "pass": false
+    },
+    {
+      "n": 6,
+      "name": "No roundness",
+      "bar": "WR <= 85%",
+      "observed": "63.8%",
+      "pass": true
+    }
+  ],
+  "metrics": {
+    "trades": 141,
+    "trades_per_year": 24.7,
+    "total_net": -61306.23,
+    "net_ev": -434.8,
+    "win_rate": 0.6383,
+    "profit_factor": 0.82,
+    "sharpe": -0.38,
+    "max_dd": 96834.78,
+    "max_dd_pct": 48.42,
+    "avg_friction": 860.54,
+    "identity_violations": 0,
+    "signals": 276,
+    "rejected": {
+      "identity": 0,
+      "no_spot": 0,
+      "no_trade": 135
+    }
+  },
+  "slippage_curve": [
+    {
+      "half_spread_pts": 1.0,
+      "total_net": -30306.23,
+      "net_ev": -214.94,
+      "profit_factor": 0.91,
+      "win_rate": 0.6383
+    },
+    {
+      "half_spread_pts": 1.5,
+      "total_net": -61306.23,
+      "net_ev": -434.8,
+      "profit_factor": 0.82,
+      "win_rate": 0.6383
+    },
+    {
+      "half_spread_pts": 2.0,
+      "total_net": -92306.23,
+      "net_ev": -654.65,
+      "profit_factor": 0.73,
+      "win_rate": 0.6312
+    },
+    {
+      "half_spread_pts": 2.5,
+      "total_net": -123306.23,
+      "net_ev": -874.51,
+      "profit_factor": 0.65,
+      "win_rate": 0.6099
+    },
+    {
+      "half_spread_pts": 3.0,
+      "total_net": -154306.23,
+      "net_ev": -1094.37,
+      "profit_factor": 0.58,
+      "win_rate": 0.6028
+    }
+  ],
+  "breakeven_half_spread_pts": 0.51
+}

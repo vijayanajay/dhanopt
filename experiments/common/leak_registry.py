@@ -82,14 +82,51 @@ REGISTRY: list[dict] = [
      "note": "label builder: ATM from the day's own 09:15 open (observable at entry), IV/dte from the"
              " prior-day partition exactly as e004; no wall input in the structure"},
     # e011 — True Variance Risk Premium (VRP) & Dynamic Delta-Hedging.
+    # CONVICTED 2026-10-02 of a CONTRACT-IDENTITY defect: the signal inverted the
+    # ATM straddle of the expiry nearest to t-1 and priced the t trade with that
+    # expiry's tenor. The contract tradable on t is the expiry nearest to t; when
+    # t-1 was an expiry day they differ, and the inverted "IV" was a bisection
+    # artifact (mean 0.476, max 1.929; 35 sessions > 1.00). Published +7,43,572 is
+    # void; e015/e016/e017 inherit it and are void-pending. Corrected by e018.
     {"module": "experiments/e011_vrp_delta_hedge/replay_vrp.py", "info": "t-1", "live": True,
-     "note": "gated by t-1 VRP >= 80th percentile; dynamic delta hedges executed strictly at bar t+1 Open"},
+     "note": "CONTRACT-IDENTITY BUG: priced todays contract with yesterdays tenor. "
+             "Published net PnL is void; see e018_vrp_weekly for the corrected engine"},
     # e012 — Volatility Skew & Asymmetric Ratio Architecture.
     {"module": "experiments/e012_skew_ratio/replay_skew.py", "info": "t-1", "live": True,
      "note": "gated by t-1 25-delta skew >= 90th percentile; 1x2 ratio spread with path exits; killed (PF 0.13, -98.8k)"},
     # e013 — 0DTE Expiry Microstructure & Pin Dynamics.
     {"module": "experiments/e013_0dte_pin/pin_replay.py", "info": "day-t", "live": False,
      "note": "evaluated at 12:30 IST, fills at 12:35 Open; Pin Iron Fly Net +414k / PF 9.41; requires e009 live chain for execution"},
+    # e018 — the CONTRACT-IDENTITY-CORRECT rebuild of the VRP book. Signal IV is
+    # inverted from the ATM straddle of the expiry nearest to the TRADE date
+    # (read out of t's own partition, so identity is a fact not an inference),
+    # observed in t-1's partition; entry at day-t EOD close, held to the expiry
+    # date's EOD close. Contract identity is re-derived and asserted per trade.
+    {"module": "experiments/e018_vrp_weekly/replay_weekly.py", "info": "t-1", "live": True,
+     "note": "gated by t-1 VRP >= p80 on the correct contract; 3-7 DTE defined-risk condor "
+             "held to expiry; FAILED gates 2/3/5 (EV -435, PF 0.82, DD 48%) — the VRP does not "
+             "survive correct contract identity at the weekly horizon"},
+    {"module": "experiments/e018_vrp_weekly/volatility_fixed.py", "info": "t-1", "live": True,
+     "note": "contract-identity-correct IV/VRP signal builder; front expiry resolved from the "
+             "trade date's own partition, straddle read from t-1"},
+    # e019 — cash-equity momentum on free NSE EOD. Universe is the union of every
+    # trading symbol (no index-membership list applied backwards => survivorship-
+    # safe by construction); liquidity filter is a trailing-252 median turnover
+    # ending t-1; signal is 12-1 momentum ranked on t-1; fills at the t close.
+    {"module": "experiments/e019_momentum/engine.py", "info": "t-1", "live": True,
+     "note": "cross-sectional 12-1 momentum on point-in-time liquid NSE cash names; FAILED "
+             "gates 2/3/6 — net CAGR 3.1% monthly vs 21.3% for the same-universe equal-weight "
+             "benchmark (excess Sharpe -0.81). Friction decay premise FALSIFIED: daily beat "
+             "monthly 3.8x and costs were ~3% of capital"},
+    {"module": "experiments/e019_momentum/download_cash.py", "info": "none", "live": True,
+     "note": "data fetch: free NSE daily cash bhavcopy, 1420 sessions x 6475 symbols, "
+             "idempotent, dual-URL (pre/post Aug-2024 archive cutover)"},
+    # e020 — E019's diluted follow-up: top DECILE (~135 names) instead of top-20.
+    # Same store, same point-in-time universe, same t-1 fill rule, same cost model.
+    {"module": "experiments/e020_diluted_momentum/run_e020.py", "info": "t-1", "live": True,
+     "note": "diluted 12-1 momentum, top decile monthly. FAILED gates 5/6: CAGR 24.8% but "
+             "excess Sharpe vs same-universe equal-weight only +0.04 (the return IS beta), and "
+             "top-bucket names still die 1.87x more often. Control reproduced e019's -0.81 exactly"},
 ]
 
 # e009 Phase B (if built) must register here BEFORE its first PnL number is committed:
