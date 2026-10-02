@@ -1,0 +1,17 @@
+{
+  "slippage_mult": 1.0,
+  "total_trades": 115,
+  "trades_per_year": 20.2,
+  "total_net_pnl": -98801.92,
+  "win_rate": 0.1478,
+  "profit_factor": 0.13,
+  "max_drawdown_inr": -97979.82,
+  "max_drawdown_pct": 48.99,
+  "sharpe_ratio": -3.06,
+  "max_consecutive_losses": 15,
+  "exits": {
+    "EOD": 102,
+    "STOP": 11,
+    "TARGET": 2
+  }
+}
