@@ -1,0 +1,54 @@
+{
+  "baseline_half_spread_pts": 1.5,
+  "leg_orders_per_session": 4,
+  "sessions": 193,
+  "breakeven_half_spread_pts": 10.704,
+  "sweep": [
+    {
+      "half_spread_pts": 1.0,
+      "total_net_pnl": 437251.03,
+      "net_ev_per_trade": 2265.55,
+      "win_rate": 0.8549,
+      "profit_factor": 10.49,
+      "sharpe_ratio": 5.79,
+      "max_drawdown_inr": -11340.2
+    },
+    {
+      "half_spread_pts": 1.5,
+      "total_net_pnl": 414721.03,
+      "net_ev_per_trade": 2148.81,
+      "win_rate": 0.8394,
+      "profit_factor": 9.41,
+      "sharpe_ratio": 5.52,
+      "max_drawdown_inr": -11940.2
+    },
+    {
+      "half_spread_pts": 2.0,
+      "total_net_pnl": 392191.03,
+      "net_ev_per_trade": 2032.08,
+      "win_rate": 0.829,
+      "profit_factor": 8.42,
+      "sharpe_ratio": 5.25,
+      "max_drawdown_inr": -12540.2
+    },
+    {
+      "half_spread_pts": 2.5,
+      "total_net_pnl": 369661.03,
+      "net_ev_per_trade": 1915.34,
+      "win_rate": 0.8238,
+      "profit_factor": 7.54,
+      "sharpe_ratio": 4.97,
+      "max_drawdown_inr": -13140.2
+    },
+    {
+      "half_spread_pts": 3.0,
+      "total_net_pnl": 347131.03,
+      "net_ev_per_trade": 1798.61,
+      "win_rate": 0.8187,
+      "profit_factor": 6.75,
+      "sharpe_ratio": 4.68,
+      "max_drawdown_inr": -13740.2
+    }
+  ],
+  "method": "net(p) = gross - [friction_published + (p - 1.5) * n_leg_orders * lot]; exact linear reconstruction, no re-simulation"
+}

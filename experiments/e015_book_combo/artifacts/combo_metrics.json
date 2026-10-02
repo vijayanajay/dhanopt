@@ -1,0 +1,104 @@
+{
+  "session_calendar_days": 1410,
+  "books": {
+    "e011_vrp_straddle": {
+      "sessions": 293,
+      "total_net_pnl": 743572.25,
+      "net_ev_per_trade": 2537.79,
+      "win_rate": 0.6109,
+      "profit_factor": 3.99,
+      "sharpe_ratio": 2.85,
+      "max_drawdown_inr": -51274.41,
+      "max_drawdown_pct_of_2l": 25.64
+    },
+    "e013_pin_iron_fly": {
+      "sessions": 193,
+      "total_net_pnl": 414721.03,
+      "net_ev_per_trade": 2148.81,
+      "win_rate": 0.8394,
+      "profit_factor": 9.41,
+      "sharpe_ratio": 5.52,
+      "max_drawdown_inr": -11940.2,
+      "max_drawdown_pct_of_2l": 5.97
+    }
+  },
+  "overlap": {
+    "e011_sessions": 293,
+    "e013_sessions": 193,
+    "overlap_sessions": 44,
+    "expected_overlap_if_independent": 40.1,
+    "overlap_ratio_observed": 0.228,
+    "same_day_pnl_correlation": 0.1815,
+    "same_day_joint_win_rate": 0.9318
+  },
+  "combined_book": {
+    "sessions": 442,
+    "total_net_pnl": 1158293.28,
+    "net_ev_per_trade": 2620.57,
+    "win_rate": 0.6833,
+    "profit_factor": 4.93,
+    "sharpe_ratio": 4.14,
+    "max_drawdown_inr": -32075.93,
+    "max_drawdown_pct_of_2l": 16.04
+  },
+  "capital": {
+    "usable_margin_inr": 182000.0,
+    "margin_model": "Phase 1 estimate_straddle_margin (7.84% of contract value); E013 = upper bound (wings only reduce it)",
+    "avg_margin_used_per_trade_day_ub": 103477.15,
+    "max_concurrent_margin_ub": 307025.96,
+    "capacity_breach_days_ub": 10,
+    "overlap_days_breached_ub": 10,
+    "margin_day_utilization_pct": 17.82,
+    "avg_utilization_on_trade_days_pct": 56.86
+  },
+  "yearly": [
+    {
+      "year": 2021,
+      "trade_days": 60,
+      "overlap_days": 9,
+      "e011_net": -21145.15,
+      "e013_net": 18765.94,
+      "combined_net": -2379.21
+    },
+    {
+      "year": 2022,
+      "trade_days": 71,
+      "overlap_days": 11,
+      "e011_net": 49860.79,
+      "e013_net": 54153.29,
+      "combined_net": 104014.08
+    },
+    {
+      "year": 2023,
+      "trade_days": 73,
+      "overlap_days": 6,
+      "e011_net": -33234.22,
+      "e013_net": 32784.88,
+      "combined_net": -449.34
+    },
+    {
+      "year": 2024,
+      "trade_days": 79,
+      "overlap_days": 9,
+      "e011_net": 137676.83,
+      "e013_net": 36869.84,
+      "combined_net": 174546.67
+    },
+    {
+      "year": 2025,
+      "trade_days": 100,
+      "overlap_days": 6,
+      "e011_net": 404682.87,
+      "e013_net": 191472.32,
+      "combined_net": 596155.19
+    },
+    {
+      "year": 2026,
+      "trade_days": 59,
+      "overlap_days": 3,
+      "e011_net": 205731.13,
+      "e013_net": 80674.76,
+      "combined_net": 286405.89
+    }
+  ]
+}
