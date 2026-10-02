@@ -1,0 +1,25 @@
+{
+  "total_evaluated_sessions": 576,
+  "total_traded_sessions": 275,
+  "fill_feasibility_in_e008_data": 0.0,
+  "pin_iron_fly": {
+    "trades": 193,
+    "trades_per_year": 33.9,
+    "total_net_pnl": 414721.03,
+    "net_ev_per_trade": 2148.81,
+    "win_rate": 0.8394,
+    "profit_factor": 9.41,
+    "max_drawdown_inr": -11940.2,
+    "sharpe_ratio": 5.52
+  },
+  "gamma_breakout": {
+    "trades": 82,
+    "trades_per_year": 14.4,
+    "total_net_pnl": -46269.29,
+    "net_ev_per_trade": -564.26,
+    "win_rate": 0.3171,
+    "profit_factor": 0.58,
+    "max_drawdown_inr": -49472.11,
+    "sharpe_ratio": -0.88
+  }
+}
