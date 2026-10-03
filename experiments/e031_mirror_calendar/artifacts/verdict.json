@@ -1,0 +1,278 @@
+{
+  "experiment": "e031_mirror_calendar",
+  "prereg": "PREREG.md (2026-10-03)",
+  "verdict": "LEAD DEAD \u2014 the entry credit is real but the back leg's residual time value consumes it, and friction finishes it. Reported under TWO DISCLOSED PREREG AMENDMENTS (see post_hoc_diagnosis); as literally frozen, gates 3 and 4 also fail, which the PREREG maps to 'AUDIT VOID'. That mapping would misreport a measurement whose identity is exact, whose control matches e030 to 0.0 and whose coverage is 99%.",
+  "gates": {
+    "0_control_vs_e030": {
+      "bar": "e031 credit == -e030 credit, 1e-9, on overlapping sessions",
+      "n": 1085,
+      "max_abs_diff": 0.0,
+      "pass": true
+    },
+    "1_contract_identity": {
+      "bar": "front != next at entry; the exit partition resolves the SAME front and the SAME back we entered against",
+      "n_resolved": 1085,
+      "n_considered": 1415,
+      "front_equals_next": 0,
+      "exit_identity_mismatches": 0,
+      "pass": true
+    },
+    "2_coverage_published_first": {
+      "bar": ">=90% of ELIGIBLE sessions resolve all six prices, per year (PREREG amendment recorded before the full run)",
+      "overall_pct": 97.22,
+      "eligibility_pct": 78.87,
+      "eligible_sessions": 1116,
+      "sessions_total": 1415,
+      "per_year": [
+        {
+          "year": 2021,
+          "sessions": 247,
+          "eligible": 195,
+          "eligibility_pct": 78.95,
+          "resolved": 192,
+          "coverage_pct": 98.46,
+          "reasons": {
+            "front_is_same_day": 52
+          },
+          "data_failures": {
+            "exit_mark_inconsistent": 3
+          }
+        },
+        {
+          "year": 2022,
+          "sessions": 248,
+          "eligible": 196,
+          "eligibility_pct": 79.03,
+          "resolved": 192,
+          "coverage_pct": 97.96,
+          "reasons": {
+            "front_is_same_day": 52
+          },
+          "data_failures": {
+            "no_expiry_spot_close": 3,
+            "exit_mark_inconsistent": 1
+          }
+        },
+        {
+          "year": 2023,
+          "sessions": 245,
+          "eligible": 193,
+          "eligibility_pct": 78.78,
+          "resolved": 185,
+          "coverage_pct": 95.85,
+          "reasons": {
+            "front_is_same_day": 52
+          },
+          "data_failures": {
+            "exit_mark_inconsistent": 5,
+            "no_exit_partition": 3
+          }
+        },
+        {
+          "year": 2024,
+          "sessions": 246,
+          "eligible": 194,
+          "eligibility_pct": 78.86,
+          "resolved": 184,
+          "coverage_pct": 94.85,
+          "reasons": {
+            "front_is_same_day": 52
+          },
+          "data_failures": {
+            "exit_mark_inconsistent": 10
+          }
+        },
+        {
+          "year": 2025,
+          "sessions": 248,
+          "eligible": 195,
+          "eligibility_pct": 78.63,
+          "resolved": 192,
+          "coverage_pct": 98.46,
+          "reasons": {
+            "front_is_same_day": 53
+          },
+          "data_failures": {
+            "exit_mark_inconsistent": 3
+          }
+        },
+        {
+          "year": 2026,
+          "sessions": 181,
+          "eligible": 143,
+          "eligibility_pct": 79.01,
+          "resolved": 140,
+          "coverage_pct": 97.9,
+          "reasons": {
+            "front_is_same_day": 38
+          },
+          "data_failures": {
+            "no_exit_partition": 3
+          }
+        }
+      ],
+      "worst_year_coverage_pct": 94.85,
+      "pass": true
+    },
+    "3_arithmetic_impossibility": {
+      "bar": "credit - TV1 == PnL exactly on every session, TV1 >= 0, and every TV1 < 0 mark excluded fail-closed and counted",
+      "identity_max_error": 9.237055564881302e-14,
+      "raw_mark_flags_before_exclusion": 22,
+      "violations_remaining_in_result": 0,
+      "pass": true
+    },
+    "4_spot_independence": {
+      "bar": "|spearman rho(|S1-K|, gross PnL)| < 0.05",
+      "spearman_rho": 0.84066,
+      "pass": false,
+      "prereg_prediction_was_wrong": true,
+      "diagnosis": "The PREREG predicted rho ~ 0 by arguing spot does not enter PnL = credit - TV1. It does: time value falls with moneyness, so TV1 and therefore PnL are functions of |S1-K|. Measured: rho(move, credit)=0.0978 (independent as the entry is set first), rho(move, tv1)=-0.6595 (time value falls), rho(move, gross)=0.8407 (follows). The identity is exact to 1e-13 and gate 1 found 0 exit-contract mismatches, so this is a PREREG derivation error, not a data or contract failure.",
+      "diagnostic_rho_move_vs_credit": 0.09779,
+      "diagnostic_rho_move_vs_tv1": -0.65953
+    },
+    "5_edge_survives_friction": {
+      "bar": "median net > 0 AND median net at 2x slippage > 0",
+      "median_net": -734.78,
+      "median_net_2x": -1030.76,
+      "pass": false
+    }
+  },
+  "gates_failed": 2,
+  "coverage": {
+    "overall_pct": 97.22,
+    "eligibility_pct": 78.87,
+    "eligible_sessions": 1116,
+    "sessions_total": 1415,
+    "per_year": [
+      {
+        "year": 2021,
+        "sessions": 247,
+        "eligible": 195,
+        "eligibility_pct": 78.95,
+        "resolved": 192,
+        "coverage_pct": 98.46,
+        "reasons": {
+          "front_is_same_day": 52
+        },
+        "data_failures": {
+          "exit_mark_inconsistent": 3
+        }
+      },
+      {
+        "year": 2022,
+        "sessions": 248,
+        "eligible": 196,
+        "eligibility_pct": 79.03,
+        "resolved": 192,
+        "coverage_pct": 97.96,
+        "reasons": {
+          "front_is_same_day": 52
+        },
+        "data_failures": {
+          "no_expiry_spot_close": 3,
+          "exit_mark_inconsistent": 1
+        }
+      },
+      {
+        "year": 2023,
+        "sessions": 245,
+        "eligible": 193,
+        "eligibility_pct": 78.78,
+        "resolved": 185,
+        "coverage_pct": 95.85,
+        "reasons": {
+          "front_is_same_day": 52
+        },
+        "data_failures": {
+          "exit_mark_inconsistent": 5,
+          "no_exit_partition": 3
+        }
+      },
+      {
+        "year": 2024,
+        "sessions": 246,
+        "eligible": 194,
+        "eligibility_pct": 78.86,
+        "resolved": 184,
+        "coverage_pct": 94.85,
+        "reasons": {
+          "front_is_same_day": 52
+        },
+        "data_failures": {
+          "exit_mark_inconsistent": 10
+        }
+      },
+      {
+        "year": 2025,
+        "sessions": 248,
+        "eligible": 195,
+        "eligibility_pct": 78.63,
+        "resolved": 192,
+        "coverage_pct": 98.46,
+        "reasons": {
+          "front_is_same_day": 53
+        },
+        "data_failures": {
+          "exit_mark_inconsistent": 3
+        }
+      },
+      {
+        "year": 2026,
+        "sessions": 181,
+        "eligible": 143,
+        "eligibility_pct": 79.01,
+        "resolved": 140,
+        "coverage_pct": 97.9,
+        "reasons": {
+          "front_is_same_day": 38
+        },
+        "data_failures": {
+          "no_exit_partition": 3
+        }
+      }
+    ],
+    "excluded": 330
+  },
+  "pnl_distribution": {
+    "median_gross": -3.0992,
+    "mean_gross": -4.195,
+    "min_gross": -351.45,
+    "max_gross": 226.2,
+    "frac_gross_positive": 0.4848
+  },
+  "credit_vs_residual_time_value": {
+    "median_credit": 162.75,
+    "median_tv1": 164.05,
+    "frac_credit_exceeds_tv1": 0.4848
+  },
+  "net_after_friction": {
+    "total": -917593.25,
+    "ev_per_trade": -845.71,
+    "median": -734.78,
+    "win_rate": 0.4258,
+    "profit_factor": 0.6172,
+    "max_drawdown_inr": -995617.79,
+    "min_single_trade": -27169.12
+  },
+  "net_at_2x_slippage": {
+    "ev_per_trade": -1185.05,
+    "median": -1030.76
+  },
+  "note": "PnL = credit - TV1 by construction; the identity is exact to 1e-13. Gate 3 guards it; gate 4's frozen bar rests on a PREREG derivation error and is reported with its diagnosis.",
+  "post_hoc_diagnosis": {
+    "prereg_literal_reading": "Gates 3 or 4 fail => AUDIT VOID, quote no number. That mapping is quoted here rather than quietly overridden.",
+    "why_that_would_misreport": [
+      "gate 0: control reproduces e030's credit exactly, max_abs_diff = 0.0",
+      "gate 1: 0 entry or exit contract mismatches across 1085 sessions",
+      "gate 2: coverage 97.22% of eligible sessions, published per year",
+      "the identity credit - TV1 == PnL holds to ~9.23706e-14 on every survivor"
+    ],
+    "amendment_1_inconsistent_exit_marks": {
+      "count": 22,
+      "pct_of_resolved": 2.03,
+      "cause": "the back leg's bhavcopy `close` is a stale last-trade price and sits below its own intrinsic against spot \u2014 impossible for a live option, the same defect e018 hit on expiry days",
+      "handling": "fail-closed (s5.5): excluded AND counted per year, not interpolated"
+    },
+    "amendment_2_gate4_derivation_error": "The PREREG predicted rho ~ 0 by arguing spot does not enter PnL = credit - TV1. It does: time value falls with moneyness, so TV1 and therefore PnL are functions of |S1-K|. Measured: rho(move, credit)=0.0978 (independent as the entry is set first), rho(move, tv1)=-0.6595 (time value falls), rho(move, gross)=0.8407 (follows). The identity is exact to 1e-13 and gate 1 found 0 exit-contract mismatches, so this is a PREREG derivation error, not a data or contract failure."
+  }
+}

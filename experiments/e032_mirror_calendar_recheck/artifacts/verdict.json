@@ -1,0 +1,298 @@
+{
+  "experiment": "e032_mirror_calendar_recheck",
+  "prereg": "PREREG.md (2026-10-03, frozen before any code in this directory)",
+  "verdict": "LEAD DEAD — the entry credit is real but the back leg's residual time value consumes it, and friction finishes it. Gates all pass as frozen; no PREREG amendment was needed or applied.",
+  "gates": {
+    "0_control_reproduces_predecessor": {
+      "bar": "fresh e031.run() equals e031's recorded verdict.json exactly on all 36 pinned figures, AND e031's control vs e030 passed at 1e-9",
+      "provenance": "CARRIED (s5.10 control-reproduces-predecessor)",
+      "pinned_figures": 36,
+      "drifted": {},
+      "chain_e031_vs_e030": true,
+      "pass": true
+    },
+    "1_contract_identity": {
+      "bar": "front != next on every resolved session; zero exit-identity mismatch rows across all sessions",
+      "provenance": "CARRIED",
+      "n_resolved": 1085,
+      "n_considered": 1415,
+      "front_equals_next": 0,
+      "exit_identity_mismatches": 0,
+      "inherited_exit_path_check_from_e031": true,
+      "note": "the exit partition is read inside e031's session walk; e032 re-derives what the rows support and marks the rest as inherited rather than claiming to have repeated it",
+      "pass": true
+    },
+    "2_coverage_per_year": {
+      "bar": ">= 90% of ELIGIBLE sessions resolve, per year, every year",
+      "provenance": "CARRIED (bar restated by e031 before its full run, unchanged)",
+      "overall_pct": 97.22,
+      "eligible_sessions": 1116,
+      "sessions_total": 1415,
+      "worst_year_coverage_pct": 94.85,
+      "per_year": [
+        {
+          "year": 2021,
+          "sessions": 247,
+          "eligible": 195,
+          "eligibility_pct": 78.95,
+          "resolved": 192,
+          "coverage_pct": 98.46,
+          "ineligible_reasons": {
+            "front_is_same_day": 52
+          },
+          "data_failures": {
+            "exit_mark_inconsistent": 3
+          }
+        },
+        {
+          "year": 2022,
+          "sessions": 248,
+          "eligible": 196,
+          "eligibility_pct": 79.03,
+          "resolved": 192,
+          "coverage_pct": 97.96,
+          "ineligible_reasons": {
+            "front_is_same_day": 52
+          },
+          "data_failures": {
+            "no_expiry_spot_close": 3,
+            "exit_mark_inconsistent": 1
+          }
+        },
+        {
+          "year": 2023,
+          "sessions": 245,
+          "eligible": 193,
+          "eligibility_pct": 78.78,
+          "resolved": 185,
+          "coverage_pct": 95.85,
+          "ineligible_reasons": {
+            "front_is_same_day": 52
+          },
+          "data_failures": {
+            "exit_mark_inconsistent": 5,
+            "no_exit_partition": 3
+          }
+        },
+        {
+          "year": 2024,
+          "sessions": 246,
+          "eligible": 194,
+          "eligibility_pct": 78.86,
+          "resolved": 184,
+          "coverage_pct": 94.85,
+          "ineligible_reasons": {
+            "front_is_same_day": 52
+          },
+          "data_failures": {
+            "exit_mark_inconsistent": 10
+          }
+        },
+        {
+          "year": 2025,
+          "sessions": 248,
+          "eligible": 195,
+          "eligibility_pct": 78.63,
+          "resolved": 192,
+          "coverage_pct": 98.46,
+          "ineligible_reasons": {
+            "front_is_same_day": 53
+          },
+          "data_failures": {
+            "exit_mark_inconsistent": 3
+          }
+        },
+        {
+          "year": 2026,
+          "sessions": 181,
+          "eligible": 143,
+          "eligibility_pct": 79.01,
+          "resolved": 140,
+          "coverage_pct": 97.9,
+          "ineligible_reasons": {
+            "front_is_same_day": 38
+          },
+          "data_failures": {
+            "no_exit_partition": 3
+          }
+        }
+      ],
+      "pass": true
+    },
+    "3_arithmetic_impossibility": {
+      "bar": "credit - TV1 == PnL to 1e-06 on every survivor; TV1 >= -1e-06 on survivors; every inconsistent mark excluded AND counted",
+      "provenance": "CARRIED",
+      "identity_max_error": 9.237055564881302e-14,
+      "tv1_min_on_survivors": 0.5,
+      "raw_mark_flags_before_exclusion": 22,
+      "violations_remaining_in_result": 0,
+      "excluded_mark_still_marked_ok": 0,
+      "pass": true
+    },
+    "4a_wrong_leg_detector": {
+      "bar": "|spearman rho(|S1-K|, credit)| < 0.2",
+      "provenance": "NEW with e031's rho=0.0978 in view; VOID-ONLY by the PREREG constraint (a data-informed bar may not produce a positive verdict)",
+      "spearman_rho": 0.09779,
+      "why": "the entry credit is fixed at entry, before the move exists, so it cannot be caused by it; a large rho means an entry or exit leg came from the wrong contract -- the question gate 1 asks structurally",
+      "pass": true
+    },
+    "4b_time_value_sign": {
+      "bar": "spearman rho(|S1-K|, TV1) < 0  (a sign, not a magnitude)",
+      "provenance": "NEW; the SIGN is imposed by option theory and contains no threshold that could have been adjusted after the fact",
+      "spearman_rho": -0.65953,
+      "why": "a straddle's time value falls with moneyness, so a positive rho means the quantity called TV1 is not a residual time value and B1 or F1 came from the wrong contract",
+      "pass": true
+    },
+    "5_edge_survives_friction": {
+      "bar": "median net > 0 AND median net at 2x slippage > 0",
+      "provenance": "CARRIED; sign-only -- there is no threshold in this bar to tune",
+      "median_net": -734.78,
+      "median_net_2x": -1030.76,
+      "pass": false
+    }
+  },
+  "gates_failed": 1,
+  "audit_gates": [
+    "0_control_reproduces_predecessor",
+    "1_contract_identity",
+    "2_coverage_per_year",
+    "3_arithmetic_impossibility",
+    "4a_wrong_leg_detector",
+    "4b_time_value_sign"
+  ],
+  "prereg_status": {
+    "amendments_needed": 0,
+    "override_clause_used": false,
+    "sample_already_seen": true,
+    "produces_new_evidence": false,
+    "what_it_produces": "a verdict label whose gates were all defensible when frozen, with every bar classified CARRIED or NEW",
+    "constraint": "no NEW bar can produce a positive verdict; gate 5 alone decides DEAD vs ELIGIBLE and its bar is carried and sign-only, so the verdict is invariant to every threshold introduced in the PREREG"
+  },
+  "coverage": {
+    "overall_pct": 97.22,
+    "eligible_sessions": 1116,
+    "sessions_total": 1415,
+    "per_year": [
+      {
+        "year": 2021,
+        "sessions": 247,
+        "eligible": 195,
+        "eligibility_pct": 78.95,
+        "resolved": 192,
+        "coverage_pct": 98.46,
+        "ineligible_reasons": {
+          "front_is_same_day": 52
+        },
+        "data_failures": {
+          "exit_mark_inconsistent": 3
+        }
+      },
+      {
+        "year": 2022,
+        "sessions": 248,
+        "eligible": 196,
+        "eligibility_pct": 79.03,
+        "resolved": 192,
+        "coverage_pct": 97.96,
+        "ineligible_reasons": {
+          "front_is_same_day": 52
+        },
+        "data_failures": {
+          "no_expiry_spot_close": 3,
+          "exit_mark_inconsistent": 1
+        }
+      },
+      {
+        "year": 2023,
+        "sessions": 245,
+        "eligible": 193,
+        "eligibility_pct": 78.78,
+        "resolved": 185,
+        "coverage_pct": 95.85,
+        "ineligible_reasons": {
+          "front_is_same_day": 52
+        },
+        "data_failures": {
+          "exit_mark_inconsistent": 5,
+          "no_exit_partition": 3
+        }
+      },
+      {
+        "year": 2024,
+        "sessions": 246,
+        "eligible": 194,
+        "eligibility_pct": 78.86,
+        "resolved": 184,
+        "coverage_pct": 94.85,
+        "ineligible_reasons": {
+          "front_is_same_day": 52
+        },
+        "data_failures": {
+          "exit_mark_inconsistent": 10
+        }
+      },
+      {
+        "year": 2025,
+        "sessions": 248,
+        "eligible": 195,
+        "eligibility_pct": 78.63,
+        "resolved": 192,
+        "coverage_pct": 98.46,
+        "ineligible_reasons": {
+          "front_is_same_day": 53
+        },
+        "data_failures": {
+          "exit_mark_inconsistent": 3
+        }
+      },
+      {
+        "year": 2026,
+        "sessions": 181,
+        "eligible": 143,
+        "eligibility_pct": 79.01,
+        "resolved": 140,
+        "coverage_pct": 97.9,
+        "ineligible_reasons": {
+          "front_is_same_day": 38
+        },
+        "data_failures": {
+          "no_exit_partition": 3
+        }
+      }
+    ],
+    "excluded": 330
+  },
+  "pnl_distribution": {
+    "median_gross": -3.0992,
+    "mean_gross": -4.195,
+    "min_gross": -351.45,
+    "max_gross": 226.2,
+    "frac_gross_positive": 0.4848
+  },
+  "credit_vs_residual_time_value": {
+    "median_credit": 162.75,
+    "median_tv1": 164.05,
+    "frac_credit_exceeds_tv1": 0.4848,
+    "rho_move_vs_credit": 0.09779,
+    "rho_move_vs_tv1": -0.65953,
+    "rho_move_vs_gross": 0.84066
+  },
+  "net_after_friction": {
+    "total": -917593.25,
+    "ev_per_trade": -845.71,
+    "median": -734.78,
+    "win_rate": 0.4258,
+    "profit_factor": 0.6172,
+    "max_drawdown_inr": -995617.79,
+    "min_single_trade": -27169.12
+  },
+  "net_at_2x_slippage": {
+    "ev_per_trade": -1185.05,
+    "median": -1030.76
+  },
+  "inherited_from": {
+    "measurement": "experiments/e031_mirror_calendar/mirror_calendar.run()",
+    "e031_gate0_vs_e030": true,
+    "chain": "e032 -> e031 -> e030, every link checked"
+  }
+}

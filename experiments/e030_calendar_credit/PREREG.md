@@ -15,7 +15,7 @@ does not have (§2.1). Its proposed structure is:
 The repo has already written down, twice, a mechanism that predicts this dies
 before any PnL is computed:
 
-- **§5.5 D:** "the drawdown floor is the flat per-order fee treadmill, not
+- **§5.5 E:** "the drawdown floor is the flat per-order fee treadmill, not
   convexity… *The credit-to-fee ratio, not the position size, is the binding
   constraint.*"
 - **§2.2:** every Phase 7 test needing absent data "is a data project wearing a

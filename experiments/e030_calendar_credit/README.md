@@ -53,7 +53,7 @@ before any exit, before ₹559 of costs. The §7.3 trigger (`IV_front − IV_nex
 P90`) was designed to catch an *inverted* term structure. In six years of daily
 data there is nothing to catch.
 
-This is exactly the mechanism §5.5 D and §2.2 wrote down before this experiment
+This is exactly the mechanism §5.5 E and §2.2 wrote down before this experiment
 existed — *the credit-to-fee ratio, not the position size, is the binding
 constraint* — applied here as a **pre-registration gate instead of a
 post-mortem**. An hour of arithmetic replaced a month of surface-fitting code.
