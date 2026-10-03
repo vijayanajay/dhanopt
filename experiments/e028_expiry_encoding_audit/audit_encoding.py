@@ -281,6 +281,7 @@ def run() -> tuple[pd.DataFrame, dict]:
 
     verdict_doc = {
         "experiment": "e028_expiry_encoding_audit",
+        "prereg": "frozen",
         "verdict": verdict,
         "defect": "df['expiry'] == str(front_expiry): a typed date compared against a "
                   "raw string. The store holds DD-Mon-YYYY (2021-2024) and ISO (2025+), "

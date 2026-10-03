@@ -1,0 +1,7 @@
+{
+  "experiment": "e011_vrp_delta_hedge",
+  "prereg": "frozen",
+  "verdict": "VOID — CONTRACT-IDENTITY BUG: priced t's contract with t-1's expiry and tenor. Mean signal IV 0.476, max 1.93, 35 sessions > 1.00; the gate fired 2.55× on roll days. No number from it may be quoted.",
+  "claims_no_pnl": true,
+  "provenance": "Transcribed 2026-10-03 from RETROSPECTIVE.md section 6, the audited record. This experiment predates artifacts/verdict.json, so no engine wrote this file; it is a transcription, not an engine output, and its verdict string is the source of truth for record.py's status."
+}

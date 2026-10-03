@@ -1,4 +1,6 @@
 {
+  "experiment": "e020_diluted_momentum",
+  "prereg": "frozen",
   "verdict": "FAIL",
   "failed_criteria": [
     5,

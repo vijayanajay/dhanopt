@@ -1,8 +1,9 @@
-"""The record must cover every experiment on disk — and nothing else.
+"""The record must cover every experiment on disk — and agree with it.
 
 RETROSPECTIVE.md §6 claims to be "the complete record — every experiment, its
-honest verdict". It drifted: e030 had a real, verified verdict and no row, and
-the prose count of experiments was wrong in both directions.
+honest verdict". It drifted: e030 had a real, verified verdict and no row, the
+prose count of experiments was wrong in both directions, and 17 experiments had
+no machine-readable verdict at all.
 
 Invariant §5.13 says a data claim is a testable assertion. This applies that to
 the record itself, comparing the documents against `experiments.common.record`
@@ -10,16 +11,22 @@ the record itself, comparing the documents against `experiments.common.record`
 
 Failures this catches:
 
-  * an experiment that ran and produced artifacts but has no verdict row —
-    the e030 gap, invisible until someone reads the table against `ls`;
-  * a row for an experiment that does not exist — e021–e025 are Phase 7
-    roadmap ids that never started, and five empty rows would imply they did;
-  * an experiment directory with no PREREG — the e021–e025 problem in reverse,
-    a reserved number that has begun to look like work;
-  * a prose count that no longer matches disk.
+  * an experiment that ran but has no verdict row — the e030 gap;
+  * a row for an experiment that does not exist — e021–e025 are roadmap ids
+    that never started, and five empty rows would imply they did;
+  * a prose count that no longer matches disk;
+  * an experiment with no verdict at all, or one that does not say what it
+    concluded in a form a machine can read;
+  * a document status cell that contradicts the experiment's own verdict —
+    e.g. a run that concluded AUDIT VOID being recorded as a result.
 
-Cheap by construction: no data store, no fixtures, no network. It reads one
-markdown file and one directory listing.
+**Scope: RETROSPECTIVE §6 only, deliberately.** actionplan §1.1 is not checked
+mechanically, because its Status column answers a *different question*. It is
+the Void & Dead Ledger: "VOID" there means the claimed number may not be
+quoted. §6's status disposes of the *idea*. e001 is VOID in §1.1 (the +₹9.41L
+was built on a leak) and DEAD in §6 (wall-free legs lose, so the hypothesis
+dies) — both correct, and a check that demanded agreement would be wrong. This
+scope decision is asserted below so it cannot be widened by accident.
 """
 from __future__ import annotations
 
@@ -27,34 +34,41 @@ import re
 import unittest
 from pathlib import Path
 
-from experiments.common.record import Experiment, experiments, ids
+from experiments.common.record import experiments, ids, status_of
+
+_STATUSES = frozenset({
+    "DEAD", "STRUCK", "SUPERSEDED", "VOID", "MOOT",
+    "CLOSED", "SUCCESS", "ELIGIBLE", "INSTRUMENT",
+})
 
 ROOT = Path(__file__).resolve().parents[1]
-EXPERIMENTS = ROOT / "experiments"
 RETROSPECTIVE = ROOT / "RETROSPECTIVE.md"
-TEMPLATE = EXPERIMENTS / "PRE_REGISTRATION_TEMPLATE.md"
+ACTIONPLAN = ROOT / "actionplan.md"
+TEMPLATE = ROOT / "experiments" / "PRE_REGISTRATION_TEMPLATE.md"
 
 ROW_RE = re.compile(r"^\| \*{0,2}(e\d{3})\*{0,2} \|", re.M)
 COUNT_RE = re.compile(r"(\d+) of them at this writing")
 
-# Experiments that predate the PREREG convention. Named rather than suppressed:
-# the set is a reconciliation, so it fails in BOTH directions — a new experiment
-# without a PREREG fails, and adding a PREREG to one of these fails until the
-# set is shrunk. e001-e008 and e015 were written before pre-registration was a
-# rule here; every experiment from e009 on carries one.
-LEGACY_NO_PREREG = frozenset({
-    "e001", "e002", "e003", "e004", "e005", "e006", "e007", "e008", "e015",
-})
 
-
-def recorded_ids() -> set[str]:
-    """Ids with a row in §6's table — the section's prose is excluded."""
+def section6_rows() -> dict[str, str]:
+    """id -> the row's Status cell (last column) in RETROSPECTIVE §6."""
     txt = RETROSPECTIVE.read_text(encoding="utf-8")
     try:
         section = txt.split("## 6. The complete record", 1)[1].split("## 7.", 1)[0]
     except IndexError as exc:  # pragma: no cover - structural break, not drift
         raise AssertionError("RETROSPECTIVE.md has no §6 or §7 heading") from exc
-    return set(ROW_RE.findall(section))
+    out: dict[str, str] = {}
+    for line in section.splitlines():
+        m = ROW_RE.match(line)
+        if not m:
+            continue
+        cells = [c.strip() for c in line.strip().strip("|").split("|")]
+        out[m.group(1)] = cells[-1]
+    return out
+
+
+def recorded_ids() -> set[str]:
+    return set(section6_rows())
 
 
 class TestRecordCoversEveryExperiment(unittest.TestCase):
@@ -89,38 +103,78 @@ class TestRecordCoversEveryExperiment(unittest.TestCase):
         self.assertIsNotNone(
             m, "§6 no longer states 'N of them at this writing'; "
                "either restore the checkable form or update this test")
-        stated = int(m.group(1))
-        actual = len(ids())
-        self.assertEqual(
-            stated, actual,
-            f"§6 says {stated} experiments, disk has {actual}")
+        self.assertEqual(int(m.group(1)), len(ids()))
 
     def test_the_struck_count_is_gone(self):
         """'Twenty-eight' was asserted in two places and was wrong."""
-        txt = RETROSPECTIVE.read_text(encoding="utf-8")
-        self.assertNotIn("twenty-eight experiments", txt)
+        self.assertNotIn("twenty-eight experiments",
+                         RETROSPECTIVE.read_text(encoding="utf-8"))
+
+
+class TestStatusAgreesWithTheRecord(unittest.TestCase):
+    """The handwritten Status column must say what the experiment concluded.
+
+    Both sides reduce through record.status_of, so a doc cell that restates the
+    same disposition in different words still passes — but a row that calls an
+    AUDIT VOID run a result does not.
+    """
+
+    def test_every_section6_status_cell_matches_its_verdict(self):
+        rows = section6_rows()
+        self.assertTrue(rows)
+        mismatches = []
+        for e in experiments():
+            cell = rows.get(e.id)
+            if cell is None:
+                continue  # covered by the row-existence test
+            shown = cell.replace("*", "").strip()
+            if not shown.upper().startswith(e.status):
+                mismatches.append(f"{e.id}: §6 says {shown!r}, "
+                                  f"verdict implies {e.status}")
+        self.assertEqual(mismatches, [], "\n".join(mismatches))
+
+    def test_actionplan_ledger_is_deliberately_not_checked(self):
+        """§1.1 answers a different question (is the *claim* quotable), so its
+        Status column may legitimately differ from §6's. Recorded here so the
+        scope cannot silently widen — or silently narrow."""
+        txt = (ROOT / "tests" / "test_record.py").read_text(encoding="utf-8")
+        self.assertIn("actionplan §1.1 is not checked", txt)
+        self.assertIn("§6 only, deliberately", txt)
+        self.assertTrue(ACTIONPLAN.exists())
 
 
 class TestEveryExperimentIsPreRegistered(unittest.TestCase):
-    """§5.16's upstream rule: an ID exists only once its PREREG is frozen.
+    """An ID exists only once its PREREG is frozen — and history is declared,
+    not suppressed.
 
     e021–e025 were reserved on the roadmap for tests that could not start and
-    now read as if they ran. The fix is not to delete those rows but to make a
-    directory without a PREREG impossible to leave behind.
+    now read as if they ran. e001–e008 and e015 predate the convention and can
+    never be pre-registered, so the honest record is a *declaration* by each of
+    them, not a list held in this file.
     """
 
-    def test_the_legacy_set_is_exactly_the_unregistered_set(self):
-        unregistered = {e.id for e in experiments() if not e.has_prereg}
-        self.assertEqual(
-            unregistered, set(LEGACY_NO_PREREG),
-            "reconcile: a NEW experiment without a PREREG must be added here "
-            "deliberately (don't), or given a PREREG; a legacy one that gained "
-            "a PREREG should be removed from LEGACY_NO_PREREG")
-
-    def test_the_legacy_set_is_documented_as_a_set_not_a_gap(self):
-        """It must be visible that these are historical, not missing."""
-        txt = (ROOT / "tests" / "test_record.py").read_text(encoding="utf-8")
-        self.assertIn("predate the PREREG convention", txt)
+    def test_every_experiment_declares_its_preregistration_status(self):
+        unregistered = []
+        for e in experiments():
+            if e.has_prereg:
+                self.assertEqual(e.prereg_status, "frozen", e.id)
+            else:
+                unregistered.append(e.id)
+                self.assertNotEqual(
+                    e.prereg_status, "frozen",
+                    f"{e.id} has no PREREG.md yet declares itself pre-registered")
+                self.assertRegex(
+                    e.prereg_status, r"predate",
+                    f"{e.id} has no PREREG.md and does not explain why: "
+                    f"{e.prereg_status!r}")
+        # The unregistered set is allowed to be non-empty — it is history — but
+        # it must be small, declared, and shrinkable. Asserting a bound rather
+        # than an exact list means a NEW experiment without a PREREG trips it
+        # without anyone editing this file.
+        self.assertLessEqual(
+            len(unregistered), 9,
+            f"unregistered experiments grew to {unregistered}; a new experiment "
+            "must carry a PREREG")
 
     def test_the_template_says_an_id_is_assigned_when_the_prereg_is_frozen(self):
         """Stop reserving numbers. The convention is what makes the invariant
@@ -140,17 +194,28 @@ class TestManifestIsSelfConsistent(unittest.TestCase):
             self.assertTrue(e.path.is_dir(), e.path)
             self.assertEqual(e.id, f"e{e.number:03d}")
 
-    def test_a_verdict_artifact_names_its_own_experiment(self):
+    def test_every_verdict_names_its_own_experiment(self):
         """A copy-pasted verdict under the wrong directory is a silent false
-        claim about what ran. record.experiments() raises on this; assert at
-        least one verdict exists so the check is exercised rather than idle."""
-        with_verdict = [e for e in experiments() if e.has_verdict]
-        self.assertTrue(
-            with_verdict,
-            "no experiment has artifacts/verdict.json — the self-naming check "
-            "would be unexercised")
-        for e in with_verdict:
-            self.assertTrue(e.verdict, f"{e.id} has a verdict.json with no verdict")
+        claim about what ran. record.experiments() raises on this."""
+        for e in experiments():
+            self.assertTrue(e.verdict, f"{e.id} has an empty verdict")
+
+    def test_every_verdict_maps_to_a_status(self):
+        """A verdict that does not begin with a known status is an error, not a
+        silent None — a new experiment must say what it concluded."""
+        seen = {e.status for e in experiments()}
+        self.assertTrue(seen)
+        self.assertTrue(seen <= _STATUSES, seen)
+
+    def test_an_unmapped_verdict_is_an_error_not_a_guess(self):
+        """A verdict that says nothing a machine can read must fail loudly."""
+        with self.assertRaises(AssertionError):
+            status_of("it went fine, mostly")
+        self.assertEqual(status_of("LEAD DEAD — the credit is eaten"), "DEAD")
+        self.assertEqual(status_of("AUDIT VOID — control failed"), "VOID")
+
+    def test_the_status_vocabulary_is_small_and_explicit(self):
+        self.assertLessEqual(len(_STATUSES), 10)
 
 
 if __name__ == "__main__":

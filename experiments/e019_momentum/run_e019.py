@@ -190,7 +190,8 @@ def main() -> None:
 
     verdict = "PASS" if all(g["pass"] for g in gates) else "FAIL"
     failed = [g["n"] for g in gates if not g["pass"]]
-    out = {"verdict": verdict, "failed_criteria": failed, "gates": gates, "results": results}
+    out = {"experiment": "e019_momentum", "prereg": "frozen",
+           "verdict": verdict, "failed_criteria": failed, "gates": gates, "results": results}
     with open(ARTIFACTS / "verdict.json", "w") as f:
         json.dump(out, f, indent=2, default=str)
 

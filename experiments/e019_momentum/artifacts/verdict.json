@@ -1,4 +1,6 @@
 {
+  "experiment": "e019_momentum",
+  "prereg": "frozen",
   "verdict": "FAIL",
   "failed_criteria": [
     2,

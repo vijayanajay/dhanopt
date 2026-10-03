@@ -1,4 +1,6 @@
 {
+  "experiment": "e018_vrp_weekly",
+  "prereg": "frozen",
   "verdict": "FAIL",
   "failed_criteria": [
     2,

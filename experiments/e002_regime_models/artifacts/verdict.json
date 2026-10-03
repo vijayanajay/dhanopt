@@ -1,0 +1,7 @@
+{
+  "experiment": "e002_regime_models",
+  "prereg": "none — predates the pre-registration convention (e001-e008 and e015)",
+  "verdict": "DEAD — **−₹140,520** on t-1 labels; the edge *was* the leak. The features themselves are clean.",
+  "claims_no_pnl": false,
+  "provenance": "Transcribed 2026-10-03 from RETROSPECTIVE.md section 6, the audited record. This experiment predates artifacts/verdict.json, so no engine wrote this file; it is a transcription, not an engine output, and its verdict string is the source of truth for record.py's status."
+}

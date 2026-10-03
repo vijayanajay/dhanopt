@@ -1,5 +1,6 @@
 {
   "experiment": "e028_expiry_encoding_audit",
+  "prereg": "frozen",
   "verdict": "DEAD_AT_REALISTIC_FILL",
   "defect": "df['expiry'] == str(front_expiry): a typed date compared against a raw string. The store holds DD-Mon-YYYY (2021-2024) and ISO (2025+), so every legacy partition returned an empty chain and \u00a75.5's fail-closed rule dropped the session as NO TRADE.",
   "sessions_selected": 193,

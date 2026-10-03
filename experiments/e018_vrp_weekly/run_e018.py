@@ -111,6 +111,8 @@ def main() -> None:
     failed = [g["n"] for g in gates if not g["pass"]]
 
     out = {
+        "experiment": "e018_vrp_weekly",
+        "prereg": "frozen",
         "verdict": verdict,
         "failed_criteria": failed,
         "gates": gates,
