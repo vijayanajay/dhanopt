@@ -1,5 +1,8 @@
 # E011 — True Variance Risk Premium (VRP) & Dynamic Delta-Hedging
 
+> **⚠ STRUCK FIGURE — `₹7,43,572` is VOID.** e018 found this priced *t's* contract with *t−1's* expiry and tenor (mean signal IV 0.476, max 1.93, 2.55× enriched on roll days). Nothing here may be carried into a model, sizing table or pitch; e015/e016/e017 inherit the defect.
+
+
 **Contract & Pre-Registration:** [PREREG.md](PREREG.md) — frozen 2026-10-02 before running simulation.  
 **Question:** Does harvesting the Variance Risk Premium ($IV_{\text{ATM}} > \sigma_{GK}$) via dynamically delta-hedged ATM straddles produce positive expectancy net of all friction and slippage, and survive pre-registered risk hurdles?
 

@@ -1,5 +1,8 @@
 # E005 — Theta-Aware Condor Replay (Real Endpoint Prices + Greek Path)
 
+> **⚠ STRUCK FIGURES — `940,697` and `987,124` in the breach tables are dead.** The breach book's walls were day-t EOD OI — 6 hours after the 09:15 entry; e001's t-1 audit and e007's gate 0 (the only pre-open-observable wall source) returned 4 trades / −₹309.
+
+
 **Question:** Does the condor edge — the engine's entire net PnL in e001/e002 — survive real intraday exits (1.4× credit SL / +50% profit target / EOD), when options are priced honestly? e004's answer (−₹548k, 4.1% WR) was invalid: fixed-IV Black-Scholes never credits theta decay, the condor's income.
 
 **Method (final design after two failed variants):** the 5-min store is futures-only, so options are repriced along the path rather than fetched:
@@ -188,4 +191,4 @@ Only **28 days overlap**: the frozen book makes **+₹94,435 on those**, and **+
 
 **Fill drift (pre-live, modeled):** mean 20.4 / p95 57.8 / max 132.8 pts per leg vs the 1.5-pt friction model and the **18-pt 12× DD boundary** (§3) — the ITM short leg after a gap is the cost driver, as `slippage_cliff.py` warned. Real fills, not models, now decide this: the shadow log accumulates from 2026-10-01.
 
-**Consequences (carried to the handoff):** (1) the +₹940,697 headline is **not yet achievable as specified** — e007 must rebuild the book on *opening-OI* walls (feasible: breach-day walls sit within the Expired-Options API's ATM±10 reach on 99.6% of breach days, median |wall−spot| 64 pts) and re-certify before any live order; (2) the frozen day-t-wall numbers remain internally consistent comparisons of exit/target variants, but their level inherits the look-ahead; (3) the pre-registered holdout protocol (handoff §7) makes gate 0 blocking. Marks validation (Add. 6–7) is untouched: it validated the *prices*, and both books anchor to the same opens.
+**Consequences (carried to the handoff):** (1) ~~the +₹940,697 headline is not yet achievable as specified — e007 must rebuild the book on *opening-OI* walls~~ **RESOLVED 2026-10-01: e007 ran, and FAILED** (breach-day walls do sit within the Expired-Options API's ATM±10 reach on 99.6% of breach days, median |wall−spot| 64 pts — the data was reachable; the signal was not). Opening-OI walls give 4 trades / −₹309 / PF 0.96 against the frozen book's 249, so no pre-open wall source replicates the book and the headline is **struck**, not pending. (2) the frozen day-t-wall numbers remain internally consistent comparisons of exit/target variants, but their level inherits the look-ahead; (3) the pre-registered holdout protocol (handoff §7) makes gate 0 blocking. Marks validation (Add. 6–7) is untouched: it validated the *prices*, and both books anchor to the same opens.

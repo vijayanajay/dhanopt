@@ -1,5 +1,8 @@
 # E016 — VRP-Gated Iron Fly: Defined-Risk Wings on the E011 Delta-Hedged Straddle
 
+> **⚠ STRUCK FIGURES — `₹7,43,572` is VOID (e018) and `₹1,56,941` inherits it.** The wings finding (cap the tail, not the drawdown) is untested on a correct contract.
+
+
 **Contract & Pre-Registration:** [PREREG.md](PREREG.md) — frozen 2026-10-02 before the replay run.
 **Question:** Does converting the naked short straddle into an Iron Fly (long CE + PE wings, all other frozen E011 rules unchanged) bring max drawdown under ₹16,000 while retaining positive expectancy?
 

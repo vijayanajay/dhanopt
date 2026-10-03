@@ -17,7 +17,7 @@ One convention, inherited silently through four generations of code: **walls = m
 Three properties made it dangerous, in ascending order of lesson value:
 
 1. **It was invisible to every statistical gate.** Calibration was excellent (Brier ≈ 0.20) *because* the models faithfully predicted the leaky labels. Win rates of 98.8% raise suspicion only after a leak is suspected; before that, they look like skill. **Calibration measures fidelity to the labels, not truth of the labels.**
-2. **It compounded through inheritance.** e001 → e002 labels → e005 walls → breach book → e006 compounding → the handoff. Each consumer added a "caveat" line, none re-derived the foundation. By the time the number reached ₹940,697, six documents vouched for it and none had checked it.
+2. **It compounded through inheritance.** e001 → e002 labels → e005 walls → breach book → e006 compounding → the handoff. Each consumer added a "caveat" line, none re-derived the foundation. By the time the number reached ~~₹940,697~~, six documents vouched for it and none had checked it.
 3. **It survived because the sandbox measured the right things on the wrong object.** Marks were validated to the paisa, friction was real, exits were honest — every *price* was genuine. Only the *selection signal* was fictional. Honest components ≠ honest assembly.
 
 ## 2. The second leak: contract identity

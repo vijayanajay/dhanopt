@@ -1,5 +1,8 @@
 # E017 — Regime-Based Position Sizing on the E011 Delta-Hedged Straddle
 
+> **⚠ STRUCK FIGURE — `₹7,43,572` is VOID (e018).** The sizing arithmetic is valid *on the frozen book*; the book is void, so "needs ₹6.4L" was a statement about a bug.
+
+
 **Contract & Pre-Registration:** [PREREG.md](PREREG.md) — frozen 2026-10-02 before the run.
 **Question:** Does halving size in elevated-RV regimes or after loss clusters bring E011's max drawdown under the ₹16,000 (8%) ceiling with expectancy intact — and if not, what fixed fraction (or loss-cluster stop) does?
 

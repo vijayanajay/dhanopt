@@ -1,5 +1,8 @@
 # E006 — Compounded Re-Sim: the Breach-Only Book Under LIVE Constraints
 
+> **⚠ STRUCK FIGURE — the `₹940,697` headline this compounds is dead.** The breach book's walls were day-t EOD OI — 6 hours after the 09:15 entry; e001's t-1 audit and e007's gate 0 (the only pre-open-observable wall source) returned 4 trades / −₹309. The arithmetic below is valid; the object is void (MOOT).
+
+
 **Question:** the handoff's +₹940k / 83%-yr headline is a flat 1 lot with no compounding and
 no risk caps. What does the same trade list do on the real ₹2,00,000 account with
 config's `MONTHLY_DRAWDOWN_CAP` circuit-breaker, the `MAX_DAILY_LOSS` hard stop, and a

@@ -1,5 +1,8 @@
 # E013 — 0DTE Expiry Microstructure & Pin Dynamics
 
+> **⚠ STRUCK FIGURE — `₹4,14,721` is DEAD.** e026: every leg was a Black-Scholes mark on a stale IV, so no real option price entered the PnL. e028: the real marks never loaded for four years — the 64 verified sessions were half the sample. Corrected: +₹45,568 at 0.75 pts/leg, **−₹29,082 at a realistic 2.0**, n=129, breakeven 1.51 pts/leg.
+
+
 **Contract & Pre-Registration:** [PREREG.md](PREREG.md) — frozen 2026-10-02 before running simulation.  
 **Question:** Does classifying 0DTE expiry sessions at 12:30 IST via the Expansion Ratio monetize afternoon dealer gamma inventory into a positive-expectancy book (Pinning Harvest vs Breakout)?
 

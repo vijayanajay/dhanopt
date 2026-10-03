@@ -1,5 +1,8 @@
 # E015 — Book Composition Analysis: E011 VRP Straddle × E013 Pin Fly on one ₹2L account
 
+> **⚠ STRUCK FIGURES — `₹7,43,572`, `₹4,14,721` and `₹11,58,293` are VOID.** One void leg voids the book (e018). Only the 10-overlap-day margin breach survives, as a capital fact.
+
+
 **Question:** Do the two validated books stack? Session overlap, same-day co-movement, joint drawdown, and ₹2L capital utilization — computed by pure arithmetic over the two frozen published artifacts (no re-simulation, no new parameters).
 
 ---

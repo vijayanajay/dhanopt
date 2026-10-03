@@ -1,5 +1,8 @@
 # E014 — Execution Microstructure & Limit Order TCA (Maker vs Taker)
 
+> **⚠ STRUCK FIGURES — `₹7,43,572` and `₹4,14,721` are both VOID/DEAD** (e018 contract identity; e026+e028 marks and sample). The TCA's *direction* — passive all-or-none entry is strictly worse than taker — is what survives, on magnitudes that no longer stand.
+
+
 **Contract & Pre-Registration:** [PREREG.md](PREREG.md) — frozen 2026-10-02 before the replay run (two pre-run mechanical amendments documented inside §2.5; no post-run tuning).
 **Question:** Does the net alpha of the two validated strategies — E011 VRP delta-hedged straddle and E013 Pin Harvest Iron Fly — survive a realistic passive limit-order queue model, or does the modeled taker penalty hide a maker edge that never actually fills?
 

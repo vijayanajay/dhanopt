@@ -1,5 +1,8 @@
 # Collated Experiment Results
 
+> **⚠ STRUCK FIGURES — `940,697` and `987,124` below are dead.** The breach book's walls were day-t EOD OI — 6 hours after the 09:15 entry; e001's t-1 audit and e007's gate 0 (the only pre-open-observable wall source) returned 4 trades / −₹309.
+
+
 All sims: ₹2,00,000 bankroll (config.TOTAL_CAPITAL), 1 lot era-correct (75→50→25→75→65, see `experiments/common/lots.py`), real Zerodha friction already netted, **no compounding**.
 ₹/yr = net ÷ window years; **Max DD%** = peak-to-trough of net equity ÷ ₹2,00,000. OOS windows stated per row; nothing annualized across windows.
 

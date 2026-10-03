@@ -1,5 +1,8 @@
 # E027 — Realized Slippage on the Restated e013 Pin Fly
 
+> **⚠ STRUCK FIGURES — `₹61,843` was struck by e028**, whose control reproduced e026 to the paisa. Its own loader carried the same encoding defect, so the ladder priced half the sample; the corrected breakeven is 1.51 pts/leg on n=129.
+
+
 **Contract first:** [PREREG.md](PREREG.md) — frozen 2026-10-03, before any code
 existed here. Amendments in §9.
 

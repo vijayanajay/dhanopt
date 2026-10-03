@@ -1,5 +1,8 @@
 # E028 — The Expiry Encoder Was a String Comparison Against a Date
 
+> **⚠ STRUCK FIGURE — the `₹61,843` control arm reproduced here is itself struck.** This audit is what struck it: e026's 64 sessions were format-selected. Corrected on n=129: **−₹29,082 at a realistic 2.0 pts/leg**, 93.0% of PnL from 2025. e013 is dead.
+
+
 **Contract first:** [PREREG.md](PREREG.md) — frozen 2026-10-03, before any code
 existed here. Two post-run amendments in §8, logged not edited.
 

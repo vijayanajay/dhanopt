@@ -3,6 +3,8 @@
 **Status: BREACH BOOK FAILED CERTIFICATION (gate 0, 2026-10-01) — NOT live-approvable; the +₹940,697 headline is a look-ahead artifact. Back to research.**
 The pre-registered gate 0 (§7, e007) rebuilt the book on opening-OI walls — the only wall source observable at the 09:15 entry — and it produced **4 trades in 249 days (net −₹309, PF 0.96)** vs the frozen book's 249/+₹940,697. Independent confirmation: the t-1-wall harness (e005 Add. 8) gives 57 trades / −₹27.5k. The "gap over the wall" signal exists only against day-t EOD OI walls — information 6 hours *after* the entry. Marks validation (e005 Add. 6–7) is unaffected: the prices are real; the signal that selected them is not observable pre-open. Details: `experiments/e007_open_oi/README.md`. All live stages (§4–§5) below are **historical record, superseded by §7's outcome**; everything in this document that quotes the +₹940,697 (or e006's compounded projection, or e002's ML gates — see e002 Add. 7) inherits the artifact.
 
+> **⚠ RESTATEMENT 2026-10-03 — three convictions later, and there is no live book.** The successor to this one was e013's pin fly, published at **+₹4,14,721**; e026 struck it (every leg was a Black-Scholes mark on a stale IV — no real option price entered the PnL) and e028 killed it outright (**−₹29,082 at a realistic 2.0 pts/leg**, breakeven 1.51, n=129). e011's **+₹7,43,572** is VOID (e018: it priced *t's* contract with *t−1's* expiry), which voids e015/e016/e017 with it. **So every figure in this document is dead: `940,697`, `987,124`, `4,14,721`, `7,43,572`, `11,58,293`.** §4's paper-trade gate, §5's capital plan and §6's wall-source bullet are *resolved*, not pending — see §7's actuals table. Enforced by `python -m experiments.common.struck`; the full ledger is actionplan §1.1 and RETROSPECTIVE §6.
+
 ## 1. The book changed shape — it is now "breach-only"
 
 The sandbox's final finding supersedes every earlier config: **the vanilla condor is only breakeven on valid-structure days** (+₹35k, PF 1.11 over 964 days) and **~97% of the frozen edge sits on inverted-wall days** — days where spot has gapped past the prior-day max-OI wall and the wall's inflated premium crushes on expiry (mechanism price-validated on 5 sessions 2021→2026; the fully-covered 2026-09-25 session matches to the paisa on all 6 legs).
@@ -13,7 +15,7 @@ So the production book trades **only** on dte ≤ 1 days with a breached wall, a
 
 | | **Breach spread (2 legs)** | **4-leg condor on breach days** |
 |---|---:|---:|
-| Net (SL + 100% target) | +₹940,697 | +₹987,124 |
+| Net (SL + 100% target) | ~~+₹940,697~~ | ~~+₹9,87,124~~ |
 | WR / PF | 98.8% / 62.6 | 98.8% / — |
 | Max DD | ₹6,139 | **₹551** |
 | Worst day | **−₹6,139 = defined max loss** (width − credit) | **unbounded** (gap-through past short strike, bounded only by far wing) |
@@ -31,7 +33,7 @@ Notable: this book is **fully mechanical** — dte ≤ 1 + wall-breach test → 
 
 | Metric | Value |
 |---|---:|
-| Net | +₹940,697 (SL + 100% target) |
+| Net | ~~+₹940,697~~ (SL + 100% target) |
 | Per trade / per year (≈44 trades) | ₹3,778 / ≈₹1,65,000 (≈83%/yr simple; see e006 for the compounded view) |
 | WR / PF / max DD | 98.8% / 62.6 / ₹6,139 (3.1%) |
 | Worst day | −₹6,139 (2025-08-07, put breach, SL) |
@@ -48,7 +50,7 @@ Charging k× the modeled 1.5 pts/leg (core formula: pts × qty × legs, linear):
 
 | k× | pts/leg | Net ₹ | PF | Max DD |
 |---:|---:|---:|---:|---:|
-| 1 | 1.5 | +940,697 | 62.6 | 6,139 |
+| 1 | 1.5 | ~~+940,697~~ | 62.6 | 6,139 |
 | 5 | 7.5 | +808,757 | 41.2 | 7,039 |
 | 8 | 12.0 | +709,802 | 25.9 | 7,841 |
 | 12 | 18.0 | +577,862 | 11.4 | **10,335** (monthly cap breached) |
@@ -60,10 +62,12 @@ Charging k× the modeled 1.5 pts/leg (core formula: pts × qty × legs, linear):
 ## 4. Required validations before live (in order)
 
 1. ~~**Composition robustness**~~ — **DONE (2026-10-01): all 249 breach sessions swept** through the Expired-Options API (`POST /v2/charts/rollingoption`). Verdict is taken at the trade level — the traded pair's credit (SELL wall − BUY ±150 wing, 09:15–09:20 opens, Dhan vs bhavcopy): **20 of 246 sessions pair-certified, 16 exact to <1 pt, worst diff +23.5 pts on a ~161-pt credit (+14.6%) — inside the 34.6 pts/leg slippage breakeven**, so no re-pricing of the book is warranted; the 4 off sessions all carry edge-of-window stitching. 3 sessions uncertifiable end-to-end (put wings outside the ATM±10 window at open; 2022-06-10-class ceiling). Residual ceiling, honest: the spot-relative sweep window cannot see most 150-pt wings at 09:15, so this certifies the mechanism and mark quality, not each of the 249 credits individually. Details: e005 README Add. 7; `artifacts/marks_sweep.json`.
-2. **Paper-trade the gate (instrumented).** `paper_trade.py` + `shadow_runner.py` (e005) now log every session's gate decision, simulated 09:15 fills, per-leg fill drift, and a stressed re-sim; artifacts: `paper_trade.csv`/`.json`, `shadow_log.csv`. Pass bar over ≥4 consecutive expiry weeks: fills within the 12× DD boundary (18 pts/leg) on **every** trade, p95 within the 7.5-pt stage-2 trigger, WR ≥ 80% (pre-registered in §7 — below the 98.8% in-sample, far above coin-flip). Modeled pre-live drift already breaches the boundary on gap days (max 132.8 pts), so real fills decide this gate.
+2. ~~**Paper-trade the gate (instrumented).**~~ — **EXPIRED 2026-10-01, never started.** Gate 0 failed (4 trades / −₹309), which is §7's stated entry condition for the paper stage, so this gate was never opened and the book it would have papered is struck outright by e026/e028. The instrumentation it describes still works and carries over to any successor signal. every session's gate decision, simulated 09:15 fills, per-leg fill drift, and a stressed re-sim; artifacts: `paper_trade.csv`/`.json`, `shadow_log.csv`. Pass bar over ≥4 consecutive expiry weeks: fills within the 12× DD boundary (18 pts/leg) on **every** trade, p95 within the 7.5-pt stage-2 trigger, WR ≥ 80% (pre-registered in §7 — below the 98.8% in-sample, far above coin-flip). Modeled pre-live drift already breaches the boundary on gap days (max 132.8 pts), so real fills decide this gate.
 3. ~~**Core config audit**~~ — **DONE (2026-09-29)**: `NIFTY_LOT_SIZE` 75→65 (era table in `experiments/common/lots.py`), `WEEKDAY_SCHEDULES` recalibrated to Tuesday-expiry; 5 lot-hardcoded test pins updated to derive from config; 75 core + 36 experiment tests green.
 
 ## 5. Staged capital plan (after §4 gates pass; spread margin assumption)
+
+> **⚠ VOID — do not scale.** No §4 gate passed: gate 0 failed and gates 1–3 expired (§7's actuals). The stage triggers below assume a book that reproduced; this one did not. The only live cash flow in the programme is the collateral yield at the end of this section, which is independent of the book.
 
 | Stage | Bankroll | Book | Trigger to advance |
 |---|---:|---|---|
@@ -77,7 +81,7 @@ Collateral yield (start immediately, independent of the book): pledge idle cash 
 ## 6. Known ceilings (carried into live expectations)
 
 - Breach-spread backtest is full-window on frozen daily marks; the +100% target and 1.4× SL are post-hoc choices (sweep-selected) — the pre-registered holdout (§7) is the honest Calmar test.
-- **The frozen wall signal is not yet live-replicable** (§1 caveat): day-t EOD OI is 6h future-relative to the entry. Gate 0 (e007) must re-certify the book on opening-OI walls before the headline +₹940,697 can be treated as achievable.
+- **The frozen wall signal is not live-replicable — resolved, not pending.** (§1 caveat): day-t EOD OI is 6h future-relative to the entry. Gate 0 (e007) was run on 2026-10-01 and **FAILED**: opening-OI walls give 4 trades / −₹309, so no pre-open wall source replicates the book and the `+₹940,697` headline is **struck**, not "achievable once certified". A later successor (e013, +₹4,14,721) was then struck by e026 and killed by e028.
 - Theta path is first-order (no intraday vol response): spike losses understated; the defined-risk width and the 1.4× SL are the mitigations.
 - One underlying, one mechanism (post-gap expiry crush). Multi-index rotation (BANKNIFTY/FINNIFTY/SENSEX — note BANKNIFTY weeklies were abolished Nov 2024; verify each index's current calendar) is a separate future experiment, only after the wall-breach edge is proven per index.
 
@@ -106,4 +110,4 @@ This section is written **before** the holdout window opens; it is a commitment,
 | 2: live micro 8w | — | expired (gate 0 failed) | 2026-10-01 |
 | 3: holdout verdict | — | expired (gate 0 failed) | 2026-10-01 |
 
-**Post-failure direction (the only surviving lead):** walls move early and informatively *during* the session — an intraday wall-flip response strategy (reacting to real-time OI shifts after 09:15) is genuinely different from the pre-open gate, untested, and starts from zero. The shadow-runner instrumentation (`shadow_runner.py`) carries over to any successor signal. Marks validation, friction/slippage machinery, and e006's simulation semantics all remain valid tools; only the signal they measured failed.
+**Post-failure direction — since closed too, and recorded here so it is not re-offered as new.** (It was written 2026-10-01 as the one surviving lead.) Walls move early and informatively *during* the session — an intraday wall-flip response strategy (reacting to real-time OI shifts after 09:15) is genuinely different from the pre-open gate, untested, and starts from zero. **It was tested, and it died on observability, not on the hypothesis:** e008 replayed it on every data class that can see the signal — flips exist at 111.9/yr, but only **2.4% are fillable** and the median wall-OI age at the touch is **75 minutes**. Verdict DEAD on observability (RETROSPECTIVE §6, e008). **Nothing from this document is a lead.** The shadow-runner instrumentation (`shadow_runner.py`) carries over to any successor signal. Marks validation, friction/slippage machinery, and e006's simulation semantics all remain valid tools; only the signal they measured failed.

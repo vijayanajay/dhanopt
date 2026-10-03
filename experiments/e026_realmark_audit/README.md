@@ -1,5 +1,8 @@
 # E026 — Real-Price Re-Audit of the e013 Pin Harvest
 
+> **⚠ STRUCK FIGURES — this document's control `₹4,14,721` is e013's Black-Scholes number, and its own `₹61,843` was struck in turn by e028.** The 64 verified sessions were format-selected by an expiry-encoding defect (356 of 576 sessions returned an empty chain). Corrected on n=129: **−₹29,082 at 2.0 pts/leg**. What survives here is the *method* and no part of the sample.
+
+
 **Contract first:** [PREREG.md](PREREG.md) — frozen 2026-10-03, before any code
 existed in this directory. Kill bars, the one-sidedness disclosure, and two
 post-run mechanical amendments are all recorded there.
