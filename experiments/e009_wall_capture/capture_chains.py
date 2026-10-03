@@ -102,15 +102,40 @@ def _strike_map(chain: dict) -> dict:
     return out
 
 
+def _existing_stamps(path: Path) -> list[str]:
+    """Seconds already captured in this day-file.
+
+    Resume is what makes crash-restart safe: without this a restarted process
+    re-appends every snapshot it already wrote, and the duplicated timestamps
+    silently corrupt max_gap and coverage_pct — the two numbers kill 1 is
+    judged on. (The docstring claimed idempotence; it was not.)
+    """
+    if not path.exists():
+        return []
+    stamps = []
+    try:
+        with gzip.open(path, "rt", encoding="utf-8") as f:
+            for line in f:
+                try:
+                    rec = json.loads(line)
+                except json.JSONDecodeError:
+                    continue  # truncated final line from a hard kill
+                if "ts" in rec:
+                    stamps.append(rec["ts"][0:19])
+    except (OSError, EOFError, gzip.BadGzipFile):
+        return []  # unreadable file: start fresh rather than silently append
+    return stamps
+
+
 def capture_session(token: str, client_id: str, d: _date, expiry: str) -> Path:
     """One trading day: snapshot loop 09:00-15:35, append to per-day jsonl.gz.
-    Idempotent: a rerun the same evening appends only newer snapshots."""
+    Idempotent: a rerun appends only seconds not already on disk."""
     SNAPSHOTS.mkdir(parents=True, exist_ok=True)
     path = SNAPSHOTS / f"{d.isoformat()}.jsonl.gz"
     day = datetime.combine(d, datetime.min.time())
     start = day + timedelta(hours=int(SESSION_START[:2]), minutes=int(SESSION_START[3:]))
     end = day + timedelta(hours=int(SESSION_END[:2]), minutes=int(SESSION_END[3:]))
-    last_stamps = []
+    last_stamps = _existing_stamps(path)[-2:]
     with gzip.open(path, "at", encoding="utf-8") as f:
         while (now := datetime.now()) < end:
             if now < start:
@@ -163,25 +188,37 @@ def capture_coverage_pct(stamps: list[str]) -> float:
     return round(100.0 * covered / total, 2)
 
 
-def register_session(path: Path) -> dict:
-    """Append the day's coverage row to the ledger (kill-1 evidence, idempotent)."""
+def register_session(path: Path) -> dict | None:
+    """Append the day's coverage row to the ledger (kill-1 evidence, idempotent).
+
+    Returns None and writes NOTHING when the file holds zero successful
+    snapshots. A weekend or a holiday that produced no data must not enter the
+    ledger as a 0%-coverage failure — fail-closed means "no row", not "a row
+    that says nothing happened" (s5.5's NO TRADE rule, applied to the ledger).
+    """
     LEDGER.parent.mkdir(parents=True, exist_ok=True)
     ledger = json.loads(LEDGER.read_text()) if LEDGER.exists() else {}
     stamps, spot, nstrikes = [], None, 0
     with gzip.open(path, "rt", encoding="utf-8") as f:
         for line in f:
-            rec = json.loads(line)
+            try:
+                rec = json.loads(line)
+            except json.JSONDecodeError:
+                continue
             if "err" in rec:
                 continue
             stamps.append(rec["ts"])
             spot, nstrikes = rec.get("spot"), max(nstrikes, rec.get("n") or 0)
-    row = {"date": path.stem, "n_snapshots": len(stamps),
+    if not stamps:
+        print(f"no successful snapshots in {path.name} — no ledger row written")
+        return None
+    row = {"date": path.name.split(".")[0], "n_snapshots": len(stamps),
            "max_gap_secs": None if not stamps else round(_session_gaps(stamps), 1),
            "coverage_pct": capture_coverage_pct(stamps),
            "spot_last": spot, "strikes_max": nstrikes,
            "evaluable": bool(stamps) and _session_gaps(stamps) <= SNAPSHOT_SECS * 1.5
                         and capture_coverage_pct(stamps) >= 95.0}
-    ledger[path.stem] = row
+    ledger[row["date"]] = row
     LEDGER.write_text(json.dumps(ledger, indent=1))
     return row
 
@@ -191,7 +228,13 @@ def main() -> int:
 
     ap = argparse.ArgumentParser(description="e009 live chain capture (PREREG-frozen)")
     ap.add_argument("--expiry", default=None, help="override chain expiry (default: nearest)")
+    ap.add_argument("--force", action="store_true",
+                    help="capture even on a weekend/holiday (for smoke runs)")
     args = ap.parse_args()
+    if _date.today().weekday() >= 5 and not args.force:
+        print(f"{_date.today().isoformat()} is not a weekday — market closed, nothing to "
+              f"capture. Pass --force to run anyway.")
+        return 3
     if not config.DHAN_ACCESS_TOKEN or not config.DHAN_CLIENT_ID:
         print("DHAN_ACCESS_TOKEN / DHAN_CLIENT_ID missing in env — cannot capture")
         return 2
@@ -209,7 +252,10 @@ def main() -> int:
         expiry = exps[0]
     path = capture_session(config.DHAN_ACCESS_TOKEN, config.DHAN_CLIENT_ID,
                            _date.today(), expiry)
-    print(json.dumps(register_session(path), indent=1))
+    row = register_session(path)
+    if row is None:
+        return 4
+    print(json.dumps(row, indent=1))
     return 0
 
 

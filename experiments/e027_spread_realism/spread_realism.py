@@ -276,6 +276,12 @@ def run() -> tuple[pd.DataFrame, dict]:
     median_atm_cs = float(atm_cs.median()) if atm_cs.notna().any() else float("nan")
 
     resid = float(arm_b["net_real"].sub(arm_b["net_A"]).abs().mean())
+    # Deliberately a LITERAL, not a read of e026's current verdict. e028 moved
+    # e026's arm B (n=64/+61,843 -> n=129/+45,568); if this control tracked it,
+    # e027 would silently re-baseline onto the corrected sample and keep
+    # reporting a live slippage ladder for a book that is superseded. Failing
+    # gate 0 and going AUDIT VOID is the correct outcome, and two tests in
+    # test_spread.py pin exactly that. Do not "fix" this into a dynamic read.
     control_ok = abs(float(net_control.sum()) - 61842.51) <= 1.0
     n_control = int(net_control.count())
 

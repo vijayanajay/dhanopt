@@ -13,7 +13,8 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 from experiments.e009_wall_capture.capture_chains import (
-    SNAPSHOT_SECS, _session_gaps, _strike_map, capture_coverage_pct)
+    SNAPSHOT_SECS, _existing_stamps, _session_gaps, _strike_map,
+    capture_coverage_pct, register_session)
 
 
 def _stamps(start: str, minutes: int, step_min: int = 1) -> list[str]:
@@ -97,6 +98,91 @@ class TestAppendSemantics(unittest.TestCase):
             self.assertEqual(len(rows), 3)
             err_rows = [r for r in rows if "err" in r]
             self.assertEqual(len(err_rows), 1)  # outages recorded, not gaps of silence
+
+
+class TestResumeAndLedgerRules(unittest.TestCase):
+    """The two rules the watchdog depends on. Both were wrong before.
+
+    resume: without reading back what is already on disk, a restarted process
+    re-appends every snapshot it already wrote, and duplicated timestamps
+    silently corrupt max_gap and coverage_pct -- the two numbers kill 1 is
+    judged on.
+
+    ledger: a day that produced no successful snapshots must leave NO row. A
+    weekend entered as "0% coverage" reads as a failed session rather than the
+    absence of one.
+    """
+
+    def test_existing_stamps_reads_back_what_was_written(self):
+        with TemporaryDirectory() as td:
+            p = Path(td) / "2026-10-05.jsonl.gz"
+            recs = [{"ts": f"2026-10-05T09:1{i}:00"} for i in range(3)]
+            with gzip.open(p, "at", encoding="utf-8") as f:
+                for r in recs:
+                    f.write(json.dumps(r) + "\n")
+            self.assertEqual(_existing_stamps(p), [r["ts"] for r in recs])
+
+    def test_existing_stamps_tolerates_a_truncated_final_line(self):
+        """A hard kill mid-write leaves a partial JSON line. Recovery must not
+        raise, or the restart cannot happen at all."""
+        with TemporaryDirectory() as td:
+            p = Path(td) / "2026-10-05.jsonl.gz"
+            with gzip.open(p, "at", encoding="utf-8") as f:
+                f.write(json.dumps({"ts": "2026-10-05T09:15:00"}) + "\n")
+                f.write('{"ts": "2026-10-05T09:16:00", "oc": {trunc')
+            self.assertEqual(_existing_stamps(p), ["2026-10-05T09:15:00"])
+
+    def test_existing_stamps_of_missing_file_is_empty(self):
+        with TemporaryDirectory() as td:
+            self.assertEqual(_existing_stamps(Path(td) / "nope.jsonl.gz"), [])
+
+    def test_resumed_session_does_not_duplicate_seconds(self):
+        """Two capture passes over the same day = one row per second. This is
+        the property that makes crash-restart safe."""
+        with TemporaryDirectory() as td:
+            p = Path(td) / "2026-10-05.jsonl.gz"
+            for _ in range(2):  # simulate a crash and a restart
+                known = _existing_stamps(p)[-2:]
+                with gzip.open(p, "at", encoding="utf-8") as f:
+                    for ts in ("2026-10-05T09:15:00", "2026-10-05T09:16:00"):
+                        if ts not in known:
+                            f.write(json.dumps({"ts": ts}) + "\n")
+            rows = [json.loads(l) for l in gzip.open(p, "rt", encoding="utf-8")]
+            self.assertEqual(len(rows), 2)
+
+    def test_no_successful_snapshots_writes_no_ledger_row(self):
+        with TemporaryDirectory() as td:
+            p = Path(td) / "2026-10-03.jsonl.gz"
+            with gzip.open(p, "at", encoding="utf-8") as f:  # a Saturday: outages only
+                f.write(json.dumps({"ts": "2026-10-03T09:15:00", "err": "closed"}) + "\n")
+            import experiments.e009_wall_capture.capture_chains as cc
+            orig, cc.LEDGER = cc.LEDGER, Path(td) / "coverage_ledger.json"
+            try:
+                self.assertIsNone(register_session(p))
+            finally:
+                cc.LEDGER = orig
+            self.assertFalse((Path(td) / "coverage_ledger.json").exists())
+
+    def test_a_real_session_does_register(self):
+        with TemporaryDirectory() as td:
+            p = Path(td) / "2026-10-05.jsonl.gz"
+            # 376 stamps: 375 one-minute gaps spans 09:15 -> 15:30 exactly.
+            # 301 covers only 300 of the 375 evaluated minutes (80%), which is
+            # how the coverage denominator behaves -- not a rounding accident.
+            stamps = _stamps("2026-10-05T09:15:00", 376)
+            with gzip.open(p, "at", encoding="utf-8") as f:
+                for ts in stamps:
+                    f.write(json.dumps({"ts": ts, "n": 40, "spot": 25123.5}) + "\n")
+            import experiments.e009_wall_capture.capture_chains as cc
+            orig, cc.LEDGER = cc.LEDGER, Path(td) / "coverage_ledger.json"
+            try:
+                row = register_session(p)
+            finally:
+                cc.LEDGER = orig
+            self.assertEqual(row["n_snapshots"], 376)
+            self.assertEqual(row["coverage_pct"], 100.0)
+            self.assertLessEqual(row["max_gap_secs"], SNAPSHOT_SECS * 1.5)
+            self.assertTrue(row["evaluable"])  # kill 1 satisfied
 
 
 if __name__ == "__main__":

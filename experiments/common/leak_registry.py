@@ -194,6 +194,24 @@ REGISTRY: list[dict] = [
              "execution assumption rescues it. Gates 2/3 (EV>0, and EV > p95 of 500 "
              "same-size random subsets) are implemented and tested for the next "
              "candidate. 2024-2026 is positive at every fill — regime, not a book"},
+    # e030 — calendar-spread credit-to-fee pre-check. Produces NO PnL and claims
+    # none: it measures the premium difference that would have to clear
+    # friction, and strikes Phase 7.3 on arithmetic before any strategy code is
+    # written. info "none" because it is an input/cost audit, not a signal.
+    # live True — it runs entirely on bhavcopy already on disk and reproduces
+    # exactly. VERDICT: 0 of 1,415 sessions have positive credit; median -175
+    # pts against 559 rupees of friction, p90 still negative. Sell-front /
+    # buy-back is a DEBIT on every session in six years, so the IV term-structure
+    # trigger s7.3 depends on has nothing to fire on. Imports core's front_expiry
+    # and core's calculate_friction rather than copying either.
+    {"module": "experiments/e030_calendar_credit/calendar_credit.py", "info": "none",
+     "live": True,
+     "note": "zero-leg credit-to-fee pre-check for Phase 7.3 (e023). No PnL, no "
+             "IV, no signal. Gates 0-2 pass (friction control 160/390, 0 identity "
+             "mismatches, 100% coverage per year 2021-2026); gates 3-4 fail hard: "
+             "0.0% of sessions clear friction, median credit -175.15 pts. "
+             "PHASE 7.3 STRUCK before code. Mirror-image direction (buy front, "
+             "sell back) is recorded as an untested lead, never as a result"},
 ]
 
 # INVENTORY AUDIT (2026-10-03) — a data claim is a testable assertion, exactly like a

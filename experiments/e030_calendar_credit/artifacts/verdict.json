@@ -1,0 +1,170 @@
+{
+  "experiment": "e030_calendar_credit",
+  "prereg": "PREREG.md (2026-10-03)",
+  "verdict": "PHASE 7.3 STRUCK \u2014 the calendar spread's gross credit does not clear its own transaction costs, so no signal or surface fit can rescue it",
+  "claims_no_pnl": true,
+  "gates": {
+    "0_friction_control": {
+      "bar": "Rs 160 brokerage and Rs 390 slippage on 4 legs @ lot 65",
+      "observed_brokerage": 160.0,
+      "observed_slippage": 390.0,
+      "full": {
+        "brokerage": 160.0,
+        "stt": 26.0,
+        "exchange_turnover": 26.26,
+        "sebi_turnover": 0.05,
+        "stamp_duty": 0.78,
+        "gst": 33.54,
+        "slippage": 390.0,
+        "total_rupees": 636.63,
+        "points_equivalent": 9.79
+      },
+      "pass": true
+    },
+    "1_contract_identity": {
+      "bar": "0 sessions where front == next; front resolved from the trade date's own partition",
+      "front_equals_next": 0,
+      "atm_present": 1415,
+      "n": 1415,
+      "pass": true
+    },
+    "2_input_coverage_published_first": {
+      "bar": ">=90% of sessions resolve all four legs, per year",
+      "overall_pct": 100.0,
+      "per_year": [
+        {
+          "year": 2021,
+          "considered": 247,
+          "resolved": 247,
+          "coverage_pct": 100.0,
+          "reasons": {}
+        },
+        {
+          "year": 2022,
+          "considered": 248,
+          "resolved": 248,
+          "coverage_pct": 100.0,
+          "reasons": {}
+        },
+        {
+          "year": 2023,
+          "considered": 245,
+          "resolved": 245,
+          "coverage_pct": 100.0,
+          "reasons": {}
+        },
+        {
+          "year": 2024,
+          "considered": 246,
+          "resolved": 246,
+          "coverage_pct": 100.0,
+          "reasons": {}
+        },
+        {
+          "year": 2025,
+          "considered": 248,
+          "resolved": 248,
+          "coverage_pct": 100.0,
+          "reasons": {}
+        },
+        {
+          "year": 2026,
+          "considered": 181,
+          "resolved": 181,
+          "coverage_pct": 100.0,
+          "reasons": {}
+        }
+      ],
+      "pass": true
+    },
+    "3_kill_gate_credit_clears_costs": {
+      "bar": "median credit_pts > 0 AND fraction of sessions clearing friction > 50%",
+      "median_credit_pts": -175.15,
+      "clear_rate": 0.0,
+      "pass": false
+    },
+    "4_cover_at_reasonable_hit_rate": {
+      "bar": "median credit >= 3x median friction",
+      "median_credit_inr": -9779.25,
+      "median_friction_inr": 558.78,
+      "ratio": -17.501,
+      "pass": false
+    }
+  },
+  "coverage": {
+    "overall_pct": 100.0,
+    "per_year": [
+      {
+        "year": 2021,
+        "considered": 247,
+        "resolved": 247,
+        "coverage_pct": 100.0,
+        "reasons": {}
+      },
+      {
+        "year": 2022,
+        "considered": 248,
+        "resolved": 248,
+        "coverage_pct": 100.0,
+        "reasons": {}
+      },
+      {
+        "year": 2023,
+        "considered": 245,
+        "resolved": 245,
+        "coverage_pct": 100.0,
+        "reasons": {}
+      },
+      {
+        "year": 2024,
+        "considered": 246,
+        "resolved": 246,
+        "coverage_pct": 100.0,
+        "reasons": {}
+      },
+      {
+        "year": 2025,
+        "considered": 248,
+        "resolved": 248,
+        "coverage_pct": 100.0,
+        "reasons": {}
+      },
+      {
+        "year": 2026,
+        "considered": 181,
+        "resolved": 181,
+        "coverage_pct": 100.0,
+        "reasons": {}
+      }
+    ],
+    "sessions_considered": 1415,
+    "excluded": 0
+  },
+  "credit_distribution_pts": {
+    "mean": -196.517,
+    "median": -175.15,
+    "p10": -304.68,
+    "p90": -116.58,
+    "frac_positive": 0.0
+  },
+  "friction": {
+    "median_inr": 558.78,
+    "median_pts_equivalent": 10.59,
+    "median_friction_breakdown": {
+      "brokerage": 160.0,
+      "stt": 38.34,
+      "exchange_turnover": 38.72,
+      "sebi_turnover": 0.08,
+      "stamp_duty": 1.15,
+      "gst": 35.78,
+      "slippage": 390.0,
+      "total_rupees": 664.07,
+      "points_equivalent": 10.22
+    }
+  },
+  "positive_credit_sessions": {
+    "n": 0,
+    "of": 1415,
+    "median_credit_pts_when_positive": null
+  }
+}
