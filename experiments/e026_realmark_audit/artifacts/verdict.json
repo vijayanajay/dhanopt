@@ -1,0 +1,111 @@
+{
+  "experiment": "e026_realmark_audit",
+  "prereg": "PREREG.md (2026-10-03)",
+  "verdict": "DOES NOT SURVIVE REAL MARKS \u2014 published +4,14,721 struck and the corrected real-mark arm fails its own kill bar (EV +353 vs +600). At a realistic 2.0 pts/leg fill it is negative; see e028.",
+  "audit_valid": true,
+  "book_survives_real_marks": false,
+  "gates": {
+    "0_control_reproduces_predecessor": {
+      "bar": "arm A within Rs 1 of +4,14,721; n=193; PF 9.41",
+      "observed_net": 414721.04,
+      "observed_n": 193,
+      "observed_pf": 9.41,
+      "pass": true
+    },
+    "1_contract_identity_of_exit_mark": {
+      "bar": "0 mismatches, re-derived per trade from the trade date's own partition",
+      "observed": 0,
+      "pass": true
+    },
+    "5_arithmetic_impossibility": {
+      "bar": "0 violations of the closed-form iron-fly bound",
+      "observed": 0,
+      "pass": true
+    },
+    "2_real_mark_coverage": {
+      "bar": ">=50% of arm A sessions carry a complete 4-leg real chain",
+      "observed_pct": 100.0,
+      "pass": true
+    },
+    "3_edge_survives_real_marks": {
+      "bar": "arm B net EV >= +600 per trade",
+      "observed": 353.24,
+      "pass": false
+    },
+    "4_profit_factor_survives_real_marks": {
+      "bar": "arm B PF >= 1.50",
+      "observed": 2.83,
+      "pass": true
+    }
+  },
+  "arms": {
+    "A_control_published_convention": {
+      "trades": 193,
+      "trades_per_year": 33.9,
+      "total_net_pnl": 414721.04,
+      "net_ev_per_trade": 2148.81,
+      "win_rate": 0.8394,
+      "profit_factor": 9.41,
+      "max_drawdown_inr": -11940.2
+    },
+    "B_real_marks_valid_sample": {
+      "trades": 129,
+      "trades_per_year": 22.6,
+      "total_net_pnl": 45567.74,
+      "net_ev_per_trade": 353.24,
+      "win_rate": 0.5969,
+      "profit_factor": 2.83,
+      "max_drawdown_inr": -17437.62
+    },
+    "C_real_marks_expiry_day_EXCLUDED_FROM_VERDICT": {
+      "trades": 64,
+      "trades_per_year": 11.2,
+      "total_net_pnl": 179545.54,
+      "net_ev_per_trade": 2805.4,
+      "win_rate": 0.8438,
+      "profit_factor": 8.32,
+      "max_drawdown_inr": -4385.08
+    },
+    "D_credit_on_corrected_iv": {
+      "trades": 193,
+      "trades_per_year": 33.9,
+      "total_net_pnl": 348093.56,
+      "net_ev_per_trade": 1803.59,
+      "win_rate": 0.8135,
+      "profit_factor": 6.71,
+      "max_drawdown_inr": -10853.34
+    }
+  },
+  "gap_decomposition": {
+    "note": "identical sessions only; separates timing from modelling",
+    "n": 193,
+    "bs_1515": 414721.04,
+    "bs_1530": 382778.04,
+    "real_1530": 225113.27,
+    "gap_from_timing": 31943.0,
+    "gap_from_modelling": 157664.77,
+    "per_session_gap_mean": 982.42,
+    "per_session_gap_std": 2250.35,
+    "sign_flips": 41
+  },
+  "composition": {
+    "dte_distribution": {
+      "1": 61,
+      "2": 94,
+      "3": 5,
+      "4": 31,
+      "5": 2
+    },
+    "sessions_dte_le_1": 61,
+    "sessions_dte_ge_2": 132,
+    "pct_pnl_from_dte_ge_2": 76.4
+  },
+  "diagnostics": {
+    "identity_failures": [],
+    "impossibility_failures": [],
+    "expiry_day_close_violations_EXCLUDED_AS_KNOWN_ARTIFACT": [
+      "2026-01-20 [real] gross -2080.17 vs bounds [-1992.42, 7757.58]"
+    ],
+    "expiry_day_close_violation_count": 1
+  }
+}

@@ -1,0 +1,204 @@
+{
+  "experiment": "e029_era_slices",
+  "prereg": "PREREG.md (2026-10-03)",
+  "seed": 20261003,
+  "control": {
+    "unfiltered_at_0.75pts": {
+      "trades": 129,
+      "net_pnl": 45567.74,
+      "ev_per_trade": 353.24,
+      "win_rate": 0.5969,
+      "profit_factor": 2.83,
+      "max_drawdown_inr": 17437.62
+    },
+    "unfiltered_at_2.0pts": {
+      "trades": 129,
+      "net_pnl": -29082.26,
+      "ev_per_trade": -225.44,
+      "win_rate": 0.3101,
+      "profit_factor": 0.54,
+      "max_drawdown_inr": 52437.62
+    },
+    "e028_published": {
+      "at_0.75pts": 45567.74,
+      "at_2.0pts": -29082.26,
+      "n": 129
+    }
+  },
+  "gates": {
+    "0_control_reproduces_e028": {
+      "bar": "unfiltered book == e028 to Rs 1 on n=129",
+      "observed_net_075": 45567.74,
+      "observed_net_20": -29082.26,
+      "pass": true
+    },
+    "1_selection_is_real": {
+      "bar": "at least one of the 5 filters has selection EV > 0 with n >= 20",
+      "pass": false,
+      "note": "no filter qualified; nothing is carried out of sample"
+    }
+  },
+  "selection_era": {
+    "years": [
+      2021,
+      2022,
+      2023
+    ],
+    "n": 58,
+    "unfiltered_at_2.0pts": {
+      "trades": 58,
+      "net_pnl": -46498.54,
+      "ev_per_trade": -801.7,
+      "win_rate": 0.0172,
+      "profit_factor": 0.0,
+      "max_drawdown_inr": 45852.06
+    },
+    "survivors": [
+      {
+        "key": "F1_expansion_le_0.50",
+        "n": 26,
+        "ev": -668.05,
+        "net": -17369.23,
+        "ok": false
+      },
+      {
+        "key": "F2_expansion_le_0.40",
+        "n": 9,
+        "ev": -681.54,
+        "net": -6133.87,
+        "ok": false
+      },
+      {
+        "key": "F3_dte_eq_2",
+        "n": 54,
+        "ev": -822.9,
+        "net": -44436.54,
+        "ok": false
+      },
+      {
+        "key": "F4_dte2_and_expansion_le_0.50",
+        "n": 25,
+        "ev": -669.35,
+        "net": -16733.81,
+        "ok": false
+      },
+      {
+        "key": "F5_credit_ge_selection_median",
+        "n": 29,
+        "ev": -705.33,
+        "net": -20454.56,
+        "ok": false
+      }
+    ],
+    "chosen": null
+  },
+  "verdict_era": {
+    "years": [
+      2024,
+      2025,
+      2026
+    ],
+    "n": 71,
+    "unfiltered_at_2.0pts": {
+      "trades": 71,
+      "net_pnl": 17416.28,
+      "ev_per_trade": 245.3,
+      "win_rate": 0.5493,
+      "profit_factor": 2.07,
+      "max_drawdown_inr": 5212.11
+    }
+  },
+  "slippage_ladder_pt_per_leg": [
+    0.05,
+    0.25,
+    0.5,
+    0.75,
+    1.5,
+    2.0,
+    2.5
+  ],
+  "verdict": "NO SLICE \u2014 the early era loses under every structural filter",
+  "era_diagnostic": {
+    "by_era_and_fill": {
+      "selection": {
+        "0.75": {
+          "trades": 58,
+          "net_pnl": -15248.54,
+          "ev_per_trade": -262.91,
+          "win_rate": 0.3793,
+          "profit_factor": 0.21,
+          "max_drawdown_inr": 15352.06
+        },
+        "1.5": {
+          "trades": 58,
+          "net_pnl": -33998.54,
+          "ev_per_trade": -586.18,
+          "win_rate": 0.069,
+          "profit_factor": 0.02,
+          "max_drawdown_inr": 33652.06
+        },
+        "2.0": {
+          "trades": 58,
+          "net_pnl": -46498.54,
+          "ev_per_trade": -801.7,
+          "win_rate": 0.0172,
+          "profit_factor": 0.0,
+          "max_drawdown_inr": 45852.06
+        }
+      },
+      "verdict": {
+        "0.75": {
+          "trades": 71,
+          "net_pnl": 60816.28,
+          "ev_per_trade": 856.57,
+          "win_rate": 0.7746,
+          "profit_factor": 11.91,
+          "max_drawdown_inr": 1810.6
+        },
+        "1.5": {
+          "trades": 71,
+          "net_pnl": 34776.28,
+          "ev_per_trade": 489.81,
+          "win_rate": 0.662,
+          "profit_factor": 4.33,
+          "max_drawdown_inr": 3663.03
+        },
+        "2.0": {
+          "trades": 71,
+          "net_pnl": 17416.28,
+          "ev_per_trade": 245.3,
+          "win_rate": 0.5493,
+          "profit_factor": 2.07,
+          "max_drawdown_inr": 5212.11
+        }
+      },
+      "both": {
+        "0.75": {
+          "trades": 129,
+          "net_pnl": 45567.74,
+          "ev_per_trade": 353.24,
+          "win_rate": 0.5969,
+          "profit_factor": 2.83,
+          "max_drawdown_inr": 17437.62
+        },
+        "1.5": {
+          "trades": 129,
+          "net_pnl": 777.74,
+          "ev_per_trade": 6.03,
+          "win_rate": 0.3953,
+          "profit_factor": 1.02,
+          "max_drawdown_inr": 38437.62
+        },
+        "2.0": {
+          "trades": 129,
+          "net_pnl": -29082.26,
+          "ev_per_trade": -225.44,
+          "win_rate": 0.3101,
+          "profit_factor": 0.54,
+          "max_drawdown_inr": 52437.62
+        }
+      }
+    },
+    "warning": "'trade only 2024+' would look like the winning filter here. It is not offered: the boundary was chosen by looking at the eras, so it has no holdout and cannot be tested. Treat 2024-2026 positivity as a regime observation, never as a slice."
+  }
+}

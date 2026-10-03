@@ -1,0 +1,236 @@
+{
+  "experiment": "e027_spread_realism",
+  "prereg": "PREREG.md (2026-10-03)",
+  "superseded_by": "e028_expiry_encoding_audit (breakeven 2.64 -> 1.51; DEAD_AT_REALISTIC_FILL)",
+  "verdict": "AUDIT VOID \u2014 control or coverage failed; no verdict about e013",
+  "audit_valid": false,
+  "gates": {
+    "0_control_reproduces_e026": {
+      "bar": "arm A within Rs 1 of +61,842.51 on n=64",
+      "observed": 45567.74,
+      "n": 129,
+      "pass": false
+    },
+    "0b_plan_stated_slippage_is_consistent": {
+      "bar": "the plan's stated 1.5 pts/leg equals what the engine charges (0.75)",
+      "engine_pts_per_leg": 0.75,
+      "plan_pts_per_leg": 1.5,
+      "pass": false
+    },
+    "1_data_coverage": {
+      "bar": ">=90% of leg-days carry both sessions' OHLC",
+      "observed_pct": 100.0,
+      "pass": true
+    },
+    "2_estimator_sanity": {
+      "bar": "derived tick > 0 and median CS spread on ATM legs in (1 tick, 20 pts)",
+      "derived_tick": 0.05,
+      "median_atm_cs": 90.747,
+      "cs_over_price_ratio": 1.69,
+      "cs_over_range_ratio_by_leg": {
+        "atm_ce": 1.27,
+        "atm_pe": 1.16,
+        "wing_ce": 0.86,
+        "wing_pe": 1.38
+      },
+      "cs_unmeasurable_pct": 55.8,
+      "verdict": "CS FAILS on this data class: it reports a spread LARGER than the option's own price, because the daily high-low range on 0-5 DTE NIFTY options is 96-202% of price and is dominated by genuine intraday mean reversion, which CS cannot distinguish from spread",
+      "pass": false
+    },
+    "3_consistency_crosscheck": {
+      "bar": "CS magnitude within 2x of the e026 BS-vs-real per-session residual",
+      "residual_per_session_inr": 2339.83,
+      "cs_mean_inr": 33799.37,
+      "pass": false
+    },
+    "4_book_survives_measured_slippage": {
+      "bar": "arm C (Corwin-Schultz upper bound) net PnL > 0",
+      "observed": -4269760.85,
+      "pass": false
+    }
+  },
+  "bounds": {
+    "derived_tick_pts": 0.05,
+    "engine_modelled_pts_per_leg": 0.75,
+    "plan_stated_pts_per_leg": 1.5,
+    "tight_bound_pts_per_leg": 0.05,
+    "cs_wide_mean_pts_per_leg": 73.4505,
+    "cs_wide_median_pts_per_leg": 62.7545,
+    "cs_wide_p90_pts_per_leg": 127.3042
+  },
+  "arms": {
+    "A_control_engine_modelled_0p75pts": {
+      "trades": 129,
+      "total_net_pnl": 45567.74,
+      "net_ev_per_trade": 353.24,
+      "win_rate": 0.5969,
+      "profit_factor": 2.83,
+      "max_drawdown_inr": -17437.62
+    },
+    "A2_plan_stated_1p5pts": {
+      "trades": 129,
+      "total_net_pnl": 777.74,
+      "net_ev_per_trade": 6.03,
+      "win_rate": 0.3953,
+      "profit_factor": 1.02,
+      "max_drawdown_inr": -38437.62
+    },
+    "B_tight_one_tick": {
+      "trades": 129,
+      "total_net_pnl": 87371.74,
+      "net_ev_per_trade": 677.3,
+      "win_rate": 0.7674,
+      "profit_factor": 7.49,
+      "max_drawdown_inr": -3891.92
+    },
+    "B2_conservative_2p0pts": {
+      "trades": 129,
+      "total_net_pnl": -29082.26,
+      "net_ev_per_trade": -225.44,
+      "win_rate": 0.3101,
+      "profit_factor": 0.54,
+      "max_drawdown_inr": -52437.62
+    },
+    "C_wide_corwin_schultz": {
+      "trades": 129,
+      "total_net_pnl": -4269760.85,
+      "net_ev_per_trade": -33098.92,
+      "win_rate": 0.0,
+      "profit_factor": 0.0,
+      "max_drawdown_inr": -4215524.88
+    }
+  },
+  "headroom": {
+    "restated_ev_inr": 966.29,
+    "modelled_friction_inr": 595.0,
+    "value_of_one_point_inr": 933.1,
+    "BREAKEVEN_pts_per_leg": 1.513,
+    "margin_over_engine_modelled_pts": 0.763,
+    "margin_over_plan_stated_pts": 0.013
+  },
+  "ladder": {
+    "note": "net PnL on the 64 real-marked sessions across assumed slippage",
+    "rows": [
+      {
+        "pts_per_leg": 0.05,
+        "net_pnl": 87371.74,
+        "ev_per_trade": 677.3
+      },
+      {
+        "pts_per_leg": 0.1,
+        "net_pnl": 84385.74,
+        "ev_per_trade": 654.15
+      },
+      {
+        "pts_per_leg": 0.25,
+        "net_pnl": 75427.74,
+        "ev_per_trade": 584.71
+      },
+      {
+        "pts_per_leg": 0.5,
+        "net_pnl": 60497.74,
+        "ev_per_trade": 468.97
+      },
+      {
+        "pts_per_leg": 0.75,
+        "net_pnl": 45567.74,
+        "ev_per_trade": 353.24
+      },
+      {
+        "pts_per_leg": 1.0,
+        "net_pnl": 30637.74,
+        "ev_per_trade": 237.5
+      },
+      {
+        "pts_per_leg": 1.5,
+        "net_pnl": 777.74,
+        "ev_per_trade": 6.03
+      },
+      {
+        "pts_per_leg": 2.0,
+        "net_pnl": -29082.26,
+        "ev_per_trade": -225.44
+      },
+      {
+        "pts_per_leg": 2.5,
+        "net_pnl": -58942.26,
+        "ev_per_trade": -456.92
+      },
+      {
+        "pts_per_leg": 3.0,
+        "net_pnl": -88802.26,
+        "ev_per_trade": -688.39
+      }
+    ]
+  },
+  "concentration": {
+    "validated_span_years": 5.71,
+    "full_calendar_span_years": 5.71,
+    "conservative_annualisation_years": 5.71,
+    "by_year": {
+      "2021": {
+        "sessions": 19,
+        "net_pnl": -19237.0,
+        "mean_per_session": -1012.0
+      },
+      "2022": {
+        "sessions": 21,
+        "net_pnl": -12089.0,
+        "mean_per_session": -576.0
+      },
+      "2023": {
+        "sessions": 18,
+        "net_pnl": -15173.0,
+        "mean_per_session": -843.0
+      },
+      "2024": {
+        "sessions": 19,
+        "net_pnl": -2577.0,
+        "mean_per_session": -136.0
+      },
+      "2025": {
+        "sessions": 31,
+        "net_pnl": 19149.0,
+        "mean_per_session": 618.0
+      },
+      "2026": {
+        "sessions": 21,
+        "net_pnl": 845.0,
+        "mean_per_session": 40.0
+      }
+    },
+    "share_of_pnl_from_best_year_pct": -65.8,
+    "conservative_pnl_per_yr_inr": -5093.0,
+    "conservative_pct_per_yr_on_2L": -2.55
+  },
+  "per_leg": {
+    "atm_ce": {
+      "n": 129,
+      "median_cs_pts": 89.277,
+      "p90_cs_pts": 187.7271,
+      "median_contracts": 4772684.0,
+      "cs_unmeasurable_pct": 48.8
+    },
+    "atm_pe": {
+      "n": 129,
+      "median_cs_pts": 96.3887,
+      "p90_cs_pts": 243.3676,
+      "median_contracts": 4080743.0,
+      "cs_unmeasurable_pct": 57.4
+    },
+    "wing_ce": {
+      "n": 129,
+      "median_cs_pts": 27.9551,
+      "p90_cs_pts": 83.5019,
+      "median_contracts": 3074239.0,
+      "cs_unmeasurable_pct": 51.2
+    },
+    "wing_pe": {
+      "n": 129,
+      "median_cs_pts": 55.9998,
+      "p90_cs_pts": 153.8387,
+      "median_contracts": 2870903.0,
+      "cs_unmeasurable_pct": 65.9
+    }
+  }
+}

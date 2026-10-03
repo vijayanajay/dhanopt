@@ -1,0 +1,287 @@
+{
+  "experiment": "e028_expiry_encoding_audit",
+  "verdict": "DEAD_AT_REALISTIC_FILL",
+  "defect": "df['expiry'] == str(front_expiry): a typed date compared against a raw string. The store holds DD-Mon-YYYY (2021-2024) and ISO (2025+), so every legacy partition returned an empty chain and \u00a75.5's fail-closed rule dropped the session as NO TRADE.",
+  "sessions_selected": 193,
+  "marks_arm_A": 106,
+  "marks_arm_B": 193,
+  "usable_arm_A": 64,
+  "usable_arm_B": 129,
+  "sessions_recovered": 65,
+  "marks_identical_where_shared": true,
+  "breakeven_pts_per_leg": {
+    "arm_A": 2.64,
+    "arm_B": 1.513
+  },
+  "metrics": {
+    "arm_A_control_as_published": {
+      "trades": 64,
+      "trades_per_year": 11.2,
+      "total_net_pnl": 61842.51,
+      "net_ev_per_trade": 966.29,
+      "win_rate": 0.8281,
+      "profit_factor": 16.67,
+      "max_drawdown_inr": -1441.01
+    },
+    "arm_A_at_2.0_pts": {
+      "trades": 64,
+      "trades_per_year": 11.2,
+      "total_net_pnl": 20942.51,
+      "net_ev_per_trade": 327.23,
+      "win_rate": 0.6094,
+      "profit_factor": 2.65,
+      "max_drawdown_inr": -4204.46
+    },
+    "arm_B_corrected_at_0.75_pts": {
+      "trades": 129,
+      "trades_per_year": 22.6,
+      "total_net_pnl": 45567.74,
+      "net_ev_per_trade": 353.24,
+      "win_rate": 0.5969,
+      "profit_factor": 2.83,
+      "max_drawdown_inr": -17437.62
+    },
+    "arm_B_corrected_at_1.5_pts": {
+      "trades": 129,
+      "trades_per_year": 22.6,
+      "total_net_pnl": 777.74,
+      "net_ev_per_trade": 6.03,
+      "win_rate": 0.3953,
+      "profit_factor": 1.02,
+      "max_drawdown_inr": -38437.62
+    },
+    "arm_B_corrected_at_2.0_pts": {
+      "trades": 129,
+      "trades_per_year": 22.6,
+      "total_net_pnl": -29082.26,
+      "net_ev_per_trade": -225.44,
+      "win_rate": 0.3101,
+      "profit_factor": 0.54,
+      "max_drawdown_inr": -52437.62
+    }
+  },
+  "ladder": {
+    "arm_A": [
+      {
+        "pts_per_leg": 0.05,
+        "net_pnl": 84746.51,
+        "ev_per_trade": 1324.16
+      },
+      {
+        "pts_per_leg": 0.1,
+        "net_pnl": 83110.51,
+        "ev_per_trade": 1298.6
+      },
+      {
+        "pts_per_leg": 0.25,
+        "net_pnl": 78202.51,
+        "ev_per_trade": 1221.91
+      },
+      {
+        "pts_per_leg": 0.5,
+        "net_pnl": 70022.51,
+        "ev_per_trade": 1094.1
+      },
+      {
+        "pts_per_leg": 0.75,
+        "net_pnl": 61842.51,
+        "ev_per_trade": 966.29
+      },
+      {
+        "pts_per_leg": 1.0,
+        "net_pnl": 53662.51,
+        "ev_per_trade": 838.48
+      },
+      {
+        "pts_per_leg": 1.5,
+        "net_pnl": 37302.51,
+        "ev_per_trade": 582.85
+      },
+      {
+        "pts_per_leg": 2.0,
+        "net_pnl": 20942.51,
+        "ev_per_trade": 327.23
+      },
+      {
+        "pts_per_leg": 2.5,
+        "net_pnl": 4582.51,
+        "ev_per_trade": 71.6
+      },
+      {
+        "pts_per_leg": 3.0,
+        "net_pnl": -11777.49,
+        "ev_per_trade": -184.02
+      }
+    ],
+    "arm_B": [
+      {
+        "pts_per_leg": 0.05,
+        "net_pnl": 87371.74,
+        "ev_per_trade": 677.3
+      },
+      {
+        "pts_per_leg": 0.1,
+        "net_pnl": 84385.74,
+        "ev_per_trade": 654.15
+      },
+      {
+        "pts_per_leg": 0.25,
+        "net_pnl": 75427.74,
+        "ev_per_trade": 584.71
+      },
+      {
+        "pts_per_leg": 0.5,
+        "net_pnl": 60497.74,
+        "ev_per_trade": 468.97
+      },
+      {
+        "pts_per_leg": 0.75,
+        "net_pnl": 45567.74,
+        "ev_per_trade": 353.24
+      },
+      {
+        "pts_per_leg": 1.0,
+        "net_pnl": 30637.74,
+        "ev_per_trade": 237.5
+      },
+      {
+        "pts_per_leg": 1.5,
+        "net_pnl": 777.74,
+        "ev_per_trade": 6.03
+      },
+      {
+        "pts_per_leg": 2.0,
+        "net_pnl": -29082.26,
+        "ev_per_trade": -225.44
+      },
+      {
+        "pts_per_leg": 2.5,
+        "net_pnl": -58942.26,
+        "ev_per_trade": -456.92
+      },
+      {
+        "pts_per_leg": 3.0,
+        "net_pnl": -88802.26,
+        "ev_per_trade": -688.39
+      }
+    ]
+  },
+  "era_cut": {
+    "arm_A": {
+      "by_year": {
+        "2024": {
+          "sessions": 12,
+          "net_pnl": 4949.0,
+          "mean_per_session": 412.0
+        },
+        "2025": {
+          "sessions": 31,
+          "net_pnl": 42399.0,
+          "mean_per_session": 1368.0
+        },
+        "2026": {
+          "sessions": 21,
+          "net_pnl": 14495.0,
+          "mean_per_session": 690.0
+        }
+      },
+      "share_of_pnl_from_best_year_pct": 68.6,
+      "span_years": 2.14,
+      "conservative_pnl_per_yr_inr": 10831.0,
+      "conservative_pct_per_yr_on_2L": 5.42
+    },
+    "arm_B": {
+      "by_year": {
+        "2021": {
+          "sessions": 19,
+          "net_pnl": -7487.0,
+          "mean_per_session": -394.0
+        },
+        "2022": {
+          "sessions": 21,
+          "net_pnl": -1589.0,
+          "mean_per_session": -76.0
+        },
+        "2023": {
+          "sessions": 18,
+          "net_pnl": -6173.0,
+          "mean_per_session": -343.0
+        },
+        "2024": {
+          "sessions": 19,
+          "net_pnl": 3923.0,
+          "mean_per_session": 206.0
+        },
+        "2025": {
+          "sessions": 31,
+          "net_pnl": 42399.0,
+          "mean_per_session": 1368.0
+        },
+        "2026": {
+          "sessions": 21,
+          "net_pnl": 14495.0,
+          "mean_per_session": 690.0
+        }
+      },
+      "share_of_pnl_from_best_year_pct": 93.0,
+      "span_years": 5.71,
+      "conservative_pnl_per_yr_inr": 7980.0,
+      "conservative_pct_per_yr_on_2L": 3.99
+    }
+  },
+  "gates": {
+    "0_control_reproduces_predecessor": {
+      "bar": "arm A = Rs 61,842.51 on n=64 to the paisa, and e027's breakeven 2.64 pts/leg",
+      "observed_net": 61842.51,
+      "observed_n": 64,
+      "observed_breakeven": 2.64,
+      "pass": true
+    },
+    "1_contract_identity": {
+      "bar": "0 mismatches, front expiry re-derived per trade",
+      "observed": 0,
+      "pass": true
+    },
+    "2_arithmetic_impossibility": {
+      "bar": "0 violations of the closed-form iron-fly bound",
+      "observed": 0,
+      "pass": true
+    },
+    "3_coverage": {
+      "bar": ">=95% of the markable sessions (selected sessions whose exit is NOT their own expiry day) yield a real 4-leg mark",
+      "observed_pct": 100.0,
+      "observed_n": 129,
+      "markable_n": 129,
+      "literal_prereg_pct": 66.84,
+      "pass": true
+    },
+    "4_edge_at_realistic_fill": {
+      "bar": "arm B EV >= +400 per trade at 2.0 pts/leg on the full sample",
+      "observed": -225.44,
+      "pass": false
+    },
+    "5_era_robustness": {
+      "bar": "no calendar year supplies >60% of net PnL",
+      "observed_pct": 93.0,
+      "pass": false
+    },
+    "6_round_trip_identity": {
+      "bar": "expiry parses losslessly in both encodings, and no lookup returns empty on a partition that exists",
+      "observed_marks_identical_where_shared": true,
+      "pass": true
+    },
+    "7_marks_are_not_stale_early": {
+      "bar": "0 of the 4 legs close more than 4 ticks below intrinsic vs the same-expiry futures close (evidence only, non-voiding)",
+      "observed_legs_below_intrinsic": 52,
+      "observed_legs_checked": 772,
+      "pass": false,
+      "note": "a stale-early print reads LOW, so the fly reads cheap and this book looks better than it was. Flooring every breaching leg at intrinsic (intrinsic_audit.py) costs Rs 3,578 at 0.75 pts/leg and Rs 3,578 more at 2.0. Not load-bearing: gate 4 already fails."
+    }
+  },
+  "supersedes": [
+    "e026 arm B (+Rs 61,843, n=64) - correct method, format-selected sample",
+    "e027 slippage ladder and its 2.64 pts/leg breakeven - same sample",
+    "actionplan.md s5.5 B/C and RETROSPECTIVE.md s5.11 - derived from that sample"
+  ],
+  "note": "Entry credit remains Black-Scholes in every arm (no intraday option price on disk), exactly as in e026. This audit can only move the number against the book, never for it."
+}

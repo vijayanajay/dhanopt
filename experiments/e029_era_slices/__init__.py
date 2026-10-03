@@ -1,0 +1,1 @@
+"""E029 — era slices. See PREREG.md (frozen 2026-10-03)."""

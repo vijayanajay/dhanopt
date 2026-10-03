@@ -10,6 +10,7 @@ from __future__ import annotations
 import io
 import logging
 from datetime import date, datetime
+from functools import lru_cache
 from pathlib import Path
 from typing import Optional, Union
 
@@ -21,8 +22,17 @@ import config
 logger = logging.getLogger(__name__)
 
 
+@lru_cache(maxsize=65536)
 def parse_date(d: Union[date, datetime, str]) -> date:
-    """Helper to parse a date, datetime or date string into datetime.date."""
+    """Helper to parse a date, datetime or date string into datetime.date.
+
+    Memoized: it is pure, and the store holds two encodings, so a legacy row
+    costs three failed `strptime` attempts before the fourth format matches.
+    Typing one 976 MB store row-by-row that way took 78s; with the cache the
+    repo-wide coverage walk in `tests/test_feeds.py` runs in seconds and can
+    therefore run on every commit. Exceptions are not cached, so a genuinely
+    unparseable string still raises every time.
+    """
     if isinstance(d, datetime):
         return d.date()
     if isinstance(d, date):
@@ -34,6 +44,50 @@ def parse_date(d: Union[date, datetime, str]) -> date:
         except ValueError:
             pass
     raise ValueError(f"Unable to parse date string: {d}")
+
+
+def with_expiry_date(df: pd.DataFrame) -> pd.DataFrame:
+    """Attach a parsed `expiry_date` column to a normalized bhavcopy frame.
+
+    The store holds **two** expiry encodings: `04-Feb-2021` from the legacy NSE
+    format and `2025-01-02` from the post-July-2024 UDiff format. Comparing a
+    formatted `date` against the raw string therefore matches nothing on every
+    legacy partition, and the empty result is indistinguishable from a session
+    with no data. That is the e028 conviction, and it voided 60 of e026's 129
+    marks. Compare dates, never strings.
+
+    New partitions are written ISO (see `normalize_bhavcopy_df`), so this is
+    belt-and-braces for the 935 MB already on disk -- but the encoder can be
+    reintroduced by any future format, so the typed column is the contract.
+    """
+    if "expiry" not in df.columns:
+        raise ValueError("frame has no 'expiry' column; cannot type the expiry")
+    out = df.copy()
+    out["expiry_date"] = out["expiry"].map(parse_date)
+    return out
+
+
+def front_expiry(expiries, trade_date: date) -> Optional[date]:
+    """The expiry nearest to and not before `trade_date`, or None.
+
+    The e018 contract-identity rule, in the engine rather than in an experiment.
+    On an expiry day the contract expiring *that day* is the front contract; it
+    is not tomorrow's. `expiries` may hold either the raw stored strings or the
+    `expiry_date` column from `with_expiry_date` -- it must be typed dates, so
+    pass `with_expiry_date(df)["expiry_date"]`, never the raw column.
+
+    Lived in exactly one experiment (e026) until the repo-wide coverage test
+    needed it and `tests/` cannot import from `experiments/`. Two copies of a
+    contract-identity rule is one copy too many; see invariant 5.6.
+    """
+    if not hasattr(expiries, "__iter__"):
+        raise TypeError("front_expiry needs an iterable of typed dates, not a scalar")
+    if trade_date is None:
+        raise ValueError("front_expiry needs a trade date; without one it cannot "
+                         "resolve 'front', and guessing would break contract identity")
+    valid = sorted({parse_date(e) for e in expiries if e is not None})
+    valid = [e for e in valid if e >= trade_date]
+    return valid[0] if valid else None
 
 
 def normalize_bhavcopy_df(df: pd.DataFrame) -> pd.DataFrame:
@@ -71,7 +125,11 @@ def normalize_bhavcopy_df(df: pd.DataFrame) -> pd.DataFrame:
         inst_map = {"IDF": "FUTIDX", "IDO": "OPTIDX", "STF": "FUTSTK", "STO": "OPTSTK"}
         norm["instrument"] = raw_inst.map(lambda x: inst_map.get(x, x))
         exp_key = next((k for k in ("XPRYDT", "XPIRTNDT", "FININSTRMACTLXPRYDT", "EXPIRY_DT") if k in upper_cols), None)
-        norm["expiry"] = df[upper_cols[exp_key]].astype(str).str.strip() if exp_key else ""
+        # ISO at the write boundary, so the store stops producing a second
+        # encoding. Legacy frames already on disk stay legacy; read through
+        # `with_expiry_date` (e028).
+        norm["expiry"] = (df[upper_cols[exp_key]].map(parse_date).map(date.isoformat)
+                          if exp_key else "")
         strk_key = next((k for k in ("STRKPRIC", "STRIKE_PR") if k in upper_cols), None)
         norm["strike"] = pd.to_numeric(df[upper_cols[strk_key]], errors="coerce").fillna(0.0) if strk_key else 0.0
         opt_key = next((k for k in ("OPTNTP", "OPTION_TYP") if k in upper_cols), None)
@@ -173,8 +231,11 @@ def filter_nifty_options(
         mask &= df["option_type"].isin(["CE", "PE"])
         
     if expiry is not None:
-        exp_str = expiry.strftime("%d-%b-%Y") if isinstance(expiry, (date, datetime)) else str(expiry).strip()
-        mask &= df["expiry"].str.upper() == exp_str.upper()
+        # Compared as a DATE. This used to format to "%d-%b-%Y" and string-compare,
+        # which matches only the legacy encoding and returns an empty frame for
+        # every 2025+ partition -- the same defect as e028, opposite bias.
+        target = parse_date(expiry)
+        mask &= with_expiry_date(df)["expiry_date"] == target
         
     if strike is not None:
         mask &= (df["strike"] - float(strike)).abs() < 1e-4

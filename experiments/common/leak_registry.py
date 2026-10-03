@@ -109,6 +109,35 @@ REGISTRY: list[dict] = [
     {"module": "experiments/e018_vrp_weekly/volatility_fixed.py", "info": "t-1", "live": True,
      "note": "contract-identity-correct IV/VRP signal builder; front expiry resolved from the "
              "trade date's own partition, straddle read from t-1"},
+    # e026 — the REAL-PRICE RE-AUDIT of e013's surviving candidate. Not a
+    # strategy: the signal is frozen at e013's values and only the exit MARK
+    # moves, from Black-Scholes to real bhavcopy option closes. Declared
+    # day-t / live False because it does NOT improve e013's information set —
+    # the real mark is a day-t EOD close, i.e. a price observed AFTER the 15:15
+    # decision. Reading arm B as live-replicable would be a fresh leak.
+    {"module": "experiments/e026_realmark_audit/audit_realmark.py", "info": "day-t", "live": False,
+     "note": "e013 re-marked to real bhavcopy closes. Control reproduces published "
+             "+414,721 / PF 9.41 exactly (gate 0). Real marks (valid sample, n=64): "
+             "+61,842, EV +966, PF 16.67 — SURVIVES real marks but the published "
+             "+4,14,721 is struck and must be restated. e013 is also NOT a 0DTE book: "
+             "132/193 sessions are dte>=2 and carry 76% of the PnL. SUPERSEDED BY e028: "
+             "that n=64 was half the tradeable sample (expiry-encoding defect, below); "
+             "the corrected n=129 books -29,082 at 2.0 pts/leg"},
+    # e027 — REALIZED SLIPPAGE on the restated e013 pin fly. Not a strategy and
+    # not a signal: it characterises the COST of trading a signal that already
+    # exists, so it declares info "none" / live True. Verdict UNRESOLVABLE —
+    # breakeven is exactly 2.64 pts/leg, but no data on disk can measure the
+    # real spread (Corwin-Schultz fails its own sanity gate at 1.71x the
+    # option's price). Also records that the engine charges 0.75 pts/leg while
+    # the actionplan has always stated 1.5.
+    {"module": "experiments/e027_spread_realism/spread_realism.py", "info": "none", "live": True,
+     "note": "slippage measurement only; no signal, no forward PnL claim. Control "
+             "reproduces e026's +61,842.51 on n=64. Breakeven 2.64 pts/leg; book is "
+             "+37,303 even at the plan's stated 1.5 pts/leg. CS estimator UNUSABLE here "
+             "(reports spread > instrument price; 69% unmeasurable) — verdict is "
+             "UNRESOLVABLE, and a broken upper bound is explicitly NOT read as a pass. "
+             "SUPERSEDED BY e028: the n=64 sample was format-selected by the expiry-"
+             "encoding defect, so 2.64 is not this book's breakeven"},
     # e019 — cash-equity momentum on free NSE EOD. Universe is the union of every
     # trading symbol (no index-membership list applied backwards => survivorship-
     # safe by construction); liquidity filter is a trailing-252 median turnover
@@ -119,15 +148,59 @@ REGISTRY: list[dict] = [
              "benchmark (excess Sharpe -0.81). Friction decay premise FALSIFIED: daily beat "
              "monthly 3.8x and costs were ~3% of capital"},
     {"module": "experiments/e019_momentum/download_cash.py", "info": "none", "live": True,
-     "note": "data fetch: free NSE daily cash bhavcopy, 1420 sessions x 6475 symbols, "
-             "idempotent, dual-URL (pre/post Aug-2024 archive cutover)"},
+     "note": "data fetch: free NSE daily cash bhavcopy, 1420 sessions, union of 6475 trading "
+             "symbols (~1.8k present per session), idempotent, dual-URL (pre/post Aug-2024 "
+             "archive cutover)"},
     # e020 — E019's diluted follow-up: top DECILE (~135 names) instead of top-20.
     # Same store, same point-in-time universe, same t-1 fill rule, same cost model.
     {"module": "experiments/e020_diluted_momentum/run_e020.py", "info": "t-1", "live": True,
      "note": "diluted 12-1 momentum, top decile monthly. FAILED gates 5/6: CAGR 24.8% but "
              "excess Sharpe vs same-universe equal-weight only +0.04 (the return IS beta), and "
              "top-bucket names still die 1.87x more often. Control reproduced e019's -0.81 exactly"},
+    # e028 — the EXPIRY-ENCODING AUDIT: the fourth conviction, and the first one
+    # about an INPUT rather than an information set. `df["expiry"] == str(front_expiry)`
+    # compared a datetime.date to a raw string; the bhavcopy store holds DD-Mon-YYYY
+    # (2021-2024) and ISO (2025+), so 356 of 576 wall sessions returned an EMPTY
+    # chain and actionplan s5.5's fail-closed rule dropped each as NO TRADE. The
+    # guard was correct; the lookup beneath it was wrong, and nothing could tell.
+    # Fixed at core/feeds/bhavcopy.py (with_expiry_date + ISO write at the boundary),
+    # not in the experiment, so a fifth consumer cannot inherit it. Declared day-t /
+    # live False for the same reason as e026: it moves no signal, only which
+    # sessions exist. VERDICT DEAD_AT_REALISTIC_FILL — the recovered sessions are
+    # worse than the ones the bug kept.
+    {"module": "experiments/e028_expiry_encoding_audit/audit_encoding.py", "info": "day-t", "live": False,
+     "note": "expiry-encoding defect (date-vs-string) hid 4 years of marks. Control reproduces "
+             "e026's +61,842.51 on n=64 to the paisa. Corrected: n=129, +45,568 @0.75 pts/leg but "
+             "-29,082 @2.0 (EV -225, PF 0.54); breakeven 2.64 -> 1.51 pts/leg; 93.0% of PnL from "
+             "2025. FAILED gates 4 and 5. Retrospectively STRICTER than e026 on an unrelated bound: "
+             "52/772 legs close >4 ticks below intrinsic (stale final prints), and flooring them "
+             "costs a further 3,578"},
+    # e029 — the ERA-SLICE audit: does any structural subset of e013 survive the
+    # 2021-2023 era that e028's expiry fix finally un-hid? NOT a strategy: no
+    # signal moves, sessions are only removed, and the entry credit stays
+    # Black-Scholes as in e026/e028. Declared day-t / live False for that
+    # reason. The design point is the HOLDOUT: selection reads 2021-2023 and the
+    # verdict reads 2024-2026, never overlapping, because the early era loses
+    # money and any filter would otherwise "find" a book before touching the
+    # data. VERDICT NO SLICE — all five structural filters are negative in
+    # sample, and the early era is negative at the engine's own 0.75-pt fill, so
+    # this is a signal failure and not a cost one. The 2024-2026 era IS
+    # positive at every fill (+245 EV at 2.0 pts); that is a regime observation
+    # with no holdout and is deliberately NOT offered as a slice.
+    {"module": "experiments/e029_era_slices/eras.py", "info": "day-t", "live": False,
+     "note": "era-slice holdout on e013's corrected n=129 book. Control reproduces "
+             "e028 exactly. NO SLICE: 5/5 structural filters negative on the 2021-2023 "
+             "selection era. Selection era loses at 0.75, 1.5 AND 2.0 pts/leg, so no "
+             "execution assumption rescues it. Gates 2/3 (EV>0, and EV > p95 of 500 "
+             "same-size random subsets) are implemented and tested for the next "
+             "candidate. 2024-2026 is positive at every fill — regime, not a book"},
 ]
+
+# INVENTORY AUDIT (2026-10-03) — a data claim is a testable assertion, exactly like a
+# PnL claim. actionplan.md §2 asserted a `data/participant_oi/` store that does not exist
+# and an e009 capture directory that has never been written; both were load-bearing for
+# Phase 6 and Test 5. Re-run `python -m experiments.common.audit_inventory` before any
+# roadmap item is scheduled against a data partition. §2.1 of the plan is the result.
 
 # e009 Phase B (if built) must register here BEFORE its first PnL number is committed:
 # live-chain flips -> info "day-t", live True ONLY with the t+1-fill rule implemented

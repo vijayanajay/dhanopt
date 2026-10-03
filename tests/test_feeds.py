@@ -3,6 +3,7 @@
 import io
 import tempfile
 import unittest
+from collections import Counter
 from datetime import date, datetime, time, timedelta
 from pathlib import Path
 
@@ -11,11 +12,15 @@ import pandas as pd
 from core.feeds.base import Candle, OptionChainSnapshot, OptionContract
 from core.feeds.bhavcopy import (
     filter_nifty_options,
+    front_expiry,
     load_fo_bhavcopy,
     normalize_bhavcopy_df,
     parse_date,
+    with_expiry_date,
 )
 from core.feeds.dhan import DhanFeed, generate_mock_candles, generate_mock_option_chain
+
+import config
 
 
 class TestFeedContracts(unittest.TestCase):
@@ -180,6 +185,143 @@ OPTIDX,NIFTY,01-Oct-2026,25250,CE,105.0,125.0,95.0,115.0,115.0,3000,800.0,180000
             self.assertEqual(len(loaded), 1)
             self.assertEqual(loaded.iloc[0]["symbol"], "NIFTY")
             self.assertEqual(loaded.iloc[0]["strike"], 25250.0)
+
+    def test_both_store_encodings_resolve_to_the_same_expiry(self):
+        """The e028 defect in miniature, and it costs nothing to run.
+
+        The store holds `04-Feb-2021` (legacy) and `2025-01-02` (UDiff) in the
+        SAME column. Any lookup that compares a formatted date against that raw
+        string matches one era and returns an empty frame on the other, which
+        the caller cannot distinguish from a session with no data. Both rows
+        below must be found by one call.
+        """
+        legacy_csv = """INSTRUMENT,SYMBOL,EXPIRY_DT,STRIKE_PR,OPTION_TYP,OPEN,HIGH,LOW,CLOSE,SETTLE_PR,CONTRACTS,VAL_INLAKH,OPEN_INT,CHG_IN_OI,TIMESTAMP
+OPTIDX,NIFTY,04-Feb-2021,13500,CE,120.0,140.0,110.0,135.0,135.0,5000,1250.0,250000,15000,01-Feb-2021
+"""
+        modern_csv = """FININSTRMACTLNM,FININSTRMTP,XPRYDT,STRIKPRIC,OPTNTP,OPNPRIC,HGHPRIC,LWPRIC,CLSPRIC,STTLMPRIC,CONTRACTS,OPNINTRST,CHNGINOPNINTRST,TRADDT
+NIFTY,IDO,02-Jan-2025,13500,CE,120.0,140.0,110.0,135.0,135.0,5000,250000,15000,01-Jan-2025
+"""
+        legacy = normalize_bhavcopy_df(pd.read_csv(io.StringIO(legacy_csv)))
+        modern = normalize_bhavcopy_df(pd.read_csv(io.StringIO(modern_csv)))
+
+        # The legacy frame keeps the raw NSE string; the modern frame is written
+        # ISO at the boundary. One typed lookup must survive both.
+        self.assertEqual(len(filter_nifty_options(legacy, expiry=date(2021, 2, 4))), 1)
+        self.assertEqual(len(filter_nifty_options(modern, expiry=date(2025, 1, 2))), 1)
+
+        # And the string comparison the bug used must still find nothing on the
+        # legacy frame -- if this starts passing, the format changed under us.
+        self.assertEqual(len(legacy[legacy["expiry"] == str(date(2021, 2, 4))]), 0)
+
+    def test_with_expiry_date_refuses_a_frame_with_no_expiry(self):
+        """A lookup that cannot type its key must raise, not guess."""
+        with self.assertRaises(ValueError):
+            with_expiry_date(pd.DataFrame({"symbol": ["NIFTY"]}))
+
+    def test_front_expiry_takes_the_contract_expiring_today(self):
+        """Contract identity (invariant 5.6): on an expiry day the front contract
+        is the one expiring THAT day, not tomorrow's."""
+        d = date(2023, 12, 20)
+        self.assertEqual(front_expiry({date(2023, 12, 21), date(2023, 12, 28)}, d),
+                         date(2023, 12, 21))
+        self.assertEqual(front_expiry({date(2023, 12, 21)}, date(2023, 12, 21)),
+                         date(2023, 12, 21))
+        self.assertIsNone(front_expiry({date(2023, 12, 19)}, d))
+
+    def test_front_expiry_refuses_to_guess(self):
+        """Without a trade date there is no 'front' to resolve, and guessing
+        would quietly break contract identity (invariant 5.6)."""
+        with self.assertRaises(ValueError):
+            front_expiry({date(2023, 12, 21)}, None)
+
+
+def _store_partitions():
+    """Every `fo_YYYYMMDD.parquet` on disk. Filenames are authoritative."""
+    root = Path(config.HISTORICAL_DATA_DIR)
+    if not root.exists():
+        return []
+    out = []
+    for f in root.glob("**/*.parquet"):
+        s = f.stem
+        if s.startswith("fo_") and len(s) == 11 and s[3:].isdigit():
+            out.append(f)
+    return sorted(out)
+
+
+class TestBhavcopyStoreCoverage(unittest.TestCase):
+    """The repo-wide guard against silent-empty lookups (invariant 5.13).
+
+    e028 emptied 356 of 576 sessions because a loader compared a `date` to a raw
+    string, and the fail-closed rule dropped each one as `NO TRADE` with nothing
+    logged. Nothing in the suite asked whether a lookup that CAN return an empty
+    frame ever does. This does, on every partition, every run, in ~8 seconds.
+
+    Coverage is asserted PER YEAR. That is not decoration: the bug was invisible
+    in aggregate (40% of sessions) and obvious as a curve (100% in 2025, 0% in
+    2023). An aggregate coverage number hides exactly the shape that betrays an
+    encoding, a partition, or a wall convention.
+    """
+
+    # Only what filter_nifty_options actually reads. Reading the full partition
+    # costs ~3s more per full walk for columns nothing here touches.
+    COLUMNS = ["symbol", "expiry", "option_type"]
+
+    @classmethod
+    def setUpClass(cls):
+        cls.partitions = _store_partitions()
+
+    def setUp(self):
+        if not self.partitions:
+            self.skipTest(f"no bhavcopy store at {config.HISTORICAL_DATA_DIR}")
+
+    def test_every_partition_resolves_a_non_empty_front_chain(self):
+        empty: dict[int, list[str]] = {}
+        n_nifty = 0
+
+        for p in self.partitions:
+            trade_date = datetime.strptime(p.stem[3:], "%Y%m%d").date()
+            df = pd.read_parquet(p, columns=self.COLUMNS)
+            nifty = filter_nifty_options(df)          # no expiry key: no parse
+            if nifty.empty:
+                empty.setdefault(str(trade_date.year), []).append(f"{trade_date}:no-nifty")
+                continue
+            n_nifty += 1
+            fe = front_expiry(with_expiry_date(nifty)["expiry_date"], trade_date)
+            if fe is None:
+                empty.setdefault(str(trade_date.year), []).append(f"{trade_date}:no-front-expiry")
+                continue
+            if filter_nifty_options(nifty, expiry=fe).empty:
+                empty.setdefault(str(trade_date.year), []).append(f"{trade_date}:empty@fe={fe}")
+
+        if not empty:
+            self.assertGreater(n_nifty, 0)
+            return
+
+        per_year = Counter(p.stem[3:7] for p in self.partitions)
+        report = ["front-chain coverage by year (empty lookups listed):"]
+        for y in sorted(per_year):
+            bad = empty.get(y, [])
+            report.append(f"  {y}: {per_year[y] - len(bad):>4}/{per_year[y]:<4} "
+                          f"resolved ({100 * (per_year[y] - len(bad)) / per_year[y]:.1f}%)"
+                          + (f"  e.g. {bad[:3]}" if bad else ""))
+        self.fail("a lookup returned an empty frame without saying why:\n"
+                  + "\n".join(report))
+
+    def test_the_store_is_present_and_spans_multiple_eras(self):
+        """Guards the guard. A walk that silently covers one file, or one era,
+        is the same failure wearing a test's clothes."""
+        years = {p.stem[3:7] for p in self.partitions}
+        self.assertGreater(len(self.partitions), 1000, f"only {len(self.partitions)} partitions")
+        self.assertGreaterEqual(len(years), 2, f"single era only: {years}")
+        # Both expiry encodings must be present on disk -- if a backfill ever
+        # normalises the legacy files, this test stops covering the case it exists for.
+        legacy = modern = 0
+        for p in self.partitions[:: max(1, len(self.partitions) // 12)]:
+            v = pd.read_parquet(p, columns=["expiry"])["expiry"].astype(str)
+            legacy += int(v.str.match(r"^\d{2}-[A-Za-z]{3}-\d{4}$").any())
+            modern += int(v.str.match(r"^\d{4}-\d{2}-\d{2}$").any())
+        self.assertGreater(legacy, 0, "no legacy DD-Mon-YYYY encoding found on disk")
+        self.assertGreater(modern, 0, "no ISO encoding found on disk")
 
 
 if __name__ == "__main__":
