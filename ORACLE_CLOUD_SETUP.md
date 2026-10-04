@@ -130,15 +130,17 @@ DHAN_ACCESS_TOKEN="your_dhan_access_token_here"
 Press `Ctrl + O`, then `Enter` to save, and `Ctrl + X` to exit `nano`.
 
 ### 5.4 Test the Capture Script (Smoke Test)
-Run a test snapshot with `--force` (even on weekends/holidays):
+Run a single test snapshot with `--once` (works anytime, even at night or on weekends/holidays):
 ```bash
-python3 -m experiments.e009_wall_capture.capture_chains --force
+python3 -m experiments.e009_wall_capture.capture_chains --once
 ```
 You should see:
-```json
+```text
+[2026-10-05T00:50:00] Captured 2 expiries, 85 strikes, spot 25050.5 (180 ms)
 {
- "date": "2026-10-04",
+ "date": "2026-10-05",
  "n_snapshots": 1,
+ "max_gap_secs": null,
  ...
 }
 ```

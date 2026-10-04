@@ -135,10 +135,11 @@ def _existing_stamps(path: Path) -> list[str]:
     return stamps
 
 
-def capture_session(token: str, client_id: str, d: _date, expiry: str | list[str]) -> Path:
+def capture_session(token: str, client_id: str, d: _date, expiry: str | list[str], once: bool = False) -> Path:
     """One trading day: snapshot loop 09:00-15:35, append to per-day jsonl.gz.
     Supports single or multiple expiries (e.g. front and next expiry).
-    Idempotent: a rerun appends only seconds not already on disk."""
+    Idempotent: a rerun appends only seconds not already on disk.
+    If once=True, executes a single snapshot immediately and returns (for smoke tests)."""
     SNAPSHOTS.mkdir(parents=True, exist_ok=True)
     path = SNAPSHOTS / f"{d.isoformat()}.jsonl.gz"
     day = datetime.combine(d, datetime.min.time())
@@ -149,10 +150,18 @@ def capture_session(token: str, client_id: str, d: _date, expiry: str | list[str
     primary_exp = exp_list[0]
 
     with gzip.open(path, "at", encoding="utf-8") as f:
-        while (now := datetime.now()) < end:
-            if now < start:
-                time.sleep(min(30, (start - now).total_seconds()))
-                continue
+        while True:
+            now = datetime.now()
+            if not once:
+                if now >= end:
+                    print(f"[{now:%H:%M:%S}] Past session end ({SESSION_END} IST). Capture completed.")
+                    break
+                if now < start:
+                    wait_s = int((start - now).total_seconds())
+                    print(f"[{now:%H:%M:%S}] Waiting for market session ({SESSION_START}-{SESSION_END} IST) — sleeping {min(30, wait_s)}s...", flush=True)
+                    time.sleep(min(30, wait_s))
+                    continue
+
             t0 = time.time()
             all_chains = {}
             spot = None
@@ -180,6 +189,7 @@ def capture_session(token: str, client_id: str, d: _date, expiry: str | list[str
                 }
                 if len(exp_list) > 1:
                     rec["chains"] = {exp: c["oc"] for exp, c in all_chains.items()}
+                print(f"[{rec['ts']}] Captured {len(exp_list)} expiries, {rec['n']} strikes, spot {rec['spot']} ({rec['lat']} ms)", flush=True)
             else:
                 # Outage row: recorded when primary expiry fails (PREREG §2)
                 rec = {
@@ -187,12 +197,15 @@ def capture_session(token: str, client_id: str, d: _date, expiry: str | list[str
                     "lat": round((time.time() - t0) * 1000),
                     "err": "; ".join(errs) if errs else "No chain data returned"
                 }
+                print(f"[{rec['ts']}] Capture error: {rec.get('err')}", flush=True)
 
             if rec["ts"][0:19] not in last_stamps:  # idempotent appends
                 f.write(json.dumps(rec) + "\n")
                 last_stamps.append(rec["ts"][0:19])
                 last_stamps = last_stamps[-2:]
             f.flush()
+            if once:
+                break
             time.sleep(max(0.0, SNAPSHOT_SECS - (time.time() - t0)))
     return path
 
@@ -250,7 +263,7 @@ def register_session(path: Path) -> dict | None:
         print(f"no successful snapshots in {path.name} — no ledger row written")
         return None
     row = {"date": path.name.split(".")[0], "n_snapshots": len(stamps),
-           "max_gap_secs": None if not stamps else round(_session_gaps(stamps), 1),
+           "max_gap_secs": None if len(stamps) < 2 else round(_session_gaps(stamps), 1),
            "coverage_pct": capture_coverage_pct(stamps),
            "spot_last": spot, "strikes_max": nstrikes,
            "evaluable": bool(stamps) and _session_gaps(stamps) <= SNAPSHOT_SECS * 1.5
@@ -266,13 +279,15 @@ def main() -> int:
     ap = argparse.ArgumentParser(description="e009 live chain capture (PREREG-frozen)")
     ap.add_argument("--expiry", default=None, help="override chain expiry (default: nearest 2 expiries)")
     ap.add_argument("--force", action="store_true",
-                    help="capture even on a weekend/holiday (for smoke runs)")
+                    help="capture even on a weekend/holiday")
+    ap.add_argument("--once", action="store_true",
+                    help="capture exactly 1 snapshot immediately (for smoke testing) and exit")
     ap.add_argument("--sync-cmd", default=None,
                     help="shell command to run post-capture (supports {file} and {date})")
     args = ap.parse_args()
-    if _date.today().weekday() >= 5 and not args.force:
+    if _date.today().weekday() >= 5 and not (args.force or args.once):
         print(f"{_date.today().isoformat()} is not a weekday — market closed, nothing to "
-              f"capture. Pass --force to run anyway.")
+              f"capture. Pass --force or --once to run anyway.")
         return 3
     if not config.DHAN_ACCESS_TOKEN or not config.DHAN_CLIENT_ID:
         print("DHAN_ACCESS_TOKEN / DHAN_CLIENT_ID missing in env — cannot capture")
@@ -291,7 +306,7 @@ def main() -> int:
         # Capture up to 2 nearest expiries (front-week and next-week)
         expiries = exps[:2]
     path = capture_session(config.DHAN_ACCESS_TOKEN, config.DHAN_CLIENT_ID,
-                           _date.today(), expiries)
+                           _date.today(), expiries, once=args.once)
     row = register_session(path)
     if row is None:
         return 4
