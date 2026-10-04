@@ -95,7 +95,7 @@ date
 ### 4.2 Update Packages & Install Tools
 ```bash
 sudo apt update && sudo apt upgrade -y
-sudo apt install -y python3-pip python3-venv git curl htop nano
+sudo apt install -y python3-pip python3-venv git curl htop nano cron
 ```
 
 ---
@@ -152,7 +152,12 @@ If you see this, your credentials, network access, and parser are working proper
 
 The repo includes a watchdog supervisor ([`watchdog.py`](experiments/e009_wall_capture/watchdog.py)) that automatically launches `capture_chains.py`, recovers from network blips, and exits cleanly at 15:35 IST.
 
-1. Open crontab:
+1. Ensure `cron` is installed and running:
+   ```bash
+   sudo apt install -y cron && sudo systemctl enable --now cron
+   ```
+
+2. Open crontab:
    ```bash
    crontab -e
    ```
