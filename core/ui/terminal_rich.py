@@ -185,7 +185,9 @@ def render_terminal_dashboard(
         p3_text.append("Diagnostics & Triggers Under Watch:\n", style="bold white")
         p3_text.append(f"• Current ORB Bounds: High {signals.orb.orh:.1f} | Low {signals.orb.orl:.1f} (Awaiting confirmed breakout)\n", style="white")
         p3_text.append(f"• KER Directional Hurdle: {signals.ker.ker:.3f} (Required > 0.55 for trend spreads, < 0.35 for chop condor)\n", style="white")
-        p3_text.append(f"• Economic Edge Hurdle: Minimum Expected Net EV must exceed 2.0x friction (₹380.00)\n\n", style="white")
+        p3_text.append(f"• Economic Edge Hurdle: Minimum Expected Net EV must exceed 2.0x friction (₹380.00)\n", style="white")
+        p3_text.append("• Active Capital Vehicle: 100% Cash / Overnight Collateral Yield (~₹10,600/yr / ₹885/mo gross)\n", style="bold green")
+        p3_text.append("• Empirical Audit Status: All option strategies vetted in e001-e032 stand down under economic hurdle\n\n", style="dim")
 
         sched = config.get_schedule_for_date(run_dt)
         if sched:

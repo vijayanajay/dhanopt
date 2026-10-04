@@ -40,6 +40,7 @@ from __future__ import annotations
 import argparse
 import gzip
 import json
+import os
 import time
 from datetime import date as _date
 from datetime import datetime, timedelta
@@ -83,10 +84,9 @@ def _fetch_chain(token: str, client_id: str, expiry: str) -> dict:
 
 
 def _strike_map(chain: dict) -> dict:
-    """{strike: {ce: {oi, bid, ask}, pe: {...}}} from data.oc, float strikes.
+    """{strike: {ce: {oi, bid, bid_qty, ask, ask_qty, ltp, vol, iv}, pe: {...}}} from data.oc, float strikes.
     Uniform shape: a missing side is recorded as all-None (never fabricated,
-    never absent) — Phase B decides fillability from quotes, and a uniform
-    shape keeps that walk trivial."""
+    never absent) — preserving maximum market depth, quote quantities, and volume."""
     out: dict = {}
     for k, v in (chain.get("oc") or {}).items():
         try:
@@ -96,8 +96,16 @@ def _strike_map(chain: dict) -> dict:
         row = {}
         for side in ("ce", "pe"):
             d = v.get(side) or {}
-            row[side] = {"oi": d.get("oi"), "bid": d.get("top_bid_price"),
-                         "ask": d.get("top_ask_price")}
+            row[side] = {
+                "oi": d.get("oi"),
+                "bid": d.get("top_bid_price"),
+                "bid_qty": d.get("top_bid_quantity"),
+                "ask": d.get("top_ask_price"),
+                "ask_qty": d.get("top_ask_quantity"),
+                "ltp": d.get("last_price"),
+                "vol": d.get("volume"),
+                "iv": d.get("implied_volatility"),
+            }
         out[strike] = row
     return out
 
@@ -127,8 +135,9 @@ def _existing_stamps(path: Path) -> list[str]:
     return stamps
 
 
-def capture_session(token: str, client_id: str, d: _date, expiry: str) -> Path:
+def capture_session(token: str, client_id: str, d: _date, expiry: str | list[str]) -> Path:
     """One trading day: snapshot loop 09:00-15:35, append to per-day jsonl.gz.
+    Supports single or multiple expiries (e.g. front and next expiry).
     Idempotent: a rerun appends only seconds not already on disk."""
     SNAPSHOTS.mkdir(parents=True, exist_ok=True)
     path = SNAPSHOTS / f"{d.isoformat()}.jsonl.gz"
@@ -136,21 +145,49 @@ def capture_session(token: str, client_id: str, d: _date, expiry: str) -> Path:
     start = day + timedelta(hours=int(SESSION_START[:2]), minutes=int(SESSION_START[3:]))
     end = day + timedelta(hours=int(SESSION_END[:2]), minutes=int(SESSION_END[3:]))
     last_stamps = _existing_stamps(path)[-2:]
+    exp_list = [expiry] if isinstance(expiry, str) else list(expiry)
+    primary_exp = exp_list[0]
+
     with gzip.open(path, "at", encoding="utf-8") as f:
         while (now := datetime.now()) < end:
             if now < start:
                 time.sleep(min(30, (start - now).total_seconds()))
                 continue
             t0 = time.time()
-            try:
-                chain = _fetch_chain(token, client_id, expiry)
-                oc = _strike_map(chain)
-                rec = {"ts": now.replace(microsecond=0).isoformat(),
-                       "lat": round((time.time() - t0) * 1000), "n": len(oc),
-                       "exp": expiry, "spot": chain.get("last_price"), "oc": oc}
-            except Exception as e:  # outage row: a gap is a data outage, not a signal (PREREG §2)
-                rec = {"ts": now.replace(microsecond=0).isoformat(),
-                       "lat": round((time.time() - t0) * 1000), "err": repr(e)[:200]}
+            all_chains = {}
+            spot = None
+            errs = []
+            for exp in exp_list:
+                try:
+                    chain = _fetch_chain(token, client_id, exp)
+                    oc = _strike_map(chain)
+                    if spot is None and chain.get("last_price") is not None:
+                        spot = chain.get("last_price")
+                    all_chains[exp] = {"n": len(oc), "spot": chain.get("last_price"), "oc": oc}
+                except Exception as e:
+                    errs.append(f"{exp}: {repr(e)[:150]}")
+
+            primary_data = all_chains.get(primary_exp)
+            if primary_data:
+                rec = {
+                    "ts": now.replace(microsecond=0).isoformat(),
+                    "lat": round((time.time() - t0) * 1000),
+                    "n": primary_data["n"],
+                    "exp": primary_exp,
+                    "exp_list": exp_list,
+                    "spot": spot if spot is not None else primary_data["spot"],
+                    "oc": primary_data["oc"],  # Uniform front-expiry chain for backwards compatibility
+                }
+                if len(exp_list) > 1:
+                    rec["chains"] = {exp: c["oc"] for exp, c in all_chains.items()}
+            else:
+                # Outage row: recorded when primary expiry fails (PREREG §2)
+                rec = {
+                    "ts": now.replace(microsecond=0).isoformat(),
+                    "lat": round((time.time() - t0) * 1000),
+                    "err": "; ".join(errs) if errs else "No chain data returned"
+                }
+
             if rec["ts"][0:19] not in last_stamps:  # idempotent appends
                 f.write(json.dumps(rec) + "\n")
                 last_stamps.append(rec["ts"][0:19])
@@ -227,9 +264,11 @@ def main() -> int:
     import config
 
     ap = argparse.ArgumentParser(description="e009 live chain capture (PREREG-frozen)")
-    ap.add_argument("--expiry", default=None, help="override chain expiry (default: nearest)")
+    ap.add_argument("--expiry", default=None, help="override chain expiry (default: nearest 2 expiries)")
     ap.add_argument("--force", action="store_true",
                     help="capture even on a weekend/holiday (for smoke runs)")
+    ap.add_argument("--sync-cmd", default=None,
+                    help="shell command to run post-capture (supports {file} and {date})")
     args = ap.parse_args()
     if _date.today().weekday() >= 5 and not args.force:
         print(f"{_date.today().isoformat()} is not a weekday — market closed, nothing to "
@@ -238,8 +277,8 @@ def main() -> int:
     if not config.DHAN_ACCESS_TOKEN or not config.DHAN_CLIENT_ID:
         print("DHAN_ACCESS_TOKEN / DHAN_CLIENT_ID missing in env — cannot capture")
         return 2
-    expiry = args.expiry
-    if not expiry:
+    expiries = [args.expiry] if args.expiry else None
+    if not expiries:
         r = requests.post("https://api.dhan.co/v2/optionchain/expirylist",
                           headers=_headers(config.DHAN_ACCESS_TOKEN, config.DHAN_CLIENT_ID),
                           data=json.dumps({"UnderlyingScrip": UNDERLYING_SCRIP,
@@ -249,13 +288,23 @@ def main() -> int:
         if not exps:
             print("expirylist returned nothing")
             return 2
-        expiry = exps[0]
+        # Capture up to 2 nearest expiries (front-week and next-week)
+        expiries = exps[:2]
     path = capture_session(config.DHAN_ACCESS_TOKEN, config.DHAN_CLIENT_ID,
-                           _date.today(), expiry)
+                           _date.today(), expiries)
     row = register_session(path)
     if row is None:
         return 4
     print(json.dumps(row, indent=1))
+
+    # Optional post-session sync (e.g. rclone / S3 / cloud copy)
+    sync_cmd = os.environ.get("SYNC_COMMAND") or args.sync_cmd
+    if sync_cmd:
+        import subprocess
+        cmd = sync_cmd.replace("{file}", str(path)).replace("{date}", _date.today().isoformat())
+        print(f"[sync] running: {cmd}")
+        subprocess.run(cmd, shell=True, check=False)
+
     return 0
 
 

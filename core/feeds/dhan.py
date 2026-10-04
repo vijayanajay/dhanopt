@@ -151,8 +151,8 @@ def generate_mock_option_chain(
     """Generate realistic OptionChainSnapshot around spot price."""
     ts = snap_time or datetime.now()
     if not expiry:
-        # Default to nearest upcoming Thursday
-        days_ahead = (3 - ts.weekday()) % 7
+        # Default to nearest upcoming Tuesday (Weekly expiry moved Thursday -> Tuesday effective 2025-09-01 NSE FAOP68747)
+        days_ahead = (1 - ts.weekday()) % 7
         target_expiry = ts.date() + timedelta(days=days_ahead)
         exp_str = target_expiry.strftime("%Y-%m-%d")
     else:

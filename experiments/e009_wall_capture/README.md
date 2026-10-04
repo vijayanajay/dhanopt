@@ -70,7 +70,9 @@ leave `schtasks` defaults (it kills nothing mid-day; the process exits itself).
 Per PREREG §4 the clock runs ≥ 6 months before Phase B reads kill 2/3 — kill 1
 and kill 4 become checkable within the first weeks from the ledger.
 
-Self-checks: `test_capture.py` (14 tests — strike-map shape/None-safety, the
+**Cloud 24/7 Deployment:** If local machine power/internet outages are an issue, follow [ORACLE_CLOUD_SETUP.md](../../ORACLE_CLOUD_SETUP.md) to run this collector 24/7 on an Oracle Cloud Always Free Ubuntu VM at ₹0/month.
+
+Self-checks: `test_capture.py` (15 tests — strike-map shape/None-safety, full-depth quotes, dual-expiry, the
 coverage/gap AND-semantics of kill 1, append/outage-row semantics, and the two
 rules crash-restart depends on: resume must not duplicate seconds, and a
 session with no successful snapshots must leave no ledger row; no network).

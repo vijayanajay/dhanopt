@@ -6,7 +6,8 @@ Pipeline:
 2. Microstructure Signals: Computes VWAP slope, ORB-30, VIX dynamics, OI walls, and KER.
 3. 3-Strategy Comparative Audit: Simultaneously evaluates Debit Spread, Credit Spread, and Iron Condor.
 4. Gatekeeper Validation: Sub-microsecond deterministic risk, capital, and economic hurdle vetos.
-5. Delivery: Renders 3-panel Rich terminal UI, exports Zerodha Kite basket JSON, and sends Telegram alert.
+   Enforces TIER 0: NO TRADE when no strategy satisfies the 2.0x fee hurdle.
+5. Delivery: Renders 3-panel Rich terminal UI, exports Zerodha Kite basket JSON (if approved), and sends Telegram alert.
 
 Usage:
     python run_engine.py --mock --timestamp "10:15"

@@ -1,4 +1,4 @@
-"""On-Demand Trade Recommendation Engine: "Should I Trade Right Now, and If So, What?"
+"""On-Demand Trade Recommendation & Capital Preservation Engine: "Should I Trade Right Now, and If So, What?"
 
 Usage:
     python trade.py
@@ -6,10 +6,10 @@ Usage:
     python trade.py --live
 
 Answers:
-1. Should I trade as of right now? (YES / NO / STAND BY).
+1. Should I trade as of right now? (Audited against deterministic risk & empirical economic hurdles).
 2. Multi-day market dynamics (last 5 sessions price action, support/resistance walls, PCR).
-3. The next optimal time to buy an option, which strategy, sizing, strikes, SL, target,
-   expected value (Net EV from 5-year walk-forward test), and 1-click Zerodha basket.
+3. Forward setup blueprint & tradability determination (audited against 32 leak-free experiments e001–e032;
+   highlights active capital preservation vehicle: Overnight Collateral Yield).
 """
 
 from __future__ import annotations
@@ -100,7 +100,7 @@ def analyze_recent_market_dynamics(
             n = df[df["symbol"] == "NIFTY"]
             if n.empty:
                 continue
-            fut = n[n["instrument"].isin(["FUTIDX", "IDF"])]
+            fut = n[n["instrument"].isin(["FUTIDX", "IDF"])].sort_values("expiry")
             if fut.empty:
                 continue
             fut_row = fut.iloc[0]
@@ -246,16 +246,17 @@ def build_forward_trade_proposal(
     seconds_until: float,
     dynamics: Dict[str, Any],
     lots: int = 1,
+    spot: Optional[float] = None,
 ) -> Dict[str, Any]:
     qty = lots * config.NIFTY_LOT_SIZE
-    spot = dynamics["latest_spot"]
+    spot = spot if (spot is not None and spot > 0) else dynamics["latest_spot"]
     atm_strike = round(spot / 50.0) * 50.0
     bias = dynamics["bias"]
 
     if bias in ("BULLISH", "BULLISH_MEAN_REVERSION"):
         strat_name = "NIFTY BULL CALL DEBIT SPREAD"
         strat_code = "BULL_CALL_SPREAD"
-        rationale = f"Recent pullback defended Put Wall ({int(dynamics['latest_pw']):,}) with PCR rebounding to {dynamics['latest_pcr']:.2f}. Favors upward mean-reversion drift during {sched.day_name} morning gap digestion."
+        rationale = f"Recent pullback defended Put Wall ({int(dynamics['latest_pw']):,}) with PCR rebounding to {dynamics['latest_pcr']:.2f}. Directional momentum would favor Bull Call Spread if verified edge existed."
 
         long_strike = atm_strike
         short_strike = atm_strike + 150
@@ -265,21 +266,27 @@ def build_forward_trade_proposal(
         long_entry = 85.0
         short_entry = 34.0
         net_prem = long_entry - short_entry  # 51.0
-        outlay = net_prem * qty              # 3,825.0
-        max_sl = 1350.0                      # Strict 18 pts
-        target_pnl = 5100.0                  # 68 pts
-        payoff = round(target_pnl / max_sl, 2)
+        outlay = net_prem * qty
+        max_sl = round(0.35 * outlay, 2)
+        target_pnl = round(0.70 * (150.0 - net_prem) * qty, 2)
+        payoff = round(target_pnl / max_sl, 2) if max_sl > 0 else 0.0
 
         legs = [
             {"action": "BUY", "symbol": long_sym, "strike": long_strike, "type": "CE", "entry": long_entry, "sl": 65.0, "target": 155.0},
             {"action": "SELL", "symbol": short_sym, "strike": short_strike, "type": "CE", "entry": short_entry, "sl": 52.0, "target": 10.0},
         ]
         is_credit = False
+        strat_empirical_edge = {
+            "win_rate": 0.342,
+            "net_ev": -432.25,
+            "profit_factor": 0.54,
+            "verdict": "FAILED OOS AUDIT (e001/e004: directional spreads bleed −₹313.8k over 5.7y)",
+        }
 
     elif bias == "BEARISH":
         strat_name = "NIFTY BEAR PUT DEBIT SPREAD"
         strat_code = "BEAR_PUT_SPREAD"
-        rationale = f"Persistent selling pressure with Call Wall ({int(dynamics['latest_cw']):,}) pressing lower. Favors downward continuation on breakdown."
+        rationale = f"Persistent selling pressure with Call Wall ({int(dynamics['latest_cw']):,}) pressing lower. Directional momentum would favor Bear Put Spread if verified edge existed."
 
         long_strike = atm_strike
         short_strike = atm_strike - 150
@@ -290,28 +297,34 @@ def build_forward_trade_proposal(
         short_entry = 34.0
         net_prem = long_entry - short_entry
         outlay = net_prem * qty
-        max_sl = 1350.0
-        target_pnl = 5100.0
-        payoff = round(target_pnl / max_sl, 2)
+        max_sl = round(0.35 * outlay, 2)
+        target_pnl = round(0.70 * (150.0 - net_prem) * qty, 2)
+        payoff = round(target_pnl / max_sl, 2) if max_sl > 0 else 0.0
 
         legs = [
             {"action": "BUY", "symbol": long_sym, "strike": long_strike, "type": "PE", "entry": long_entry, "sl": 65.0, "target": 155.0},
             {"action": "SELL", "symbol": short_sym, "strike": short_strike, "type": "PE", "entry": short_entry, "sl": 52.0, "target": 10.0},
         ]
         is_credit = False
+        strat_empirical_edge = {
+            "win_rate": 0.476,
+            "net_ev": -68.45,
+            "profit_factor": 0.86,
+            "verdict": "FAILED OOS AUDIT (e001/e004: directional puts bleed −₹146.5k over 5.7y)",
+        }
 
     else:
-        strat_name = "NIFTY IRON CONDOR"
+        strat_name = "NIFTY NEUTRAL IRON CONDOR"
         strat_code = "IRON_CONDOR"
         pw = dynamics["latest_pw"]
         cw = dynamics["latest_cw"]
-        rationale = f"Rangebound oscillation between Put Support ({int(pw):,}) and Call Resistance ({int(cw):,}). Harvests theta decay while price stays bounded."
+        rationale = f"Rangebound oscillation between Put Support ({int(pw):,}) and Call Resistance ({int(cw):,}). Neutral range would favor theta harvesting if edge survived friction."
 
         net_prem = 38.0
         outlay = net_prem * qty
         max_sl = 1500.0
-        target_pnl = 2250.0
-        payoff = round(target_pnl / max_sl, 2)
+        target_pnl = round(0.50 * net_prem * qty, 2)
+        payoff = round(target_pnl / max_sl, 2) if max_sl > 0 else 0.0
 
         legs = [
             {"action": "BUY", "symbol": f"NIFTY{int(pw - 150)}PE", "strike": pw - 150, "type": "PE", "entry": 12.0, "sl": 2.0, "target": 40.0},
@@ -320,22 +333,24 @@ def build_forward_trade_proposal(
             {"action": "SELL", "symbol": f"NIFTY{int(cw)}CE", "strike": cw, "type": "CE", "entry": 28.0, "sl": 60.0, "target": 5.0},
         ]
         is_credit = True
+        strat_empirical_edge = {
+            "win_rate": 0.542,
+            "net_ev": -142.50,
+            "profit_factor": 1.11,
+            "verdict": "FAILED OOS AUDIT (e001/e005/e007: valid structures breakeven gross, net negative after friction)",
+        }
 
-    basket_legs = []
-    for l in legs:
-        basket_legs.append({
-            "variety": "regular",
-            "tradingsymbol": l["symbol"],
-            "exchange": "NFO",
-            "transaction_type": l["action"],
-            "order_type": "LIMIT",
-            "quantity": qty,
-            "price": l["entry"],
-            "product": "MIS",
-            "validity": "DAY",
-            "tag": "DHANOPT",
-        })
-    basket_url = "https://kite.zerodha.com/connect/basket?data=" + urllib.parse.quote(json.dumps(basket_legs))
+    # Empirical Tradability Gate (RuleGatekeeper Economic Hurdle):
+    # Any option strategy must demonstrate Expected Profit >= 2.0x Friction.
+    # Across e001-e032, all candidate option setups exhibit Net EV <= 0 after realistic friction and slippage.
+    # Therefore, capital deployment into options is deterministically INHIBITED.
+    is_tradable = False
+    tradability_reason = "FAILS ECONOMIC HURDLE (Expected profit fails 2.0x fee hurdle; negative post-friction expectancy across 5.7y backtests)"
+    active_vehicle = "Overnight Sovereign Repo / Liquid ETF Collateral"
+    active_bankroll = config.TOTAL_CAPITAL
+    collateral_yield_annual = 10600.0   # ~₹10.6k/yr gross at Oct-2026 rates
+    collateral_yield_monthly = 885.0    # ~₹885/month risk-free
+    basket_url = None                   # Order execution inhibited for negative-EV setups
 
     emp_edge = get_window_empirical_edge(sched.day_name, w_start.strftime("%H:%M"))
 
@@ -360,6 +375,13 @@ def build_forward_trade_proposal(
         "payoff": payoff,
         "square_off": sched.square_off_time.strftime("%I:%M %p"),
         "empirical_edge": emp_edge,
+        "strat_empirical_edge": strat_empirical_edge,
+        "is_tradable": is_tradable,
+        "tradability_reason": tradability_reason,
+        "active_vehicle": active_vehicle,
+        "active_bankroll": active_bankroll,
+        "collateral_yield_annual": collateral_yield_annual,
+        "collateral_yield_monthly": collateral_yield_monthly,
         "basket_url": basket_url,
     }
 
@@ -432,7 +454,7 @@ def get_recommendation(
             raise RuntimeError("No market data available: DhanHQ API unreachable and no historical partitions found.")
         raw_df = pd.read_parquet(hist_files[-1])
         nifty = raw_df[raw_df["symbol"] == "NIFTY"]
-        fut = nifty[nifty["instrument"].isin(["FUTIDX", "IDF"])].iloc[0]
+        fut = nifty[nifty["instrument"].isin(["FUTIDX", "IDF"])].sort_values("expiry").iloc[0]
         spot_price = float(fut["close"])
         vix = 12.16
         prev_vix = vix
@@ -501,8 +523,10 @@ def get_recommendation(
         action_panel.append(f"Reason: NSE Market is currently CLOSED ({time_str} IST {day_name}). Zero capital deployed outside trading hours.\n\n", style="white")
         action_panel.append("MANDATORY RISK GOVERNANCE:\n", style="bold white")
         action_panel.append("• NSE F&O Trading Hours: Mon–Fri 09:15 AM – 03:30 PM IST\n", style="dim")
-        action_panel.append("• Selective Execution Rule: Never enter trades outside verified weekday optimal windows.\n\n", style="dim")
+        action_panel.append("• Selective Execution Rule: Never enter trades outside verified weekday optimal windows.\n", style="dim")
+        action_panel.append("• Empirical Strategy Status: Zero option strategies survived leak-free OOS certification (e001-e032).\n", style="dim")
         action_panel.append(f"• Bankroll Status: ₹{config.TOTAL_CAPITAL:,.2f} intact (100% cash / zero overnight risk).\n", style="bold green")
+        action_panel.append(f"• Active Capital Vehicle: Overnight Collateral Yield (~₹10,600/yr / ₹885/mo gross at Oct-2026 rates).\n", style="bold green")
         console.print(Panel(action_panel, title="[bold yellow]PANEL 1: CURRENT LIVE EXECUTION DIRECTIVE[/bold yellow]", border_style="yellow", box=box.ROUNDED))
 
     elif report.is_trade_approved and report.selected_proposal:
@@ -548,7 +572,16 @@ def get_recommendation(
         if not is_optimal:
             action_panel.append(f"Reason: Current clock ({time_str} IST) is OUTSIDE the verified weekday optimal trading window.\n", style="bold yellow")
             action_panel.append(f"Window Status: {window_name}.\n", style="dim")
-            action_panel.append("Context: 30-min Opening Range (09:15–09:45 AM) is forming. Institutional rules strictly forbid entering trades during morning opening chop.\n\n", style="white")
+            t_eval = eval_dt.time()
+            if t_eval < time(9, 45):
+                context_msg = "30-min Opening Range (09:15–09:45 AM) is forming. Institutional rules strictly forbid entering trades during morning opening chop."
+            elif time(11, 15) <= t_eval <= time(12, 45):
+                context_msg = "Midday Lull (11:15–12:45) is active. Low liquidity and erratic noise chop forbid entry."
+            elif t_eval >= time(14, 45):
+                context_msg = "Expiry gamma cutoff (14:45–15:30) is active. Tail risk forbids late-session entries."
+            else:
+                context_msg = "Outside verified weekday optimal execution windows. Capital preservation is active."
+            action_panel.append(f"Context: {context_msg}\n\n", style="white")
         else:
             action_panel.append(f"Reason: {report.verdict}\n\n", style="white")
 
@@ -561,7 +594,9 @@ def get_recommendation(
         action_panel.append(f"• ORB Bounds: High {signals.orb.orh:.1f} | Low {signals.orb.orl:.1f} (Awaiting confirmed breakout)\n", style="white")
         action_panel.append(f"• KER Directional Hurdle: {signals.ker.ker:.3f} (Required > 0.55 for trend spreads)\n\n", style="white")
 
-        action_panel.append("Bankroll: ₹2,00,000.00 intact (₹0 deployed). Zero unnecessary risk.\n", style="bold green")
+        action_panel.append(f"Bankroll: ₹{config.TOTAL_CAPITAL:,.2f} intact (₹0 deployed to options). Zero unnecessary risk.\n", style="bold green")
+        action_panel.append(f"• Active Capital Vehicle: Overnight Collateral Yield (~₹10,600/yr / ₹885/mo gross; ₹0 options risk).\n", style="bold green")
+        action_panel.append("• Empirical Strategy Status: All option strategies vetted in e001-e032 stand down under economic hurdle.\n", style="dim")
 
         console.print(Panel(action_panel, title="[bold yellow]PANEL 1: CURRENT EXECUTION DIRECTIVE[/bold yellow]", border_style="yellow", box=box.ROUNDED))
 
@@ -608,6 +643,7 @@ def get_recommendation(
         dyn_summary.append(f"• Key Support / Resistance: Put Wall @ {int(dynamics['latest_pw']):,} | Call Wall @ {int(dynamics['latest_cw']):,} (PCR: {dynamics['latest_pcr']:.2f})\n", style="white")
         dyn_summary.append(f"• Market Behavior & Structural Bias: {dynamics['summary']}\n", style="bold yellow")
         dyn_summary.append(f"• Quant Regime Classification: {dynamics['regime']} ({dynamics['bias']})\n", style="bold cyan")
+        dyn_summary.append("• Empirical Context: Historical EOD OI walls reflect past dealer positioning; Gate 0 (e007) proved walls shift intraday and offer zero standalone forward edge.\n", style="dim")
         console.print(Panel(dyn_summary, box=box.SIMPLE_HEAVY, border_style="cyan"))
 
     # =========================================================================
@@ -622,45 +658,41 @@ def get_recommendation(
         seconds_until=sec_until,
         dynamics=dynamics,
         lots=lots,
+        spot=spot_price,
     )
 
     countdown_str = format_time_remaining(sec_until)
     f_panel = Text()
     f_panel.append(">>> NEXT OPTIMAL BUYING OPPORTUNITY & FORWARD EXECUTION BLUEPRINT\n", style="bold green on black")
-    if sec_until > 0:
-        f_panel.append(f"[PRE-WINDOW BLUEPRINT: {countdown_str} — DO NOT EXECUTE NOW. Setup is conditional upon 10:00 AM gate confirmation]\n\n", style="bold yellow")
-    else:
-        f_panel.append("\n", style="white")
+    f_panel.append(f"[PRE-WINDOW BLUEPRINT: {countdown_str} — CAPITAL PRESERVATION DIRECTIVE ACTIVE]\n\n", style="bold yellow")
 
     f_panel.append("TIMING & OPTIMAL WINDOW:\n", style="bold white")
     f_panel.append(f"• Optimal Entry Window: {forward_plan['day_name']}, {forward_plan['window_start'].strftime('%Y-%m-%d')} | {forward_plan['window_start'].strftime('%I:%M %p')} – {forward_plan['window_end'].strftime('%I:%M %p')} IST ({forward_plan['window_name']})\n", style="bold cyan")
     f_panel.append(f"• Countdown Status:     {countdown_str}\n", style="bold yellow")
     f_panel.append(f"• Seasonality Regime:   {forward_plan['empirical_edge']['regime']}\n\n", style="white")
 
-    f_panel.append("RECOMMENDED FORWARD STRATEGY (CONDITIONAL ON WINDOW OPEN):\n", style="bold white")
-    f_panel.append(f"• Strategy: {forward_plan['strategy_name']} (Conditional)\n", style="bold green")
-    f_panel.append(f"• Sizing:   {forward_plan['lots']} Lot ({forward_plan['qty']} Quantity) | Underlying Spot: ~{forward_plan['spot']:,.2f}\n", style="white")
-    f_panel.append(f"• Rationale: {forward_plan['rationale']}\n", style="dim")
-    f_panel.append(f"• Execution Condition: Re-run trade.py at {forward_plan['window_start'].strftime('%I:%M %p')} IST. Order triggers ONLY if live KER > 0.55 and ORB breakout confirm.\n\n", style="cyan")
-
-    f_panel.append("ORDER EXECUTION SEQUENCE (Buy 1st for Zerodha Margin Relief):\n", style="bold yellow")
+    f_panel.append("CANDIDATE SETUP EVALUATION (AUDITED AGAINST 32 EXPERIMENTS):\n", style="bold white")
+    f_panel.append(f"• Candidate Strategy:   {forward_plan['strategy_name']} (Inhibited)\n", style="bold red")
+    f_panel.append(f"• Sizing Under Audit:   {forward_plan['lots']} Lot ({forward_plan['qty']} Quantity) | Underlying Spot: ~{forward_plan['spot']:,.2f}\n", style="white")
+    f_panel.append(f"• Setup Rationale:      {forward_plan['rationale']}\n", style="dim")
+    f_panel.append("• Monitored Strikes:    ", style="white")
     for idx, l in enumerate(forward_plan["legs"], 1):
-        action_str = f"[{l['action']}]"
         action_col = "bold green" if l["action"] == "BUY" else "bold red"
-        f_panel.append(f"{idx}. ", style="dim")
-        f_panel.append(f"{action_str:6s} ", style=action_col)
-        f_panel.append(f"{l['symbol']:<18s} | Est. Entry: ₹{l['entry']:.2f} | Upfront Leg SL: ₹{l['sl']:.2f} | Target: ₹{l['target']:.2f}\n", style="white")
+        f_panel.append(f"[{l['action']} {l['symbol']}] ", style=action_col)
+    f_panel.append("\n\n")
 
-    f_panel.append("\nRISK, RETURN & EXPECTED VALUE:\n", style="bold white")
-    prem_title = "Estimated Net Credit" if forward_plan["is_credit"] else "Estimated Net Debit"
-    f_panel.append(f"• {prem_title}: ₹{forward_plan['net_prem']:.2f}/sh (Total Capital Outlay: ₹{forward_plan['outlay']:,.2f})\n", style="white")
-    f_panel.append(f"• Portfolio Stop-Loss: -₹{forward_plan['max_sl']:,.2f} MTM (Strict risk ceiling; {forward_plan['max_sl'] / config.TOTAL_CAPITAL * 100:.2f}% of ₹2L bankroll)\n", style="bold red")
-    f_panel.append(f"• Net Profit Target:   +₹{forward_plan['target_pnl']:,.2f} MTM (Payoff Ratio: {forward_plan['payoff']:.2f})\n", style="bold green")
-    f_panel.append(f"• 5-Yr Walk-Forward EV: +₹{forward_plan['empirical_edge']['net_ev']:,.2f} / trade (Empirical Win Rate: {forward_plan['empirical_edge']['win_rate'] * 100:.1f}%, PF: {forward_plan['empirical_edge']['profit_factor']:.2f})\n", style="bold cyan")
-    f_panel.append(f"• Mandatory Square-off: {forward_plan['square_off']} IST (Zero overnight gap risk)\n\n", style="bold yellow")
+    emp = forward_plan["strat_empirical_edge"]
+    f_panel.append("EMPIRICAL AUDIT & TRADABILITY DETERMINATION:\n", style="bold white")
+    f_panel.append(f"• 5.7-Yr Walk-Forward EV: {emp['net_ev']:+,.2f} / trade (Win Rate: {emp['win_rate'] * 100:.1f}%, PF: {emp['profit_factor']:.2f})\n", style="bold red")
+    f_panel.append("• Economic Hurdle Test:   FAILED (Expected profit fails 2.0x fee hurdle; negative post-friction expectancy)\n", style="bold red")
+    f_panel.append("• Tradability Verdict:    NOT TRADABLE FOR OPTION CAPITAL (Zero deployable option strategies survive e001-e032)\n", style="bold yellow")
+    f_panel.append("• Order Execution:        INHIBITED (Kite basket generation disabled to prevent capital destruction)\n\n", style="bold yellow")
 
-    f_panel.append("ONE-CLICK ZERODHA BASKET DEEP LINK FOR UPCOMING SETUP:\n", style="bold cyan")
-    f_panel.append(f"{forward_plan['basket_url']}\n", style="underline blue")
+    f_panel.append("ACTIVE TRADABLE VEHICLE & CAPITAL PRESERVATION BLUEPRINT:\n", style="bold green")
+    f_panel.append(f"• Active Capital Vehicle: {forward_plan['active_vehicle']}\n", style="bold white")
+    f_panel.append(f"• Bankroll Allocation:    ₹{forward_plan['active_bankroll']:,.2f} (100% Cash intact / Zero Overnight Risk)\n", style="white")
+    f_panel.append(f"• Expected Safe Yield:    ~₹{forward_plan['collateral_yield_monthly']:,.2f}/mo gross (~₹{forward_plan['collateral_yield_annual']:,.2f}/yr at Oct-2026 rates)\n", style="bold green")
+    f_panel.append("• Options Re-Entry Gate:  Awaiting Phase B per-minute live chain capture (e009) before re-auditing execution\n", style="dim")
 
     console.print(Panel(f_panel, title="[bold green]PANEL 3: NEXT OPTIMAL TRADE SETUP & BLUEPRINT[/bold green]", border_style="green", box=box.ROUNDED))
 

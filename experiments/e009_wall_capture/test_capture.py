@@ -26,7 +26,8 @@ class TestStrikeMap(unittest.TestCase):
     def test_full_chain_shape_and_none_safety(self):
         chain = {"oc": {
             "25650.000000": {"ce": {"oi": 3786445, "top_bid_price": 133.55,
-                                    "top_ask_price": 134.0, "top_ask_quantity": 1365},
+                                    "top_ask_price": 134.0, "top_ask_quantity": 1365,
+                                    "last_price": 133.8, "volume": 120400, "implied_volatility": 14.2},
                              "pe": {"oi": 3096145, "top_bid_price": 132.45,
                                     "top_ask_price": None}},
             "25700.000000": {"ce": {"oi": None, "top_bid_price": 0.0,
@@ -34,14 +35,21 @@ class TestStrikeMap(unittest.TestCase):
         }}
         oc = _strike_map(chain)
         self.assertEqual(set(oc), {25650.0, 25700.0})
-        self.assertEqual(oc[25650.0]["ce"], {"oi": 3786445, "bid": 133.55, "ask": 134.0})
+        self.assertEqual(oc[25650.0]["ce"], {
+            "oi": 3786445, "bid": 133.55, "bid_qty": None, "ask": 134.0,
+            "ask_qty": 1365, "ltp": 133.8, "vol": 120400, "iv": 14.2
+        })
         self.assertIsNone(oc[25650.0]["pe"]["ask"])          # None-safe, recorded as-is
         self.assertEqual(oc[25700.0]["ce"]["bid"], 0.0)      # zero-quote recorded as-is
-        self.assertEqual(oc[25700.0]["pe"], {"oi": None, "bid": None, "ask": None})  # uniform shape: missing side = all-None, never fabricated
+        self.assertEqual(oc[25700.0]["pe"], {
+            "oi": None, "bid": None, "bid_qty": None, "ask": None,
+            "ask_qty": None, "ltp": None, "vol": None, "iv": None
+        })  # uniform shape: missing side = all-None, never fabricated
 
     def test_bad_strikes_skipped(self):
         oc = _strike_map({"oc": {"bad": {}, "25700.000000": {"pe": {"oi": 5}}}})
         self.assertEqual(set(oc), {25700.0})
+        self.assertEqual(oc[25700.0]["pe"]["oi"], 5)
 
 
 class TestCoverage(unittest.TestCase):
@@ -98,6 +106,22 @@ class TestAppendSemantics(unittest.TestCase):
             self.assertEqual(len(rows), 3)
             err_rows = [r for r in rows if "err" in r]
             self.assertEqual(len(err_rows), 1)  # outages recorded, not gaps of silence
+
+    def test_dual_expiry_record_structure(self):
+        rec = {
+            "ts": "2026-10-05T09:15:00", "lat": 120, "n": 2,
+            "exp": "2026-10-08", "exp_list": ["2026-10-08", "2026-10-15"],
+            "spot": 25000.0,
+            "oc": {25000.0: {"ce": {"oi": 100, "bid": 10.0, "ask": 11.0}}},
+            "chains": {
+                "2026-10-08": {25000.0: {"ce": {"oi": 100, "bid": 10.0, "ask": 11.0}}},
+                "2026-10-15": {25000.0: {"ce": {"oi": 50, "bid": 25.0, "ask": 26.0}}},
+            }
+        }
+        self.assertIn("oc", rec)
+        self.assertIn("chains", rec)
+        self.assertEqual(len(rec["chains"]), 2)
+        self.assertEqual(rec["exp_list"][1], "2026-10-15")
 
 
 class TestResumeAndLedgerRules(unittest.TestCase):
