@@ -95,7 +95,7 @@ date
 ### 4.2 Update Packages & Install Tools
 ```bash
 sudo apt update && sudo apt upgrade -y
-sudo apt install -y python3-pip python3-venv git curl htop
+sudo apt install -y python3-pip python3-venv git curl htop nano
 ```
 
 ---
